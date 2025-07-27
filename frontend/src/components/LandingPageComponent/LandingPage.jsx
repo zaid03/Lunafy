@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {Link} from 'react-router-dom';
 import './LandingPage.css';
 import logo from '../../assets/logo.png';
@@ -6,7 +6,6 @@ import spotify from '../../assets/spotify.png';
 import demo from '../../assets/demo.png';
 import white from '../../assets/white-spotify.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
 import { faMusic, faUser, faCompactDisc, faRobot } from '@fortawesome/free-solid-svg-icons';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
@@ -58,6 +57,15 @@ function LandingPage() {
         }
     };
 
+    const featuresRef = useRef(null);
+    const contactRef = useRef(null);
+    const scrollToFeatures = () => {
+        featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+    const scrollToContact = () => {
+        contactRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div className='container'>
             <div className='header'>
@@ -67,8 +75,8 @@ function LandingPage() {
                         <span className='name'>Lunafy</span>
                     </div>
                     <div className='navigation'>
-                        <Link to='/'>Features</Link>
-                        <Link to='/Contact'>Contact us</Link>
+                        <span onClick={scrollToFeatures} style={{cursor: 'pointer'}}>Features</span>
+                        <span onClick={scrollToContact} style={{cursor: 'pointer'}}>Contact us</span>
                     </div>
                     <div className='login'>
                         <Link to='/Login' className='login-btn'><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login with spotify</Link>
@@ -91,7 +99,7 @@ function LandingPage() {
             </div>
 
 
-            <div className='discover'>
+            <div className='discover' ref={featuresRef}>
                 <h3>Uncover Who You Are — One Song At A Time</h3>
 
                 <div className='cards-container'>
@@ -118,7 +126,7 @@ function LandingPage() {
                 </div>
             </div>
             
-            <div className='contact'>
+            <div className='contact' ref={contactRef}>
                 <form onSubmit={handleSubmit}>
                     <input 
                         type='text'
@@ -146,8 +154,8 @@ function LandingPage() {
 
             <div className='footer'>
                 <div className='nav'>
-                    <Link to='/'>Features</Link>
-                    <Link to='/Contact'>Contact us</Link>
+                    <span onClick={scrollToFeatures} style={{cursor: 'pointer'}}>Features</span>
+                    <span onClick={scrollToContact} style={{cursor: 'pointer'}}>Contact us</span>
                 </div>
 
                 <Link to='/Login' className='login-btn'><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login with spotify</Link>

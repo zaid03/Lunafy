@@ -48,7 +48,7 @@
     align-items: center;
 }
 
-.navigation a{
+.navigation span{
     margin-right: 15px;
     text-decoration: 0;
     color: #ffffff;
@@ -292,7 +292,7 @@
     gap: 30px;
 }
 
-.footer .nav a {
+.footer .nav span {
     text-decoration: none;
     color: #ffffff;
     font-family: 'Poppins', sans-serif;
@@ -301,7 +301,7 @@
     transition: color 0.3s ease;
 }
 
-.footer .nav a:hover {
+.footer .nav span:hover {
     color: #1DB954;
 }
 
@@ -403,11 +403,11 @@
         height: 700px;
         padding-bottom: 20px;
     }
-    .header .nav-bar{
+    .header{
         display: flex;
         flex-direction: column;
     }
-    .header .login{
+    .login{
         display: none;
     }
     .discover {
