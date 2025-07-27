@@ -29,11 +29,34 @@ function LandingPage() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        //here goes the logic for submitting (late8)
-    }
+        
+        try {
+            const response = await fetch('http://localhost:5000/api/data', {
+                method: 'POST',
+                headers: {
+                    'content-type':'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            if(response.ok){
+                console.log("message sent");
+                setformData({
+                    name: '',
+                    email: '',
+                    message: '',
+                });
+            } else {
+                console.log(data.message || "failed to send");
+            }
+        } catch (e) {
+            console.error('error:', e);
+            console.log('failed to send message');
+        }
+    };
 
     return (
         <div className='container'>

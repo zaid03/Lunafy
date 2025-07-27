@@ -9,6 +9,6 @@ const contactLimit = rateLimit({
     message: 'too many messages sent, try again later'
 })
 
-router.post('/contact', contactLimit, registerMessage);
+router.post('/data', contactLimit, registerMessage);
 
 module.exports = router;
