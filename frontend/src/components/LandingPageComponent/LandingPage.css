@@ -341,3 +341,92 @@
     color: #bdbdbd;
     margin: 5px 0;
 }
+
+@media (max-width: 900px) {
+    .header{
+        height: 800px;
+    }
+    .header-content {
+        flex-direction: column;
+        padding-top: 30px;
+    }
+    .left, .right {
+        width: 100vw;
+        margin-left: 0;
+        justify-content: center;
+        align-items: center;
+    }
+    .left h1, .left h2, .left p, .left .login-btn {
+        margin-left: 0;
+        text-align: center;
+    }
+    .right img {
+        width: 90vw;
+        height: auto;
+        margin: 0 auto;
+    }
+    .nav-bar {
+        height: auto;
+        align-items: flex-start;
+    }
+    .logo-name, .navigation{
+        width: 100vw;
+        height: 40px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login{
+        display: none;
+    }
+    .discover{
+        height: auto;
+    }
+    .cards-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+    }
+    .card {
+        width: 90vw;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    .footer {
+        padding: 20px 5px;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .header {
+        height: 700px;
+        padding-bottom: 20px;
+    }
+    .header .nav-bar{
+        display: flex;
+        flex-direction: column;
+    }
+    .header .login{
+        display: none;
+    }
+    .discover {
+        height: auto;
+        padding: 1rem;
+    }
+    .card {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .contact form {
+        padding: 20px 5px;
+        max-width: 98vw;
+    }
+    .footer .nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .footer {
+        font-size: 12px;
+    }
+}
