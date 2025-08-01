@@ -44,16 +44,18 @@ exports.handleAuth = async (req, res) => {
     if(user.length > 0) {
       userId = user[0].id;
       await db.query('update users set name = ? where id = ?', [display_name, userId]);
+
+      await db.query(
+      'update user_tokens set access_token = ?, refresh_token = ?, expires_in = ?, token_type = ?, scope = ?, token_received_at = NOW() where user_id = ?', [access_token, refresh_token, expires_in, token_type, scope, userId]
+      );
     } else {
       const [result] = await db.query('insert into users (name, email) values (?, ?)', [display_name, email]);
       userId = result.insertId;
-    }
 
-    // 4. Save tokens in user_tokens table
-    
-    await db.query(
+      await db.query(
       'insert into user_tokens (user_id, access_token, refresh_token, expires_in, token_type, scope, token_received_at) values (?, ?, ?, ?, ?, ?, NOW())', [userId, access_token, refresh_token, expires_in, token_type, scope]
-    );
+      );
+    }
 
     // Send tokens to frontend (or save them later in a DB)
     req.session.userId = userId;
