@@ -19,8 +19,9 @@ function Dashboard() {
       });
   }, [navigate]);
 
-  // ...rest of your dashboard code...
-  return <div>Welcome to your dashboard!</div>;
+  return (
+    <div></div>
+  );
 }
 
 export default Dashboard;

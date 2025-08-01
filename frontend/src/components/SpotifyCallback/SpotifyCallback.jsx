@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import './SpotifyCallback.css';
 
 function SpotifyCallback() {
   const [searchParams] = useSearchParams();
@@ -43,7 +44,14 @@ function SpotifyCallback() {
   }
 }, [navigate, searchParams]);
 
-  return <p>Authenticating with Spotify...</p>;
+    return (
+    <div style={{ textAlign: 'center', marginTop: '60px' }}>
+      <div className="spotify-spinner"></div>
+      <p style={{ color: '#1DB954', fontWeight: 'bold', marginTop: '20px' }}>
+        Authenticating with Spotify...
+      </p>
+    </div>
+  );
 }
 
 export default SpotifyCallback;
