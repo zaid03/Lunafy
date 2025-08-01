@@ -79,7 +79,10 @@ function LandingPage() {
                         <span onClick={scrollToContact} style={{cursor: 'pointer'}}>Contact us</span>
                     </div>
                     <div className='login'>
-                        <Link to='/Auth' className='login-btn'><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login with spotify</Link>
+                        <a
+                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played&show_dialog=true"
+                            className='login-btn'
+                        ><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
                     </div>
                 </div>
 
@@ -88,7 +91,10 @@ function LandingPage() {
                         <h1>Spotify stats</h1>
                         <h2 className='tailor'>Tailored for you</h2>
                         <p>Connect your Spotify account and get detailed insights about your listening habits.</p>
-                        <Link to='/Auth' className='login-btn'><img src={white} alt='Spotify icon by Icons8' className='spotify'/> Login with spotify</Link>
+                        <a
+                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played&show_dialog=true"
+                            className='login-btn'
+                        ><img src={white} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
                         <p className='conditions'>By clicking Login, you agree to our <Link to='/terms' className='terms'>Terms of Services</Link> and <Link to='/privacy' className='privacy'>Privacy Policy</Link> </p>
                     </div>
                     
@@ -158,7 +164,10 @@ function LandingPage() {
                     <span onClick={scrollToContact} style={{cursor: 'pointer'}}>Contact us</span>
                 </div>
 
-                <Link to='/Auth' className='login-btn'><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login with spotify</Link>
+                <a
+                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played&show_dialog=true"
+                            className='login-btn'
+                        ><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
 
                 <div className='social'>
                     <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer">

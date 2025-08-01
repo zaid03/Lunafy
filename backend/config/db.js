@@ -26,5 +26,5 @@ const connectDB = () => {
 
 module.exports = {
     connectDB,
-    pool: pool.promise(),
+    db: pool.promise(),
 };
