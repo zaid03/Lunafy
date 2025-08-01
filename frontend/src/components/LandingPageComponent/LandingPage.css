@@ -2,7 +2,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* border: 1px solid red !important; */
 }
 
 .container{
@@ -21,11 +20,14 @@
     display: flex;
 }
 
+.logo-name, .navigation{
+    display: flex;
+    align-items: center;
+}
+
 .logo-name{
     width: 20vw;
-    display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .logo-name img{
@@ -44,17 +46,25 @@
 
 .navigation{
     width: 30vw;
-    display: flex;
-    align-items: center;
 }
 
-.navigation span{
+.navigation span, .footer .nav span{
     margin-right: 15px;
     text-decoration: 0;
     color: #ffffff;
     font-family: 'Poppins', sans-serif;
     font-size: 14px;
     font-weight: bold;
+}
+
+.footer .nav span{
+    margin-right: 30px;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.footer .nav span:hover{
+    color: #1DB954;
 }
 
 .login{
@@ -65,7 +75,7 @@
     margin-left: auto;
 }
 
-.login-btn{
+.login-btn, .footer .login-btn{
     text-decoration: 0;
     text-align: center;
     color: #1A1A1A;
@@ -76,6 +86,29 @@
     font-size: 14px;
     font-weight: bold;
     margin-right: 25px;
+}
+
+.left .login-btn{
+    margin-left: 5%;
+    width: 50%;
+    display: flex;
+    color: #ffffff;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    box-shadow: 0 0 10px #1DB954, 0 0 20px #1DB95444;
+}
+
+.footer .login-btn{
+    margin-right: 0;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.left a:hover, .footer .login-btn:hover{
+    transform: scale(1.05);
+}
+
+.footer .login-btn:hover{
+    box-shadow: 0 0 15px #1DB954, 0 0 30px rgba(29, 185, 84, 0.4);
 }
 
 .spotify{
@@ -97,39 +130,40 @@
     width: 28vw;
     display: flex;
     flex-direction: column;
-    /* justify-content: center;  */
 }
 
-.left h1, h2{
+.left h1, h2, .card h1{
     font-family: 'Poppins', sans-serif;
-    font-size: 45px;
     font-weight: bold;
     color: #ffffff;
     margin-left: 5%;
+}
+
+.left h1, h2{
+    font-size: 45px;
+}
+
+.card h1{
+    padding-top: 10px;
+    font-size: 22px;
+    margin-left: 0;
 }
 
 .tailor{
     color: #1DB954;
 }
 
-.left p{
+.left p, .card p{
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
     font-weight: bold;
     color: #bdbdbd;
+}
+
+.left p{
     margin-left: 5%;
     margin-top: 15px;
     margin-bottom: 25px;
-}
-
-.left .login-btn{
-    margin-left: 5%;
-    width: 50%;
-    display: flex;
-    color: #ffffff;
-    justify-content: center;
-    transition: transform 0.2s ease;
-    box-shadow: 0 0 10px #1DB954, 0 0 20px #1DB95444;
 }
 
 .conditions{
@@ -141,15 +175,10 @@
     color: #1DB954;
 }
 
-.left a:hover{
-    transform: scale(1.05);
-}
-
 .right{
     width: 60vw;
     display: flex;
     justify-content: center;
-    /* align-items: center; */
 }
 
 .right img{
@@ -199,21 +228,6 @@
     padding-top: 20px;
     color: #1DB954;
     font-size: 22px;
-}
-
-.card h1{
-    padding-top: 10px;
-    font-size: 22px;
-    color: #ffffff;
-    font-family: 'Poppins', sans-serif;
-    font-weight: bold;
-}
-
-.card p{
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    color: #bdbdbd;
 }
 
 .contact {
@@ -292,29 +306,6 @@
     gap: 30px;
 }
 
-.footer .nav span {
-    text-decoration: none;
-    color: #ffffff;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.footer .nav span:hover {
-    color: #1DB954;
-}
-
-.footer .login-btn {
-    margin-right: 0;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-}
-
-.footer .login-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #1DB954, 0 0 30px rgba(29, 185, 84, 0.4);
-}
-
 .social {
     display: flex;
     gap: 20px;
@@ -375,7 +366,6 @@
         justify-content: center;
         align-items: center;
     }
-
     .login{
         display: none;
     }
@@ -402,8 +392,6 @@
     .header {
         height: 700px;
         padding-bottom: 20px;
-    }
-    .header{
         display: flex;
         flex-direction: column;
     }
