@@ -1,0 +1,146 @@
+body {
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+  background: #181818;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  min-height: 100vh;
+  background: #181818;
+  padding: 0;
+  border-radius: 0;
+}
+
+.header {
+  background: rgba(24,24,24,0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 0 0 32px 32px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 32px 0 0 0;
+}
+
+.logo-name img {
+  height: 44px;
+  margin-right: 16px;
+}
+
+.name {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #1DB954;
+  letter-spacing: 2px;
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px 0 48px;
+  min-height: 80px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.burger {
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.burger:hover {
+  transform: scale(1.08);
+}
+.bar {
+  height: 3px;
+  width: 28px;
+  background: #fff;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.menu {
+  position: absolute;
+  top: 80px;
+  right: 48px;
+  background: rgba(34,34,34,0.95);
+  backdrop-filter: blur(12px);
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 40px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  z-index: 1003;
+  min-width: 260px;
+  min-height: 180px;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.menu a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+  font-size: 1.1rem;
+  padding: 12px 0;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.menu a:hover {
+  background: #1DB954;
+  color: #191414;
+}
+
+.dashboard-nav-static {
+  display: flex;
+  gap: 32px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 16px 32px;
+  margin: 40px auto 0 auto;
+  justify-content: center;
+  max-width: 900px;
+}
+
+.dashboard-link {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 10px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 1px;
+}
+.dashboard-link:hover {
+  background: #1DB954;
+  color: #191414;
+}
+
+@media (max-width: 700px) {
+  .nav-bar {
+    padding: 0 16px;
+  }
+  .dashboard-nav-static {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    margin: 24px 0 0 0;
+  }
+  .menu {
+    min-width: 90vw;
+    right: 5vw;
+    padding: 32px 8vw;
+  }
+}
