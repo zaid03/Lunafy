@@ -2,6 +2,8 @@ import React, { useState ,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import './Dashboard.css';
+import test from '../../assets/bbcone.png';
+import { NavLink } from 'react-router-dom';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -43,34 +45,63 @@ function Dashboard() {
 
   }, [menuOpen]);
   return (
-
-    <div className='container'>
-      <div className='header' style={{height: '300px'}}>
-        <div className='nav-bar'>
-          <div className='logo-name'>
+    <div className='container-dash'>
+      <div className='header-dash'>
+        <div className='nav-bar-dash'>
+          <div className='logo-name-dash'>
             <img src={logo} alt='Lunafy logo' />
-            <span className='name'  >Lunafy</span>
+            <span className='name-dash'>Lunafy</span>
           </div>
-          <div className='burger' onClick={() => setMenuOpen(!menuOpen)}>
-            <div className='bar'></div>
-            <div className='bar'></div>
-            <div className='bar'></div>
-          </div>
-          {menuOpen && (
-            <div className='menu'>
-              <a href='/dashboard'>Dashboard</a>
-              <a href='/profile'>Profile</a>
-              <a href='/logout'>Logout</a>
+          <div className='burger-menu'>
+            <div className='burger' onClick={() => setMenuOpen(!menuOpen)}>
+              <div className='bar'></div>
+              <div className='bar'></div>
+              <div className='bar'></div>
             </div>
-          )}
+            {menuOpen && (
+              <div className='menu'>
+                <a href='/dashboard'>Profile</a>
+                <a href='/profile'>Settings</a>
+                <a href='/logout'>Logout</a>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="dashboard-nav-static">
-          <a href="#" className="dashboard-link">Overview</a>
-          <a href="#" className="dashboard-link">Artists</a>
-          <a href="#" className="dashboard-link">Songs</a>
-          <a href="#" className="dashboard-link">Albums</a>
-          <a href="#" className="dashboard-link">Genres</a>
-          <a href="#" className="dashboard-link">Playlists</a>
+        <div className='info-display'>
+          <div className='info-dash'>
+            <div className='photo-name'>
+              <div className='all-info'>
+                <img src={test} alt='user-pic' />
+                <span className='user-name'>zaid</span>
+              </div>
+            </div>
+            <div className='playing-now'>
+              <div className='content-all'>
+                <img className='test'
+                  src={test}
+                  alt="Song Cover"
+                />
+              <div>
+              <div className='song-name'>
+                Blinding Lights
+              </div>
+              <div className='artist-name'>
+                The Weeknd
+              </div>
+            </div>
+          </div>
+            </div>
+          </div>
+          <div className='nav-dash'>
+            <NavLink to="/dashboard"  className="dashboard-link">Overview</NavLink>
+            <NavLink to="/artists" className="dashboard-link">Artists</NavLink>
+            <NavLink to="/songs" className="dashboard-link">Songs</NavLink>
+            <NavLink to="/albums" className="dashboard-link">Albums</NavLink>
+            <NavLink to="/genres" className="dashboard-link">Genres</NavLink>
+            <NavLink to="/playlists" className="dashboard-link">Playlists</NavLink>
+            <NavLink to="/taste" className="dashboard-link">Dicover your taste</NavLink>
+            <NavLink to="/roast" className="dashboard-link">roast</NavLink>
+          </div>
         </div>
       </div>
     </div>

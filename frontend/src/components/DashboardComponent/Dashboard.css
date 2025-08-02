@@ -1,59 +1,65 @@
-body {
-  font-family: 'Poppins', 'Inter', Arial, sans-serif;
-  background: #181818;
-  margin: 0;
-  padding: 0;
+.container-dash{
+  width: 100%;
+  height: 100vh;
+  background-color: #1A1A1A;
 }
 
-.container {
-  min-height: 100vh;
-  background: #181818;
-  padding: 0;
-  border-radius: 0;
+.header-dash{
+  background-color: rgb(23 26 32);
+  width: 100%;
+  height: 420px;
+  position: relative;
 }
 
-.header {
-  background: rgba(24,24,24,0.7);
-  backdrop-filter: blur(8px);
-  border-radius: 0 0 32px 32px;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
-  padding: 32px 0 0 0;
+.nav-bar-dash{
+  display: flex;
+  height: 60px;
 }
 
-.logo-name img {
-  height: 44px;
-  margin-right: 16px;
-}
-
-.name {
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: #1DB954;
-  letter-spacing: 2px;
-  font-family: 'Poppins', 'Inter', Arial, sans-serif;
-}
-
-.nav-bar {
+.logo-name-dash{
+  width: 30%;
+  height: 60px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 48px 0 48px;
-  min-height: 80px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  justify-content: center;
+}
+
+.logo-name-dash img{
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+.name-dash{
+  font-family: 'Poppins', sans-serif;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.burger-menu{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  margin-right: 50px;
 }
 
 .burger {
-  border: none;
   background: transparent;
   display: flex;
+  align-content: center;
   flex-direction: column;
   gap: 6px;
   cursor: pointer;
   transition: transform 0.2s;
 }
+
 .burger:hover {
   transform: scale(1.08);
 }
+
 .bar {
   height: 3px;
   width: 28px;
@@ -64,68 +70,200 @@ body {
 
 .menu {
   position: absolute;
-  top: 80px;
-  right: 48px;
+  top: 45px;
+  right: 60px;
   background: rgba(34,34,34,0.95);
   backdrop-filter: blur(12px);
   border: none;
   border-radius: 18px;
   box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
-  padding: 40px 56px;
+  padding: 8px 0;
   display: flex;
   flex-direction: column;
   gap: 28px;
   z-index: 1003;
-  min-width: 260px;
-  min-height: 180px;
+  min-width: 180px;
+  min-height: 120px;
   animation: fadeIn 0.3s;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-20px);}
   to { opacity: 1; transform: translateY(0);}
 }
+
 .menu a {
   color: #fff;
   text-decoration: none;
   font-weight: 600;
   font-family: 'Poppins', 'Inter', Arial, sans-serif;
-  font-size: 1.1rem;
-  padding: 12px 0;
+  font-size: 1rem;
+  padding: 3px 0;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
   text-align: center;
   letter-spacing: 1px;
 }
+
 .menu a:hover {
   background: #1DB954;
   color: #191414;
 }
 
-.dashboard-nav-static {
-  display: flex;
-  gap: 32px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 16px;
-  box-shadow: 0 2px 12px #0001;
-  padding: 16px 32px;
-  margin: 40px auto 0 auto;
-  justify-content: center;
-  max-width: 900px;
+.info-display{
+  height: 370px;
+
 }
 
-.dashboard-link {
-  color: #fff;
-  font-weight: 500;
-  font-size: 1rem;
-  padding: 10px 22px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
-  letter-spacing: 1px;
+.info-dash{
+  width: 100%;
+  height: 300px;
+  display: flex;
 }
-.dashboard-link:hover {
+
+.photo-name{
+  width: 50%;
+  height: 300px;
+  border: 1px solid yellowgreen;
+}
+
+.photo-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  height: 300px;
+  position: relative;
+  border: none;
+}
+
+.all-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;      /* or max-width: 320px; if you want a limit */
+  height: 180px;    /* or auto if you want it to shrink on mobile */
+  background: none; /* no background */
+  box-shadow: none; /* no shadow */
+  border-radius: 0; /* no border radius */
+  gap: 32px;        /* space between image and name */
+}
+
+.all-info img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid #1DB954;
+  box-shadow: 0 4px 24px #0004;
+  display: block;
+}
+
+.user-name {
+  position: static;
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  text-align: left;
+  text-shadow: 0 2px 8px #000a;
+  margin-left: 0;
+  line-height: 1.1;
+}
+
+.playing-now{
+  width: 50%;
+  height: 300px;
+}
+
+.playing-now {
+  display: flex;
+  align-items: center;      
+  justify-content: flex-end;  
+  height: 100%;
+  background: none;
+  border: none;
+}
+
+.content-all {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   background: #1DB954;
+  border-radius: 16px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 16px #0003;
+  max-width: 380px;
+  margin-right: 5%;
+}
+
+.test {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px #0002;
+}
+
+.content-all > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.song-name {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.artist-name {
   color: #191414;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.album-name {
+  color: #aaa;
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+
+
+.nav-dash{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 52px;
+}
+
+.nav-dash a{
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  padding: 12px;
+}
+
+.nav-dash a:hover{
+  border-bottom: 4px solid grey;
+}
+
+
+.dashboard-link.active,
+.dashboard-link.active:hover {
+  border-bottom: 4px solid #1DB954;
+  color: #1DB954;
 }
 
 @media (max-width: 700px) {
@@ -143,4 +281,4 @@ body {
     right: 5vw;
     padding: 32px 8vw;
   }
-}
+} 
