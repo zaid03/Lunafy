@@ -38,12 +38,48 @@ function Dashboard() {
       setMenuOpen(false);
     }
   }
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/me', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setUserData(data));
+  }, []);
+
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const [audio, setAudio] = useState(null);
+  const handlePlayPreview = () => {
+    if (!userData?.playingNow?.preview_url) return;
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+      setIsPreviewPlaying(false);
+    } else {
+      const newAudio = new Audio(userData.playingNow.preview_url);
+      newAudio.play();
+      setAudio(newAudio);
+      setIsPreviewPlaying(true);
+      newAudio.onended = () => {
+        setIsPreviewPlaying(false);
+        setAudio(null);
+      };
+    }
   };
 
-  }, [menuOpen]);
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause();
+      }
+    };
+  }, [audio]);
   return (
     <div className='container-dash'>
       <div className='header-dash'>
@@ -71,25 +107,36 @@ function Dashboard() {
           <div className='info-dash'>
             <div className='photo-name'>
               <div className='all-info'>
-                <img src={test} alt='user-pic' />
-                <span className='user-name'>zaid</span>
+                <img src={userData?.profileImage || test} alt='user-pic' />
+                <span className='user-name'>{userData?.display_name || userData?.name || "User"}</span>
               </div>
             </div>
             <div className='playing-now'>
-              <div className='content-all'>
-                <img className='test'
-                  src={test}
-                  alt="Song Cover"
-                />
-              <div>
-              <div className='song-name'>
-                Blinding Lights
-              </div>
-              <div className='artist-name'>
-                The Weeknd
-              </div>
-            </div>
-          </div>
+              {userData?.playingNow ? (
+                <div className='content-all' style={{ cursor: userData?.playingNow?.preview_url ? 'pointer' : 'default' }} onClick={handlePlayPreview}>
+                  <img className='test'
+                    src={userData.playingNow.albumImage || test}
+                    alt="Song Cover"
+                  />
+                  <div>
+                    <div className='song-name'>
+                      {userData.playingNow.name}
+                    </div>
+                    <div className='artist-name'>
+                      {userData.playingNow.artists}
+                    </div>
+                    {userData.playingNow.preview_url && (
+      <div style={{ fontSize: '0.8em', color: '#1db954' }}>
+        {isPreviewPlaying ? 'Playing preview...' : 'Click to play 30s preview'}
+      </div>
+    )}
+                  </div>
+                </div>
+              ) : (
+                <div className='content-all'>
+                  <span>No song playing</span>
+                </div>
+              )}
             </div>
           </div>
           <div className='nav-dash'>
