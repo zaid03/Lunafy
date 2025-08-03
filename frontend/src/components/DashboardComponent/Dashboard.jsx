@@ -129,7 +129,7 @@ function Dashboard() {
       <div style={{ fontSize: '0.8em', color: '#1db954' }}>
         {isPreviewPlaying ? 'Playing preview...' : 'Click to play 30s preview'}
       </div>
-    )}
+    )}h
                   </div>
                 </div>
               ) : (
