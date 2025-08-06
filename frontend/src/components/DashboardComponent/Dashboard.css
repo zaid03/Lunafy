@@ -11,7 +11,7 @@
   --shadow-heavy: 0 8px 32px rgba(0,0,0,0.18);
   --font-main: 'Poppins', sans-serif;
 }
-.container-dash { width: 100%; height: 100vh; background-color: var(--primary-bg); }
+.container-dash { width: 100%; height: auto; background-color: var(--primary-bg); }
 .header-dash { background-color: var(--header-bg); width: 100%; height: 420px; position: relative; }
 .nav-bar-dash { display: flex; height: 60px; }
 .logo-name-dash { width: 30%; height: 60px; display: flex; align-items: center; justify-content: center; }
@@ -134,4 +134,193 @@
   .all-info img { width: 80px; height: 80px; }
   .user-name { font-size: 1.2rem; }
   .nav-dash { height: 40px; padding: 5px 0; }
+}
+
+.stats-content{
+  background-color: #1A1A1A;
+  padding: 30px;
+}
+
+.time-periode {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: start;
+  min-height: 50px;
+}
+
+#period {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 10px 15px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+#period:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #1db954;
+}
+
+#period:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #1db954;
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+#period option {
+  background: rgba(34, 34, 34, 0.95);
+  color: white;
+  padding: 10px;
+}
+
+.top-cards{
+  display: flex;
+  gap: 20px;
+}
+
+.top-artists, .top-songs, .top-albums{
+  width: calc(50% - 10px);
+  gap: 10px;
+}
+
+.button-songs{
+  display: flex;
+}
+
+.more{
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+  width: 50%;
+}
+
+.save {
+  background: rgb(23 26 32);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1px 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 5px; 
+  margin-bottom: 10px;
+}
+
+.save:hover {
+  background: #1db954;
+  border-color: #1db954;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.save:active {
+  transform: translateY(0);
+}
+
+.top-artists h3, .top-songs h3, .test2 {
+  margin-bottom: 20px;
+  margin-left: 2%;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 22px;
+  text-align: left;
+}
+
+.artists-list, .songs-list, .album-list {
+  background-color: rgb(23 26 32);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artist-item, .song-item, .album-item {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.artist-rank, .song-rank, .album-rank {
+  margin-left: 6%;
+  font-weight: bold;
+  margin-right: 15px;
+  color: #1db954;
+  min-width: 20px;
+}
+
+.artist-pfp, .song-cover, .album-cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.song-info, .album-info{
+  display: flex;
+  flex-direction: column;
+}
+
+.artist-name, .song-info, .album-info {
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.artist-name:hover {
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(29, 185, 84, 0.6);
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(29, 185, 84, 0.6);
+}
+
+.see-more {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+  margin-top: 10px;
+}
+
+.more-content {
+  background: transparent;
+  border: 2px solid #1db954;
+  border-radius: 25px;
+  padding: 8px 20px;
+  color: #1db954;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.more-content:hover {
+  background: #1db954;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.more-content:active {
+  transform: translateY(0);
+}
+
+.albums{
+  padding-top: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

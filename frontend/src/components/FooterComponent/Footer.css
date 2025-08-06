@@ -1,0 +1,121 @@
+.footer {
+  background-color: var(--header-bg, rgb(23, 26, 32));
+  color: var(--text-white, #ffffff);
+  padding: 40px 20px 20px;
+  margin-top: 50px;
+  font-family: var(--font-main, 'Poppins', sans-serif);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.footer-section h4 {
+  color: var(--accent-green, #1DB954);
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.footer-section p {
+  color: var(--text-gray, #aaa);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+  color: var(--text-gray, #aaa);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+  color: var(--accent-green, #1DB954);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.footer-bottom p {
+  color: var(--text-gray, #aaa);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer {
+    padding: 30px 15px 15px;
+  }
+}
+
+.special {
+  color: var(--accent-green, #1DB954) !important;
+  font-weight: 600;
+  font-size: 15px !important;
+  text-shadow: 0 0 10px rgba(29, 185, 84, 0.3);
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.05);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.special:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 15px rgba(29, 185, 84, 0.6);
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+}
