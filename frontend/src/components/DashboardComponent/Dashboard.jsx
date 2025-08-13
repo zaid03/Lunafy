@@ -53,6 +53,21 @@ function Dashboard() {
       .then(res => res.json())
       .then(data => setUserData(data));
   }, []);
+  //to fetch albums
+  const [albumsData, setAlbumsData] = useState([]); // Add this line
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/top-albums', { 
+      credentials: 'include' 
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.albums) {
+          setAlbumsData(data.albums);
+        }
+      })
+      .catch(err => console.error('Error fetching albums:', err));
+  }, []);
 
   // const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
@@ -333,92 +348,38 @@ function Dashboard() {
               </div>
             </div>
             <div className='album-list'>
-              <div className='album-item'>
-                <span className='album-rank'>1</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>2</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>3</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>4</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>5</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>6</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>7</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>8</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>9</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='album-item'>
-                <span className='song-rank'>10</span>
-                <img src={test} alt='Song Cover' className='album-cover' />
-                <div className='album-info'>
-                  <span className='album-title'>Anti-Hero</span>
-                  <span className='album-artist'>Taylor Swift</span>
-                </div>
-              </div>
-              <div className='see-more'>
-                <button className='more-content'>See more</button>
-              </div>
-            </div>
-          </div>
+  {albumsData.length > 0 ? (
+    albumsData.map((album, index) => (
+      <div key={album.id} className='album-item'>
+        <span className='album-rank'>{index + 1}</span>
+        <img 
+          src={album.images && album.images.length > 0 ? album.images[0].url : test} 
+          alt='Album Cover' 
+          className='album-cover' 
+        />
+        <div className='album-info'>
+          <span className='album-title'>{album.name}</span>
+          <span className='album-artist'>{album.artists}</span>
         </div>
+      </div>
+    ))
+  ) : (
+    <div className='album-item'>
+      <span className='album-rank'>-</span>
+      <img src={test} alt='Loading...' className='album-cover' />
+      <div className='album-info'>
+        <span className='album-title'>Loading albums...</span>
+        <span className='album-artist'>Please wait</span>
+      </div>
+    </div>
+  )}
+  
+  <div className='see-more'>
+    <button className='more-content'>See more</button>
+  </div>
+</div>
+        </div>
+      </div>
       </div>
       <Footer />
     </div>
