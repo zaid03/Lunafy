@@ -2,7 +2,6 @@ import React, { useState ,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import './Dashboard.css';
-import test from '../../assets/bbcone.png';
 import { NavLink } from 'react-router-dom';
 import Footer from '../FooterComponent';
 
@@ -53,21 +52,6 @@ function Dashboard() {
       .then(res => res.json())
       .then(data => setUserData(data));
   }, []);
-  //to fetch albums
-  const [albumsData, setAlbumsData] = useState([]); // Add this line
-
-  useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/top-albums', { 
-      credentials: 'include' 
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.albums) {
-          setAlbumsData(data.albums);
-        }
-      })
-      .catch(err => console.error('Error fetching albums:', err));
-  }, []);
 
   // const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
@@ -89,13 +73,24 @@ function Dashboard() {
     }
   };
 
+  const [albumsData, setAlbumsData] = useState([]);
+  const [artistsData, setArtistsData] = useState([]);
+  const [songsData, setSongsData] = useState([]);
+
   useEffect(() => {
-    return () => {
-      if (audio) {
-        audio.pause();
-      }
-    };
-  }, [audio]);
+  // First save data, then get overview
+  fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
+    .then(() => {
+      return fetch('http://127.0.0.1:5000/api/dashboard-overview', { credentials: 'include' });
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.artists) setArtistsData(data.artists);
+      if (data.albums) setAlbumsData(data.albums);
+      if (data.songs) setSongsData(data.songs);
+    })
+    .catch(err => console.error('Error:', err));
+}, []);
   return (
     <div className='container-dash'>
       <div className='header-dash'>
@@ -123,7 +118,7 @@ function Dashboard() {
           <div className='info-dash'>
             <div className='photo-name'>
               <div className='all-info'>
-                <img src={userData?.profileImage || test} alt='user-pic' />
+                <img src={userData?.profileImage} alt='user-pic' />
                 <span className='user-name'>{userData?.display_name || userData?.name || "User"}</span>
               </div>
             </div>
@@ -131,7 +126,7 @@ function Dashboard() {
               {userData?.playingNow ? (
                 <div className='content-all' style={{ cursor: userData?.playingNow?.preview_url ? 'pointer' : 'default' }} onClick={handlePlayPreview}>
                   <img className='test'
-                    src={userData.playingNow.albumImage || test}
+                    src={userData.playingNow.albumImage}
                     alt="Song Cover"
                   />
                   <div>
@@ -171,9 +166,9 @@ function Dashboard() {
       <div className='stats-content'>
         <div className='time-periode'>
           <select id="period">
-            <option value="volvo">4 Weeks</option>
-            <option value="saab">6 Months</option>
-            <option value="opel">1 Year</option>
+            <option value="volvo">Short range</option>
+            <option value="saab">Medium range</option>
+            <option value="opel">Long range</option>
           </select>
         </div>
 
@@ -186,57 +181,20 @@ function Dashboard() {
               </div>
             </div>
             <div className='artists-list'>
-              <div className='artist-item'>
-                <span className='artist-rank'>1</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Taylor Swift</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>2</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Drake</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>3</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Bad Bunny</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>4</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>The Weeknd</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>5</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Ariana Grande</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>6</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Ed Sheeran</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>7</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Billie Eilish</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>8</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Post Malone</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>9</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Dua Lipa</span>
-              </div>
-              <div className='artist-item'>
-                <span className='artist-rank'>10</span>
-                <img src={test} alt='Artist' className='artist-pfp' />
-                <span className='artist-name'>Justin Bieber</span>
-              </div>
-
+              {artistsData.length > 0 ? (
+                artistsData.map((artist, index) => (
+                  <div key={artist.artist_id} className='artist-item'>
+                    <span className='artist-rank'>{index + 1}</span>
+                    <img src={artist.image_url} alt='Artist' className='artist-pfp' />
+                    <span className='artist-name'>{artist.artist_name}</span>
+                  </div>
+                ))
+              ) : (
+                <div className='artist-item'>
+                  <span className='artist-rank'>-</span>
+                  <span className='artist-name'>Loading artists...</span>
+                </div>
+              )}
               <div className='see-more'>
                 <button className='more-content'>See more</button>
               </div>
@@ -252,86 +210,26 @@ function Dashboard() {
               </div>
             </div>
             <div className='songs-list'>
-              <div className='song-item'>
-                <span className='song-rank'>1</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Anti-Hero</span>
-                  <span className='song-artist'>Taylor Swift</span>
+              {songsData.length > 0 ? (
+                songsData.map((song, index) => (
+                  <div key={index} className='song-item'>
+                    <span className='song-rank'>{song.rank_position}</span>
+                    <img src={song.image_url} alt='Song Cover' className='song-cover' />
+                    <div className='song-info'>
+                      <span className='song-title'>{song.track_name}</span>
+                      <span className='song-artist'>{song.artist_name}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className='song-item'>
+                  <span className='song-rank'>-</span>
+                  <div className='song-info'>
+                    <span className='song-title'>Loading songs...</span>
+                    <span className='song-artist'>Please wait</span>
+                  </div>
                 </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>2</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>As It Was</span>
-                  <span className='song-artist'>Harry Styles</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>3</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Un Verano Sin Ti</span>
-                  <span className='song-artist'>Bad Bunny</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>4</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Blinding Lights</span>
-                  <span className='song-artist'>The Weeknd</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>5</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Positions</span>
-                  <span className='song-artist'>Ariana Grande</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>6</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Shape of You</span>
-                  <span className='song-artist'>Ed Sheeran</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>7</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Bad Guy</span>
-                  <span className='song-artist'>Billie Eilish</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>8</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Circles</span>
-                  <span className='song-artist'>Post Malone</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>9</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Levitating</span>
-                  <span className='song-artist'>Dua Lipa</span>
-                </div>
-              </div>
-              <div className='song-item'>
-                <span className='song-rank'>10</span>
-                <img src={test} alt='Song Cover' className='song-cover' />
-                <div className='song-info'>
-                  <span className='song-title'>Sorry</span>
-                  <span className='song-artist'>Justin Bieber</span>
-                </div>
-              </div>
+              )}
               <div className='see-more'>
                 <button className='more-content'>See more</button>
               </div>
@@ -348,39 +246,37 @@ function Dashboard() {
               </div>
             </div>
             <div className='album-list'>
-  {albumsData.length > 0 ? (
-    albumsData.map((album, index) => (
-      <div key={album.id} className='album-item'>
-        <span className='album-rank'>{index + 1}</span>
-        <img 
-          src={album.images && album.images.length > 0 ? album.images[0].url : test} 
-          alt='Album Cover' 
-          className='album-cover' 
-        />
-        <div className='album-info'>
-          <span className='album-title'>{album.name}</span>
-          <span className='album-artist'>{album.artists}</span>
+              {albumsData.length > 0 ? (
+                albumsData.map((album, index) => (
+                  <div key={album.album_id} className='album-item'>
+                    <span className='album-rank'>{index + 1}</span>
+                    <img 
+                      src={album.image_url} 
+                      alt='Album Cover' 
+                      className='album-cover' 
+                    />
+                    <div className='album-info'>
+                      <span className='album-title'>{album.album_name}</span>
+                      <span className='album-artist'>{album.artist_name}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+              <div className='album-item'>
+                <span className='album-rank'>-</span>
+                <div className='album-info'>
+                  <span className='album-title'>Loading albums...</span>
+                  <span className='album-artist'>Please wait</span>
+                </div>
+              </div>
+            )}
+            <div className='see-more'>
+              <button className='more-content'>See more</button>
+            </div>
+          </div>
         </div>
-      </div>
-    ))
-  ) : (
-    <div className='album-item'>
-      <span className='album-rank'>-</span>
-      <img src={test} alt='Loading...' className='album-cover' />
-      <div className='album-info'>
-        <span className='album-title'>Loading albums...</span>
-        <span className='album-artist'>Please wait</span>
       </div>
     </div>
-  )}
-  
-  <div className='see-more'>
-    <button className='more-content'>See more</button>
-  </div>
-</div>
-        </div>
-      </div>
-      </div>
       <Footer />
     </div>
   );

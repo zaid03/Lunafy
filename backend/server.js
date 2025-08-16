@@ -97,8 +97,8 @@ app.get('/api/me', async (req, res) => {
   });
 });
 
-//route to get albums
-app.get('/api/top-albums', async (req, res) => {
+//route to get albums, songs and artists
+app.get('/api/user-stats', async (req, res) => {
 
   if (!req.session.userId) {
     return res.status(401).json({ error: 'Not authenticated' });
@@ -111,40 +111,136 @@ app.get('/api/top-albums', async (req, res) => {
       return res.status(401).json({ error: 'No access token found' });
     }
     console.log('Session userId:', req.session.userId);
+
     // Get user's top tracks first, then extract unique albums
     const topTracksRes = await axios.get('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=medium_term', {
       headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
     });
 
-    if (topTracksRes.data && topTracksRes.data.items) {
-      // Extract unique albums from top tracks
-      const albumsMap = new Map();
+    if (topTracksRes.data && topTracksRes.data.items){
+      //save tracks to database
+      for (let i = 0; i < topTracksRes.data.items.length; i++) {
+        const track = topTracksRes.data.items[i];
 
-      topTracksRes.data.items.forEach(track => {
-        const album = track.album;
-        if (!albumsMap.has(album.id)) {
-          albumsMap.set(album.id, {
-            id: album.id,
-            name: album.name,
-            artists: album.artists.map(a => a.name).join(', '),
-            images: album.images,
-            release_date: album.release_date,
-            total_tracks: album.total_tracks
-          });
-        }
-      });
-      const topAlbums = Array.from(albumsMap.values()).slice(0, 10);
-      res.json({
-        albums: topAlbums
-      });
-    } else {
-      res.json({ albums: [] });
+        const trackData = {
+          user_id: req.session.userId,
+          spotify_track_id: track.id,
+          track_name: track.name,
+          artist_name: track.artists.map(a => a.name).join(', '),
+          artist_id: track.artists[0]?.id || null,
+          album_name: track.album.name,
+          album_id: track.album.id,
+          image_url: track.album.images && track.album.images.length > 0 ? track.album.images[0].url : null,
+          preview_url: track.preview_url,
+          duration_ms: track.duration_ms,
+          popularity: track.popularity,
+          external_url: track.external_urls?.spotify || null,
+          explicit: track.explicit,
+          release_date: track.album.release_date || null,
+          time_range: 'medium_term',
+          rank_position: i + 1
+        };
+
+        //inserting data into our db
+        await db.query (`
+          INSERT INTO user_data (
+          user_id, spotify_track_id, track_name, artist_name, artist_id, 
+            album_name, album_id, image_url, preview_url, duration_ms, 
+            popularity, external_url, explicit, release_date, time_range, rank_position
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE
+            track_name = VALUES(track_name),
+            artist_name = VALUES(artist_name),
+            album_name = VALUES(album_name),
+            image_url = VALUES(image_url),
+            preview_url = VALUES(preview_url),
+            duration_ms = VALUES(duration_ms),
+            popularity = VALUES(popularity),
+            external_url = VALUES(external_url),
+            explicit = VALUES(explicit),
+            release_date = VALUES(release_date),
+            rank_position = VALUES(rank_position),
+            created_at = CURRENT_TIMESTAMP
+          `, [
+            trackData.user_id, trackData.spotify_track_id, trackData.track_name,
+            trackData.artist_name, trackData.artist_id, trackData.album_name,
+            trackData.album_id, trackData.image_url, trackData.preview_url,
+            trackData.duration_ms, trackData.popularity, trackData.external_url,
+            trackData.explicit, trackData.release_date, trackData.time_range,
+            trackData.rank_position
+          ]);
+      }
     }
+    console.log('Saved tracks to database:');
+    res.json({
+      message: `Saved tracks to database`
+    });
   } catch (err) {
-    console.error('Error fetching top albums:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to fetch top albums' });
+    console.error('Error saving content into database:', err.response?.data || err.message);
+    res.status(500).json({ error: 'Error saving content into database'});
   }
 });
+
+//dashboard overview - top 10 of each
+app.get('/api/dashboard-overview', async (req, res) => {
+
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    //top 10 artists
+    const [artists] = await db.query (`
+        SELECT 
+        artist_name,
+        artist_id,
+        image_url,
+        COUNT(*) as track_count,
+        AVG(popularity) as avg_popularity,
+        AVG(rank_position) as avg_rank,
+        MIN(rank_position) as best_track_rank
+      FROM user_data 
+      WHERE user_id = ? AND time_range = 'medium_term'
+      GROUP BY artist_name, artist_id, image_url
+      ORDER BY track_count DESC, avg_rank ASC
+      LIMIT 10
+      `, [req.session.userId]);
+
+    //top 10 albums
+    const [albums] = await db.query(`
+        SELECT 
+        album_id,
+        album_name,
+        artist_name,
+        image_url,
+        MIN(release_date) as release_date,
+        COUNT(*) as track_count,
+        AVG(popularity) as avg_popularity,
+        AVG(rank_position) as avg_rank,
+        MIN(rank_position) as best_track_rank
+      FROM user_data 
+      WHERE user_id = ? AND time_range = 'medium_term'
+      GROUP BY album_id, album_name, artist_name, image_url
+      ORDER BY track_count DESC, avg_rank ASC
+      LIMIT 10
+    `, [req.session.userId]);
+
+    //top 10 songs
+    const [songs] = await db.query(`
+      SELECT track_name, artist_name, image_url FROM user_data WHERE user_id = ? AND time_range = 'medium_term' ORDER BY rank_position ASC LIMIT 10
+    `, [req.session.userId]);
+
+
+    res.json({
+      artists: artists,
+      albums: albums,
+      songs: songs
+    });
+  } catch (err) {
+    console.log('Error fetching dashboard overview data:', err);
+    res.status(500).json({ error: 'failed to fetch dashboard content'});
+  }
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
