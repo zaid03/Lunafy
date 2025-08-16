@@ -4,6 +4,7 @@ import logo from '../../assets/logo.png';
 import './Dashboard.css';
 import { NavLink } from 'react-router-dom';
 import Footer from '../FooterComponent';
+import test from '../../assets/bbcone.png';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -276,7 +277,49 @@ function Dashboard() {
           </div>
         </div>
       </div>
+      <div className='misc'>
+        <h4>Taste</h4>
+        <div className='taste'>
+            <div className='popularity'>
+              <h8>most popular song</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+            </div>
+            <div className='decade'>
+              <h8>Top in 2020s</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+              <h8>Top in 2010s</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+              <h8>Top in 2000s</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+            </div>
+            <div className='length'>
+              <h8>Longest</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+              <h8>Shortest</h8>
+              <div className='the-song'>
+                <img src={test} alt='song' />
+                <span>name of the song</span>
+              </div>
+            </div>
+        </div>
+      </div>
     </div>
+    
       <Footer />
     </div>
   );
