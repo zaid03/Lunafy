@@ -4,6 +4,7 @@ import logo from '../../assets/logo.png';
 import './Dashboard.css';
 import { NavLink } from 'react-router-dom';
 import Footer from '../FooterComponent';
+import ShareImage from '../ShareImageComponent/ShareImage';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -132,7 +133,30 @@ function Dashboard() {
       .catch(err => console.error('Error fetching decade data:', err));
   }, [timeRange]);
 
-  
+  const [shareModal, setShareModal] = useState({ isOpen: false, type: '', data: [] });
+
+  // ✅ Add share handler
+  const handleShare = (type) => {
+    let data = [];
+    switch(type) {
+      case 'artists':
+        data = artistsData;
+        break;
+      case 'songs':
+        data = songsData;
+        break;
+      case 'albums':
+        data = albumsData;
+        break;
+      default:
+        return;
+    }
+    setShareModal({ isOpen: true, type, data });
+  };
+
+  const closeShareModal = () => {
+    setShareModal({ isOpen: false, type: '', data: [] });
+  };
 
   return (
     <div className='container-dash'>
@@ -220,7 +244,7 @@ function Dashboard() {
             <div className='button-songs'>
               <h3>Top Artists</h3>
               <div className='more'>
-                <button className='save'>Share</button>
+                <button className='save' onClick={() => handleShare('artists')}>Share</button>
               </div>
             </div>
             <div className='artists-list'>
@@ -249,7 +273,7 @@ function Dashboard() {
               <h3>Top Songs</h3>
               <div className='more'>
                 <button className='save'>Save as Playlist</button>
-                <button className='save'>Share</button>
+                <button className='save' onClick={() => handleShare('songs')}>Share</button>
               </div>
             </div>
             <div className='songs-list'>
@@ -285,7 +309,7 @@ function Dashboard() {
             <div className='button-songs'>
               <h3 className='test2'>Top Albums</h3>
               <div className='more'>
-                <button className='save'>Share</button>
+                <button className='save' onClick={() => handleShare('albums')}>Share</button>
               </div>
             </div>
             <div className='album-list'>
@@ -401,6 +425,14 @@ function Dashboard() {
         </div>
       </div>
     </div>
+    {shareModal.isOpen && (
+        <ShareImage 
+          data={shareModal.data}
+          type={shareModal.type}
+          timeRange={timeRange}
+          onClose={closeShareModal}
+        />
+      )}
       <Footer />
     </div>
   );

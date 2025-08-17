@@ -1,0 +1,157 @@
+.share-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.share-modal {
+  background: #191414;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.share-content {
+  background: linear-gradient(135deg, #1db954, #191414);
+  padding: 30px;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.share-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.share-header h2 {
+  font-size: 28px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.share-header p {
+  font-size: 16px;
+  margin: 8px 0;
+  opacity: 0.9;
+}
+
+.lunafy-brand {
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.share-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.share-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.share-rank {
+  font-size: 20px;
+  font-weight: 700;
+  min-width: 30px;
+  text-align: center;
+}
+
+.share-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.share-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.share-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.share-artist {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.share-footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.share-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.download-btn, .cancel-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.download-btn {
+  background: #1db954;
+  color: white;
+}
+
+.download-btn:hover {
+  background: #1ed760;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.cancel-btn:hover {
+  background: #fff;
+  color: #191414;
+}
