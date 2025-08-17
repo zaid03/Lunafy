@@ -372,7 +372,6 @@ app.post('/api/logout', (req, res) => {
       console.error("error detroyig session:", err);
       return res.status(500).json({ error: 'failed to logout' });
     }
-
     res.redirect('http://127.0.0.1:3000/')
   })
 })
