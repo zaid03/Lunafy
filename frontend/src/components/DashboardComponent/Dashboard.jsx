@@ -77,11 +77,17 @@ function Dashboard() {
   const [artistsData, setArtistsData] = useState([]);
   const [songsData, setSongsData] = useState([]);
 
+  const [timeRange, setTimeRange] = useState('medium_term');
+  const handleTimeRangeChange = (event) => {
+    const newTimeRange = event.target.value;
+    setTimeRange(newTimeRange);
+  }
+  
   useEffect(() => {
   // First save data, then get overview
   fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
     .then(() => {
-      return fetch('http://127.0.0.1:5000/api/dashboard-overview', { credentials: 'include' });
+      return fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' });
     })
       .then(res => res.json())
       .then(data => {
@@ -90,7 +96,7 @@ function Dashboard() {
         if (data.songs) setSongsData(data.songs);
       })
       .catch(err => console.error('Error:', err));
-  }, []);
+  }, [timeRange]);
 
   const [popularData, setPopularData] = useState([]);
   const [durationData, setDurationData] = useState([]);
@@ -98,33 +104,35 @@ function Dashboard() {
 
   // Fetch most/least popular songs
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/most-least-pop', { credentials: 'include' })
+    fetch(`http://127.0.0.1:5000/api/most-least-pop?timeRange=${timeRange}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setPopularData(data);
       })
       .catch(err => console.error('Error fetching popular data:', err));
-  }, []);
+  }, [timeRange]);
 
   // Fetch longest/shortest songs
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/longest-shortest-song', {credentials: 'include'})
+    fetch(`http://127.0.0.1:5000/api/longest-shortest-song?timeRange=${timeRange}`, {credentials: 'include'})
       .then(res => res.json())
       .then(data => {
         setDurationData(data);
       })
       .catch(err => console.error('Error fetching duration data:', err));
-  }, []);
+  }, [timeRange]);
 
   // Fetch top songs by decade
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/top-by-decade', { credentials: 'include' })
+    fetch(`http://127.0.0.1:5000/api/top-by-decade?timeRange=${timeRange}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setDecadeData(data);
       })
       .catch(err => console.error('Error fetching decade data:', err));
-  }, []);
+  }, [timeRange]);
+
+  
 
   return (
     <div className='container-dash'>
@@ -200,10 +208,10 @@ function Dashboard() {
 
       <div className='stats-content'>
         <div className='time-periode'>
-          <select id="period">
-            <option value="volvo">Short range</option>
-            <option value="saab">Medium range</option>
-            <option value="opel">Long range</option>
+          <select id="period" value={timeRange} onChange={handleTimeRangeChange}>
+            <option value="short_term">Short range</option>
+            <option value="medium_term">Medium range</option>
+            <option value="long_term">Long range</option>
           </select>
         </div>
 
@@ -219,9 +227,9 @@ function Dashboard() {
               {artistsData.length > 0 ? (
                 artistsData.map((artist, index) => (
                   <div key={artist.artist_id} className='artist-item'>
-                    <span className='artist-rank'>{index + 1}</span>
+                    <span className='artist-rank'>{artist.best_track_rank}</span>
                     <img src={artist.image_url} alt='Artist' className='artist-pfp' />
-                    <span className='artist-name'>{artist.artist_name.split(',')[0].trim()}</span>
+                    <span className='artist-name'>{artist.main_artist}</span>
                   </div>
                 ))
               ) : (

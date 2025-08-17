@@ -170,10 +170,10 @@ function LandingPage() {
                 ><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
 
                 <div className='social'>
-                    <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/zaid03" target="_blank" rel="noopener noreferrer">
                     <FontAwesomeIcon icon={faGithub} />
                     </a>
-                     <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer">
+                     <a href="https://linkedin.com/in/zaid-terguy" target="_blank" rel="noopener noreferrer">
                         <FontAwesomeIcon icon={faLinkedin} />
                     </a>
                 </div>

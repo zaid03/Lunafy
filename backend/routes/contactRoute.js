@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const registerMessage = require('../controller/contactConroller');
+const { registerMessage } = require('../controller/contactController');
 
 const rateLimit = require('express-rate-limit');
 const contactLimit = rateLimit({

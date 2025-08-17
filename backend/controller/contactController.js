@@ -1,4 +1,4 @@
-const saveMessage = require('../models/contactModel');
+const { saveMessage } = require('../models/contactModel');
 const validator = require('validator');
 
 const registerMessage = async (req, res) => {
@@ -34,4 +34,4 @@ const registerMessage = async (req, res) => {
     
 };
 
-module.exports = registerMessage;
+module.exports = { registerMessage };

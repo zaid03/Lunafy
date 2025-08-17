@@ -6,6 +6,7 @@ import '@fontsource/poppins';
 import '@fontsource/montserrat';
 import SpotifyCallback from './components/SpotifyCallback';
 import Dashboard from './components/DashboardComponent';
+import Logout from './components/LogoutComponent/Logout';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/Auth" element={<Auth />} />
         <Route path='/callback' element={<SpotifyCallback />} />
         <Route path='/dashboard' element={< Dashboard/>} />
+        <Route path='/logout' element={<Logout />} />
       </Routes>
     </Router>
   );
