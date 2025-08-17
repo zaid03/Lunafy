@@ -281,40 +281,80 @@ function Dashboard() {
         <h4>Taste</h4>
         <div className='taste'>
             <div className='popularity'>
-              <h8>most popular song</h8>
+              <h5>Top favorite</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
+              </div>
+              <h5>Bottom favorite</h5>
+              <div className='the-song'>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
               </div>
             </div>
             <div className='decade'>
-              <h8>Top in 2020s</h8>
+              <h5>Top in 2020s</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
               </div>
-              <h8>Top in 2010s</h8>
+              <h5>Top in 2010s</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
               </div>
-              <h8>Top in 2000s</h8>
+              <h5>Top in 2000s</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
               </div>
             </div>
             <div className='length'>
-              <h8>Longest</h8>
+              <h5>Longest</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
               </div>
-              <h8>Shortest</h8>
+              <h5>Shortest</h5>
               <div className='the-song'>
-                <img src={test} alt='song' />
-                <span>name of the song</span>
-              </div>
+                <div className='image-song'>
+                  <img src={test} alt='song' />
+                </div>
+                <div className='details-song'>
+                  <span className='name-song'>name of the song</span>
+                  <span className='name-artist'>name of the Artist</span>
+                </div>
+              </div>  
             </div>
         </div>
       </div>

@@ -242,20 +242,32 @@
 
 .artists-list,
 .songs-list,
-.album-list {
-  padding-top: 5%;
-  padding-bottom: 5%;
+.album-list,
+.taste {
+  padding-top: 5% !important;
+  padding-bottom: 5% !important;
   background-color: rgb(23 26 32);
   border-radius: 18px;
   display: flex;
+}
+
+.artists-list,
+.songs-list,
+.album-list{
   flex-direction: column;
   gap: 10px;
+}
+
+.taste{
+  width: 100%;
+  gap: 5%;
+  flex-wrap: wrap;
 }
 
 .artist-item,
 .song-item,
 .album-item {
-  width: 50%;
+  min-width: 50%;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -290,22 +302,47 @@
 
 .artist-name,
 .song-info,
-.album-info {
-  color: #ffffff;
+.album-info,
+.details-song {
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
   font-weight: 500;
+}
+
+.artist-name,
+.song-info,
+.album-info,
+.details-song{
+  color: #ffffff;
+}
+
+.album-title,
+.album-artist,
+.song-title,
+.song-artist,
+.artist-name{
+  min-width: 1% !important;
+  max-width: 100%;
 }
 
 .artist-name:hover,
 .album-title:hover,
 .album-artist:hover,
 .song-title:hover,
-.song-artist:hover {
+.song-artist:hover,
+.name-song:hover,
+.name-artist:hover {
   cursor: pointer;
   text-shadow: 0 0 8px rgba(29, 185, 84, 0.6);
   transition: all 0.3s ease;
   border-bottom: 1px solid rgba(29, 185, 84, 0.6);
+  padding-bottom: 2px;
+}
+
+.name-artist,
+.album-artist,
+.song-artist{
+  color: #aaa;
 }
 
 .see-more {
@@ -345,10 +382,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 20px;
 }
 
 .misc{
-  border: 1px solid red;
   width: auto;
   padding-top: 5%;
 }
@@ -358,5 +395,58 @@
 }
 
 .taste{
-  border: 1px solid blue;
+  display: flex;
+  width: 100%;
+  padding: 1px;
+  gap: 5%;
+  flex-wrap: wrap;
+}
+
+.popularity,
+.decade,
+.length{
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popularity h5,
+.decade h5,
+.length h5{
+  font-family: inherit;
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.the-song{
+  width: 80%;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.image-song{
+  width: 40%;
+}
+
+.image-song img{
+  width: 60%;
+  height: 65px;
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.details-song{
+  width: 60%;
+  min-height: 65px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 10px;
+}
+
+.details-song span {
+  width: 85%;
 }
