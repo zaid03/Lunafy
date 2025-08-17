@@ -7,6 +7,7 @@ import '@fontsource/montserrat';
 import SpotifyCallback from './components/SpotifyCallback';
 import Dashboard from './components/DashboardComponent';
 import Logout from './components/LogoutComponent/Logout';
+import Artists from './components/ArtistsComponent/Artists';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
         <Route path='/callback' element={<SpotifyCallback />} />
         <Route path='/dashboard' element={< Dashboard/>} />
         <Route path='/logout' element={<Logout />} />
-      </Routes>
+        <Route path='/Artists' element={<Artists />} />
+       </Routes>
     </Router>
   );
 }

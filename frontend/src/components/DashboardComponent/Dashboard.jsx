@@ -238,7 +238,7 @@ function Dashboard() {
           </div>
           <div className='nav-dash'>
             <NavLink to="/dashboard"  className="dashboard-link">Overview</NavLink>
-            <NavLink to="/artists" className="dashboard-link">Artists</NavLink>
+            <NavLink to="/Artists" className="dashboard-link">Artists</NavLink>
             <NavLink to="/songs" className="dashboard-link">Songs</NavLink>
             <NavLink to="/albums" className="dashboard-link">Albums</NavLink>
             <NavLink to="/genres" className="dashboard-link">Genres</NavLink>

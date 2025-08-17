@@ -14,7 +14,7 @@ function Footer() {
           <h4>Quick Links</h4>
           <ul>
             <li><a href="/dashboard">Overview</a></li>
-            <li><a href="/artists">Top Artists</a></li>
+            <li><a href="/Artists">Top Artists</a></li>
             <li><a href="/songs">Top Songs</a></li>
             <li><a href="/playlists">Ai</a></li>
           </ul>
