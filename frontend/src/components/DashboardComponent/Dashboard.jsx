@@ -5,6 +5,7 @@ import './Dashboard.css';
 import { NavLink } from 'react-router-dom';
 import Footer from '../FooterComponent';
 import ShareImage from '../ShareImageComponent/ShareImage';
+import PlaylistCreator from '../PlaylistCreatorComponent/PlaylistCreator';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -135,7 +136,6 @@ function Dashboard() {
 
   const [shareModal, setShareModal] = useState({ isOpen: false, type: '', data: [] });
 
-  // ✅ Add share handler
   const handleShare = (type) => {
     let data = [];
     switch(type) {
@@ -156,6 +156,25 @@ function Dashboard() {
 
   const closeShareModal = () => {
     setShareModal({ isOpen: false, type: '', data: [] });
+  };
+
+
+  const [playlistModal, setPlaylistModal] = useState({ isOpen: false });
+
+  const handleCreatePlaylist = () => {
+    setPlaylistModal({ isOpen: true });
+  };
+
+  const closePlaylistModal = () => {
+    setPlaylistModal({ isOpen: false });
+  };
+
+  const handlePlaylistSuccess = (playlist) => {
+    alert(`Playlist "${playlist.name}" created successfully with ${playlist.tracks_added} songs!`);
+    // Optionally open the playlist in Spotify
+    if (playlist.url) {
+      window.open(playlist.url, '_blank');
+    }
   };
 
   return (
@@ -272,7 +291,7 @@ function Dashboard() {
             <div className='button-songs'>
               <h3>Top Songs</h3>
               <div className='more'>
-                <button className='save'>Save as Playlist</button>
+                <button className='save' onClick={handleCreatePlaylist}>Save as Playlist</button>
                 <button className='save' onClick={() => handleShare('songs')}>Share</button>
               </div>
             </div>
@@ -425,15 +444,22 @@ function Dashboard() {
         </div>
       </div>
     </div>
+    {playlistModal.isOpen && (
+      <PlaylistCreator 
+        timeRange={timeRange}
+        onClose={closePlaylistModal}
+        onSuccess={handlePlaylistSuccess}
+      />
+    )}
     {shareModal.isOpen && (
-        <ShareImage 
-          data={shareModal.data}
-          type={shareModal.type}
-          timeRange={timeRange}
-          onClose={closeShareModal}
-        />
-      )}
-      <Footer />
+      <ShareImage 
+        data={shareModal.data}
+        type={shareModal.type}
+        timeRange={timeRange}
+        onClose={closeShareModal}
+      />
+    )}
+    <Footer />
     </div>
   );
 }

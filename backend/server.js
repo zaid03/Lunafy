@@ -362,7 +362,85 @@ app.get('/api/top-by-decade', async (req, res) => {
   }
 })  
 
+//route to add playlists to spotify
+app.post('/api/create-playlist', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
 
+  try {
+    const { name, description, timeRange } = req.body;
+    
+    const [tokenRow] = await db.query('SELECT access_token FROM user_tokens WHERE user_id = ?', [req.session.userId]);
+    if (!tokenRow || !tokenRow[0] || !tokenRow[0].access_token) {
+      return res.status(401).json({ error: 'No access token found' });
+    }
+
+    const accessToken = tokenRow[0].access_token;
+
+    
+    const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const spotifyUserId = userResponse.data.id;
+
+
+    const playlistResponse = await axios.post(`https://api.spotify.com/v1/users/${spotifyUserId}/playlists`, {
+      name: name,
+      description: description,
+      public: false
+    }, {
+      headers: { 
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const playlistId = playlistResponse.data.id;
+
+    // Get top songs from database
+    const [songs] = await db.query(`
+      SELECT spotify_track_id 
+      FROM user_data 
+      WHERE user_id = ? AND time_range = ? 
+      ORDER BY rank_position ASC 
+      LIMIT 50
+    `, [req.session.userId, timeRange]);
+
+    if (songs.length === 0) {
+      return res.status(400).json({ error: 'No songs found for this time range' });
+    }
+
+    const trackUris = songs.map(song => `spotify:track:${song.spotify_track_id}`);
+    
+    await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      uris: trackUris
+    }, {
+      headers: { 
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Playlist created successfully!',
+      playlist: {
+        id: playlistId,
+        name: playlistResponse.data.name,
+        url: playlistResponse.data.external_urls.spotify,
+        tracks_added: songs.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating playlist:', error.response?.data || error.message);
+    res.status(500).json({ 
+      error: 'Failed to create playlist',
+      details: error.response?.data?.error?.message || error.message
+    });
+  }
+});
 
 
 //route to logout

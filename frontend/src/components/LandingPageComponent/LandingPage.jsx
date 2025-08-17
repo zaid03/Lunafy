@@ -80,7 +80,7 @@ function LandingPage() {
                     </div>
                     <div className='login'>
                         <a
-                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state&show_dialog=true"
+                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state%20playlist-modify-private%20playlist-modify-public&show_dialog=true"
                             className='login-btn'
                         ><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
                     </div>
@@ -92,7 +92,7 @@ function LandingPage() {
                         <h2 className='tailor'>Tailored for you</h2>
                         <p>Connect your Spotify account and get detailed insights about your listening habits.</p>
                         <a
-                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state&show_dialog=true"
+                            href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state%20playlist-modify-private&%20playlist-modify-publicshow_dialog=true"
                             className='login-btn'
                         ><img src={white} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
                         <p className='conditions'>By clicking Login, you agree to our <Link to='/terms' className='terms'>Terms of Services</Link> and <Link to='/privacy' className='privacy'>Privacy Policy</Link> </p>
@@ -165,7 +165,7 @@ function LandingPage() {
                 </div>
 
                 <a
-                    href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state&show_dialog=true"
+                    href="https://accounts.spotify.com/authorize?client_id=918c37da12574ae9bc8989e0bc06cf7e&response_type=code&redirect_uri=http://127.0.0.1:3000/callback&scope=user-top-read%20user-read-private%20user-read-email%20user-follow-read%20playlist-read-private%20user-read-recently-played%20user-read-currently-playing%20user-read-playback-state%20playlist-modify-private%20playlist-modify-public&show_dialog=true"
                     className='login-btn'
                 ><img src={spotify} alt='Spotify icon by Icons8' className='spotify'/> Login With Spotify</a>
 
