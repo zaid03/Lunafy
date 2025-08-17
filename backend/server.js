@@ -242,6 +242,115 @@ app.get('/api/dashboard-overview', async (req, res) => {
   }
 })
 
+//route to fetch the most and least popular song
+app.get('/api/most-least-pop', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    const [topSongs] = await db.query(`
+      (
+        SELECT track_name, artist_name, image_url, popularity
+        FROM user_data
+        WHERE user_id = ? AND time_range = 'medium_term'
+        ORDER BY popularity DESC
+        LIMIT 1
+      )
+      UNION
+      (
+        SELECT track_name, artist_name, image_url, popularity
+        FROM user_data
+        WHERE user_id = ? AND time_range = 'medium_term'
+        ORDER BY popularity ASC
+        LIMIT 1
+      )`, [req.session.userId, req.session.userId]);
+    res.json({
+      mostPopular: topSongs[0],
+      leastPopular: topSongs[1]
+    });
+  } catch (e) {
+    console.log('Error fetching songs by popularity:', e);
+    res.status(500).json({ error: 'failed to fetch songs by popularity'});
+  }
+})
+
+
+//route to get longes/shortest songs
+app.get('/api/longest-shortest-song', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try{
+    const [longSongs] = await db.query(`
+      (
+        SELECT track_name, artist_name, image_url, duration_ms
+        FROM user_data
+        WHERE user_id = ? AND time_range = 'medium_term'
+        ORDER BY duration_ms DESC
+        LIMIT 1
+      )
+      UNION
+      (
+        SELECT track_name, artist_name, image_url, duration_ms
+        FROM user_data
+        WHERE user_id = ? AND time_range = 'medium_term'
+        ORDER BY duration_ms ASC
+        LIMIT 1
+      )
+      ORDER BY duration_ms DESC
+      `, [req.session.userId, req.session.userId]);
+    res.json({
+      longest: longSongs[0],
+      shortest: longSongs[1]
+    });
+  } catch(e) {
+    console.log('Error fetching songs by duration:', e);
+    res.status(500).json({ error: 'failed to fetch songs by duration'});
+  }
+})
+
+//top by decade 2010s and 2020s
+app.get('/api/top-by-decade', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    const [decade] = await db.query(`
+      (
+        SELECT track_name, artist_name, image_url, popularity, release_date
+        FROM user_data
+        WHERE user_id = ? 
+          AND time_range = 'medium_term'
+          AND release_date >= '2010-01-01' 
+          AND release_date < '2020-01-01'
+        ORDER BY rank_position ASC
+        LIMIT 1
+      )
+      UNION
+      (
+        SELECT track_name, artist_name, image_url, popularity, release_date
+        FROM user_data
+        WHERE user_id = ? 
+          AND time_range = 'medium_term'
+          AND release_date >= '2020-01-01'
+        ORDER BY rank_position ASC
+        LIMIT 1
+      )
+      `, [req.session.userId, req.session.userId]);
+
+    res.json({
+      decade2010s: decade[0] || null,
+      decade2020s: decade[1] || null
+    })
+  } catch (e) {
+    console.log('Error fetching songs by decade:', e);
+    res.status(500).json({ error: 'failed to fetch songs by decade'});
+  }
+})  
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`server is running on localhost:${PORT}`);

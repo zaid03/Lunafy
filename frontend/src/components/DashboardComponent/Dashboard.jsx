@@ -4,7 +4,6 @@ import logo from '../../assets/logo.png';
 import './Dashboard.css';
 import { NavLink } from 'react-router-dom';
 import Footer from '../FooterComponent';
-import test from '../../assets/bbcone.png';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -84,14 +83,49 @@ function Dashboard() {
     .then(() => {
       return fetch('http://127.0.0.1:5000/api/dashboard-overview', { credentials: 'include' });
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.artists) setArtistsData(data.artists);
-      if (data.albums) setAlbumsData(data.albums);
-      if (data.songs) setSongsData(data.songs);
-    })
-    .catch(err => console.error('Error:', err));
-}, []);
+      .then(res => res.json())
+      .then(data => {
+        if (data.artists) setArtistsData(data.artists);
+        if (data.albums) setAlbumsData(data.albums);
+        if (data.songs) setSongsData(data.songs);
+      })
+      .catch(err => console.error('Error:', err));
+  }, []);
+
+  const [popularData, setPopularData] = useState([]);
+  const [durationData, setDurationData] = useState([]);
+  const [decadeData, setDecadeData] = useState([]);
+
+  // Fetch most/least popular songs
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/most-least-pop', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setPopularData(data);
+      })
+      .catch(err => console.error('Error fetching popular data:', err));
+  }, []);
+
+  // Fetch longest/shortest songs
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/longest-shortest-song', {credentials: 'include'})
+      .then(res => res.json())
+      .then(data => {
+        setDurationData(data);
+      })
+      .catch(err => console.error('Error fetching duration data:', err));
+  }, []);
+
+  // Fetch top songs by decade
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/top-by-decade', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        setDecadeData(data);
+      })
+      .catch(err => console.error('Error fetching decade data:', err));
+  }, []);
+
   return (
     <div className='container-dash'>
       <div className='header-dash'>
@@ -187,7 +221,7 @@ function Dashboard() {
                   <div key={artist.artist_id} className='artist-item'>
                     <span className='artist-rank'>{index + 1}</span>
                     <img src={artist.image_url} alt='Artist' className='artist-pfp' />
-                    <span className='artist-name'>{artist.artist_name}</span>
+                    <span className='artist-name'>{artist.artist_name.split(',')[0].trim()}</span>
                   </div>
                 ))
               ) : (
@@ -218,7 +252,7 @@ function Dashboard() {
                     <img src={song.image_url} alt='Song Cover' className='song-cover' />
                     <div className='song-info'>
                       <span className='song-title'>{song.track_name}</span>
-                      <span className='song-artist'>{song.artist_name}</span>
+                      <span className='song-artist'>{song.artist_name.split(',')[0].trim()}</span>
                     </div>
                   </div>
                 ))
@@ -258,7 +292,7 @@ function Dashboard() {
                     />
                     <div className='album-info'>
                       <span className='album-title'>{album.album_name}</span>
-                      <span className='album-artist'>{album.artist_name}</span>
+                      <span className='album-artist'>{album.artist_name.split(',')[0].trim()}</span>
                     </div>
                   </div>
                 ))
@@ -281,24 +315,24 @@ function Dashboard() {
         <h4>Taste</h4>
         <div className='taste'>
             <div className='popularity'>
-              <h5>Top favorite</h5>
+              <h5>Most popular</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={popularData?.mostPopular?.image_url} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{popularData?.mostPopular?.track_name}</span>
+                  <span className='name-artist'>{popularData?.mostPopular?.artist_name.split(',')[0].trim()}</span>
                 </div>
               </div>
-              <h5>Bottom favorite</h5>
+              <h5>Least popular</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={popularData?.leastPopular?.image_url} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{popularData?.leastPopular?.track_name}</span>
+                  <span className='name-artist'>{popularData?.leastPopular?.artist_name.split(',')[0].trim()}</span>
                 </div>
               </div>
             </div>
@@ -306,24 +340,24 @@ function Dashboard() {
               <h5>Top in 2020s</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={decadeData?.decade2020s?.image_url || 'Not available'} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{decadeData?.decade2020s?.track_name || 'Not available'}</span>
+                  <span className='name-artist'>{decadeData?.decade2020s?.artist_name.split(',')[0].trim() || 'Not available'}</span>
                 </div>
               </div>
               <h5>Top in 2010s</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={decadeData?.decade2010s?.image_url || 'Not available'} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{decadeData?.decade2010s?.track_name || 'Not available'}</span>
+                  <span className='name-artist'>{decadeData?.decade2010s?.artist_name.split(',')[0].trim() || 'Not available'}</span>
                 </div>
               </div>
-              <h5>Top in 2000s</h5>
+              {/* <h5>Top in 2000s</h5>
               <div className='the-song'>
                 <div className='image-song'>
                   <img src={test} alt='song' />
@@ -332,34 +366,33 @@ function Dashboard() {
                   <span className='name-song'>name of the song</span>
                   <span className='name-artist'>name of the Artist</span>
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className='length'>
               <h5>Longest</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={durationData?.longest?.image_url || 'Not available'} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{durationData?.longest?.track_name || 'Not available'}</span>
+                  <span className='name-artist'>{durationData?.longest?.artist_name.split(',')[0].trim() || 'Not available'}</span>
                 </div>
               </div>
               <h5>Shortest</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={test} alt='song' />
+                  <img src={durationData?.shortest?.image_url || 'Not available'} alt='song' />
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
+                  <span className='name-song'>{durationData?.shortest?.track_name || 'Not available'}</span>
+                  <span className='name-artist'>{durationData?.shortest?.artist_name.split(',')[0].trim() || 'Not available'}</span>
                 </div>
               </div>  
             </div>
         </div>
       </div>
     </div>
-    
       <Footer />
     </div>
   );
