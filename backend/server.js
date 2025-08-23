@@ -467,12 +467,35 @@ app.get('/api/top-all-artists', async (req, res) => {
       `, [req.session.userId, timeRange]);
 
       res.json({ artists });
-      
+
   } catch (e) {
     console.error('Error fetching top all artists', e);
     res.status(500).json({ error: 'failed to fetch dashboard content'});
   }
 })
+
+//route to fetch all songs
+app.get('/api/top-all-songs', async (req, res) => {
+  const timeRange = req.query.timeRange || 'medium_term';
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+  
+  try{
+    const [songs] = await db.query (`
+      SELECT track_name, artist_name, image_url, rank_position, external_url FROM user_data WHERE user_id = ? AND time_range = ? ORDER BY rank_position ASC LIMIT 50
+      `, [req.session.userId, timeRange])
+
+      res.json({ songs })
+
+  } catch (e) {
+    console.error('error fetching all songs:', e);
+    res.status(500).json({ error: 'failed to fetch dashboard content'});
+
+  }
+})
+
+//route to fetch all albums
 
 //route to logout
 app.post('/api/logout', (req, res) => {
