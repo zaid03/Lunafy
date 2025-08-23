@@ -1,10 +1,26 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './Artist.css';
 import Header from "../HeaderComponent";
 import Footer from "../FooterComponent";
-import bbcone from '../../assets/bbcone.png';
+import { useNavigate } from 'react-router-dom';
 
 function Artists() {
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/api/test-session', {
+          credentials: 'include',
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.userId) {
+              navigate('/');
+            }
+          })
+          .catch(() => {
+            navigate('/');
+          });
+      }, [navigate]);
 
     const [timeRange, setTimeRange] = useState('medium_term');
         const handleTimeRangeChange = (event) => {
@@ -12,23 +28,15 @@ function Artists() {
         setTimeRange(newTimeRange);
     }
 
-    const staticArtists = Array.from({ length: 50 }, (_, index) => ({
-        id: index + 1,
-        name: [
-            "The Weeknd", "Drake", "Billie Eilish", "Taylor Swift", "Ed Sheeran",
-            "Ariana Grande", "Post Malone", "Dua Lipa", "Harry Styles", "Olivia Rodrigo",
-            "Justin Bieber", "Bad Bunny", "BTS", "Doja Cat", "The Chainsmokers",
-            "Imagine Dragons", "Maroon 5", "OneRepublic", "Coldplay", "Bruno Mars",
-            "Eminem", "Kendrick Lamar", "Travis Scott", "Future", "21 Savage",
-            "Lil Baby", "Roddy Ricch", "DaBaby", "Pop Smoke", "Juice WRLD",
-            "XXXTentacion", "Lil Uzi Vert", "Playboi Carti", "Tyler, The Creator", "Frank Ocean",
-            "SZA", "H.E.R.", "Summer Walker", "Jhené Aiko", "Kehlani",
-            "The Kid LAROI", "Machine Gun Kelly", "Polo G", "Lil Durk", "NBA YoungBoy",
-            "Gunna", "Young Thug", "Lil Wayne", "Nicki Minaj", "Cardi B"
-        ][index % 50],
-        image: bbcone,
-        rank: index + 1
-    }));
+    const [artistData, setArtistData] = useState([]);
+    useEffect(() => {
+        fetch(`http://127.0.0.1:5000/api/top-all-artists?timeRange=${timeRange}`, {credentials: 'include'})
+        .then(res => res.json())
+        .then(data => {
+            setArtistData(data.artists);
+        })
+        .catch(err => console.error('Error fetching duration data:', err));
+    }, [timeRange]);
 
     return (
         < >
@@ -42,16 +50,27 @@ function Artists() {
                     </select>
                 </div>
                 <div className='display-artists'>
-                    {staticArtists.map((artist) => (
-                        <div key={artist.id} className='artist-content'>
+                    {artistData.map((artist, idx) => (
+                        <div key={artist.artist_id || idx}className='artist-content'>
                             <div className='artist-rank-all'>
-                                #{artist.rank}
+                                #{idx + 1}
                             </div>
                             <div className='artist-image'>
-                                <img src={artist.image} alt={artist.name} />
+                                <img src={artist.image_url} alt={artist.main_artist} />
                             </div>
                             <div className='artist-info-all'>
-                                <h3 className='artist-name-all'>{artist.name}</h3>
+                                <a
+                                    href={
+                                        artist.artist_id
+                                        ? `https://open.spotify.com/artist/${artist.artist_id.split(':').pop()}`
+                                        : '#'
+                                    }
+                                    className='artist-name-all'
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >
+                                    {artist.main_artist}
+                                </a>
                             </div>
                         </div>
                     ))}

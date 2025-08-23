@@ -55,21 +55,17 @@ function Dashboard() {
       .then(data => setUserData(data));
   }, []);
 
-  // const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
   const handlePlayPreview = () => {
     if (!userData?.playingNow?.preview_url) return;
     if (audio) {
       audio.pause();
       setAudio(null);
-      // setIsPreviewPlaying(false);
     } else {
       const newAudio = new Audio(userData.playingNow.preview_url);
       newAudio.play();
       setAudio(newAudio);
-      // setIsPreviewPlaying(true);
       newAudio.onended = () => {
-        // setIsPreviewPlaying(false);
         setAudio(null);
       };
     }

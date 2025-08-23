@@ -194,18 +194,18 @@ app.get('/api/dashboard-overview', async (req, res) => {
     //top 10 artists
     const [artists] = await db.query (`
         SELECT 
-    SUBSTRING_INDEX(artist_name, ',', 1) as main_artist,
-    ANY_VALUE(artist_id) as artist_id, 
-    ANY_VALUE(image_url) as image_url,  
-    COUNT(*) as track_count,
-    AVG(popularity) as avg_popularity,
-    AVG(rank_position) as avg_rank,
-    MIN(rank_position) as best_track_rank
-  FROM user_data 
-  WHERE user_id = ? AND time_range = ?
-  GROUP BY SUBSTRING_INDEX(artist_name, ',', 1)  -- ✅ Group by FIRST artist only
-  ORDER BY best_track_rank ASC  
-  LIMIT 10
+          SUBSTRING_INDEX(artist_name, ',', 1) as main_artist,
+          ANY_VALUE(artist_id) as artist_id, 
+          ANY_VALUE(image_url) as image_url,  
+          COUNT(*) as track_count,
+          AVG(popularity) as avg_popularity,
+          AVG(rank_position) as avg_rank,
+          MIN(rank_position) as best_track_rank
+        FROM user_data 
+        WHERE user_id = ? AND time_range = ?
+        GROUP BY SUBSTRING_INDEX(artist_name, ',', 1)
+        ORDER BY best_track_rank ASC  
+        LIMIT 10
       `, [req.session.userId, timeRange]);
 
     //top 10 albums
@@ -442,6 +442,37 @@ app.post('/api/create-playlist', async (req, res) => {
   }
 });
 
+//route to fetch all artists
+app.get('/api/top-all-artists', async (req, res) => {
+  const timeRange = req.query.timeRange || 'medium_term';
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    const [artists] = await db.query (`
+      SELECT 
+        SUBSTRING_INDEX(artist_name, ',', 1) as main_artist,
+        ANY_VALUE(artist_id) as artist_id, 
+        ANY_VALUE(image_url) as image_url,  
+        COUNT(*) as track_count,
+        AVG(popularity) as avg_popularity,
+        AVG(rank_position) as avg_rank,
+        MIN(rank_position) as best_track_rank
+      FROM user_data 
+      WHERE user_id = ? AND time_range = ?
+      GROUP BY SUBSTRING_INDEX(artist_name, ',', 1)
+      ORDER BY best_track_rank ASC  
+      LIMIT 50
+      `, [req.session.userId, timeRange]);
+
+      res.json({ artists });
+      
+  } catch (e) {
+    console.error('Error fetching top all artists', e);
+    res.status(500).json({ error: 'failed to fetch dashboard content'});
+  }
+})
 
 //route to logout
 app.post('/api/logout', (req, res) => {
