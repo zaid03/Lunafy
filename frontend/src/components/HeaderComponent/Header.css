@@ -102,29 +102,45 @@
     }
 }
 
-/* Mobile */
+
 @media (max-width: 600px) {
-    .header-all-container,
-    .header-all {
-        height: 54px;
-        padding: 0 4px;
+    .header-all{
+        width: 100%;
     }
-    .logo-on-left {
-        width: auto;
-        gap: 6px;
+
+    .logo-on-left{
+        width: 50%;
     }
-    .logo-on-left img {
-        width: 32px;
-        height: 32px;
-    }
+    
     .nav-center {
-        gap: 4px;
+        display: none !important;
     }
-    .nav-center a {
-        font-size: 11px;
-        padding: 0 2px;
+    .menu {
+        position: absolute;
+        top: 54px; /* height of header */
+        right: 8px;
+        background: #23262c;
+        border-radius: 8px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+        padding: 16px 0;
+        z-index: 100;
+        min-width: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
-    .burger-menu-right {
-        margin-right: 6px;
+    .menu a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 8px 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .menu a:hover {
+        background: #1db954;
+        color: #191414;
+        border-radius: 4px;
     }
 }

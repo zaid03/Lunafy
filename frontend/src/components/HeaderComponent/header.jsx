@@ -52,9 +52,27 @@ function Header() {
                     </div>
                     {menuOpen && (
                         <div className='menu'>
-                        <a href='/dashboard'>Profile</a>
-                        <a href='/profile'>Settings</a>
-                        <a href='/logout'>Logout</a>
+                            {window.innerWidth > 600 ? (
+                                <>
+                                    <a href="/profile">Profile</a>
+                                    <a href='/settings'>Settings</a>
+                                    <a href='/logout'>Logout</a>
+                                </>
+                            ) : (
+                                <>
+                                    <NavLink to="/dashboard">Overview</NavLink>
+                                    <NavLink to="/Artists">Artists</NavLink>
+                                    <NavLink to="/songs">Songs</NavLink>
+                                    <NavLink to="/albums">Albums</NavLink>
+                                    <NavLink to="/genres">Genres</NavLink>
+                                    <NavLink to="/playlists">Playlists</NavLink>
+                                    <NavLink to="/taste">Discover your taste</NavLink>
+                                    <NavLink to="/roast">Roast</NavLink>
+                                    <a href="/profile">Profile</a>
+                                    <a href='/settings'>Settings</a>
+                                    <a href='/logout'>Logout</a>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
