@@ -450,3 +450,33 @@
 .details-song span {
   width: 85%;
 }
+
+@media (max-width: 767px) {
+  .top-cards {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .top-artists,
+  .top-songs,
+  .top-albums {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .taste {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .popularity,
+  .decade,
+  .length {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    align-items: center;
+  }
+}
