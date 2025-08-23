@@ -9,6 +9,7 @@ import Dashboard from './components/DashboardComponent';
 import Logout from './components/LogoutComponent/Logout';
 import Artists from './components/ArtistsComponent/Artists';
 import Songs from './components/SongsComponents/songs';
+import Albums from './components/AlbumsComponent/album';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path='/logout' element={<Logout />} />
         <Route path='/Artists' element={<Artists />} />
         <Route path='/songs' element={<Songs />} />
+        <Route path='/albums' element={<Albums />} />
        </Routes>
     </Router>
   );

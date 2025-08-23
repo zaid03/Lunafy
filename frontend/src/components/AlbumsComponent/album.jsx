@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import Header from "../HeaderComponent";
-import Footer from "../FooterComponent";
+import Header from '../HeaderComponent';
+import Footer from '../FooterComponent';
 import { useNavigate } from 'react-router-dom';
 
-function Songs () {
+function Album () {
     const navigate = useNavigate();
     useEffect(() => {
         fetch('http://127.0.0.1:5000/api/test-session', {
@@ -26,14 +26,14 @@ function Songs () {
         setTimeRange(newTimeRange);
     }
 
-    const [songData, setSongData] = useState([]);
+    const [albumData, setAlbumData] = useState([]);
     useEffect(() => {
-        fetch(`http://127.0.0.1:5000/api/top-all-songs?timeRange=${timeRange}`, {credentials: 'include'})
+        fetch(`http://127.0.0.1:5000/api/top-all-albums?timeRange=${timeRange}`, {credentials: 'include'})
         .then(res => res.json())
         .then(data => {
-            setSongData(data.songs);
+            setAlbumData(data.albums);
         })
-        .catch(err => console.error('Error fetching songs data:', err));
+        .catch(err => console.error('Error fetching albums data:', err));
     }, [timeRange]);
 
     return (
@@ -48,39 +48,37 @@ function Songs () {
                     </select>
                 </div>
                 <div className='display-artists'>
-                    {songData.map((song, idx) => (
-                        <div key={song.artist_id || idx}className='artist-content'>
+                    {albumData.map((album, idx) => (
+                        <div key={album.album_id || idx}className='artist-content'>
                             <div className='artist-rank-all'>
                                 #{idx + 1}
                             </div>
                             <div className='artist-image'>
-                                <img src={song.image_url} alt={song.artist_name} />
+                                <img src={album.image_url} alt={album.album_url} />
                             </div>
                             <div className='artist-info-all'>
                                 <a
-                                    href={song.external_url}
+                                    href={album.album_id ? `https://open.spotify.com/album/${album.album_id}` : '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className='song-name'
-                                    style={{textDecoration: 'none'}}
+                                    style={{ textDecoration: 'none' }}
                                 >
-                                    {song.track_name}
+                                    {album.album_name}
                                 </a>
                                 <div className='artist-name-all'>
-                                    {song.artist_name}
+                                    {album.artist_name}
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
-
                 <div className='footer-all'>
                     <Footer />
                 </div>
             </div>
-            
         </>
     )
 }
 
-export default Songs;
+export default Album;
