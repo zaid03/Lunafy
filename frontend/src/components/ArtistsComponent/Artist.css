@@ -1,14 +1,8 @@
-
-.artist-container{
-    width: 100%;
-    background-color: rgb(23 26 32);
-}
-
 .artist-container {
     background: #1A1A1A;
     min-height: 100vh;
     color: white;
-    padding: 20px 40px;
+    width: 100%;
 }
 
 .artist-header {
@@ -29,6 +23,10 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+.time-periode{
+    padding: 20px 40px;
 }
 
 .time-periode select {
@@ -120,44 +118,66 @@
     line-height: 1.3;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+.footer-all {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
     .artist-container {
-        padding: 20px;
+        padding: 0;
     }
-    
     .artist-header {
         flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .artist-header h1 {
-        font-size: 36px;
-    }
-    
-    .display-artists {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 16px;
+        text-align: center;
+        margin-bottom: 24px;
+        max-width: 100vw;
+    }
+    .artist-header h1 {
+        font-size: 32px;
+    }
+    .display-artists {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+        max-width: 98vw;
+        padding: 0 5px;
+    }
+    .time-periode {
+        padding: 8px 5px;
+    }
+    .footer-all {
+        padding: 0 5px;
     }
 }
 
-@media (max-width: 480px) {
+/* Mobile */
+@media (max-width: 600px) {
+    .artist-container {
+        padding: 0;
+    }
+    .artist-header h1 {
+        font-size: 20px;
+    }
     .display-artists {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr;
+        gap: 6px;
+        max-width: 100vw;
+        padding: 0 2px;
     }
-    
     .artist-content {
-        padding: 15px;
+        padding: 6px;
     }
-    
     .artist-image img {
-        width: 80px;
-        height: 80px;
+        width: 48px;
+        height: 48px;
     }
-    
     .artist-name-all {
-        font-size: 14px;
+        font-size: 11px;
+    }
+    .footer-all {
+        padding: 0 2px;
+    }
+    .time-periode {
+        padding: 4px 2px;
     }
 }

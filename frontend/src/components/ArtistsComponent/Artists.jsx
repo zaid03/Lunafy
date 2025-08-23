@@ -57,8 +57,10 @@ function Artists() {
                     ))}
                 </div>
           
+                <div className='footer-all'>
+                    <Footer />
+                </div>
             </div>
-            <Footer />
         </>
     )
 }
