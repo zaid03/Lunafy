@@ -10,7 +10,7 @@ import Logout from './components/LogoutComponent/Logout';
 import Artists from './components/ArtistsComponent/Artists';
 import Songs from './components/SongsComponents/songs';
 import Albums from './components/AlbumsComponent/album';
-import Genre from './components/GenreComponent/Genre';
+import Genre from './components/GenreComponent';
 
 function App() {
   return (

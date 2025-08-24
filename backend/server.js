@@ -107,29 +107,59 @@ app.get('/api/user-stats', async (req, res) => {
   try {
     // Fetch access token
     const [tokenRow] = await db.query('SELECT access_token FROM user_tokens WHERE user_id = ?', [req.session.userId]);
-
     if (!tokenRow || !tokenRow[0] || !tokenRow[0].access_token) {
       return res.status(401).json({ error: 'No access token found' });
     }
     console.log('Session userId:', req.session.userId);
     const timeRanges = ['short_term', 'medium_term', 'long_term'];
 
-    // Get user's top tracks first, then extract unique albums
+    // Cache for artist genres (in-memory for this request)
+    const artistGenreMap = {};
+
     for (const timeRange of timeRanges) {
+      // Fetch top tracks
       const topTracksRes = await axios.get(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=${timeRange}`, {
         headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
       });
 
+      // Collect unique artist IDs from tracks
+      const uniqueArtistIds = new Set();
+      if (topTracksRes.data && topTracksRes.data.items) {
+        topTracksRes.data.items.forEach(track => {
+          track.artists.forEach(artist => {
+            uniqueArtistIds.add(artist.id);
+          });
+        });
+      }
+
+      // Fetch genres for each unique artist (cache in artistGenreMap)
+      for (const artistId of uniqueArtistIds) {
+        if (!artistGenreMap[artistId]) {
+          try {
+            const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
+              headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
+            });
+            artistGenreMap[artistId] = artistRes.data.genres.join(',');
+          } catch (e) {
+            console.error(`Error fetching genres for artist ${artistId}:`, e.message);
+            artistGenreMap[artistId] = '';
+          }
+        }
+      }
+
+      // Save tracks to DB with genres
       if (topTracksRes.data && topTracksRes.data.items) {
         for (let i = 0; i < topTracksRes.data.items.length; i++) {
           const track = topTracksRes.data.items[i];
-          
+          const artistId = track.artists[0]?.id || null;
+          const genres = artistGenreMap[artistId] || '';
+
           const trackData = {
             user_id: req.session.userId,
             spotify_track_id: track.id,
             track_name: track.name,
             artist_name: track.artists.map(a => a.name).join(', '),
-            artist_id: track.artists[0]?.id || null,
+            artist_id: artistId,
             album_name: track.album.name,
             album_id: track.album.id,
             image_url: track.album.images && track.album.images.length > 0 ? track.album.images[0].url : null,
@@ -139,16 +169,31 @@ app.get('/api/user-stats', async (req, res) => {
             external_url: track.external_urls?.spotify || null,
             explicit: track.explicit,
             release_date: track.album.release_date || null,
-            time_range: timeRange, // ✅ Use the current time range
-            rank_position: i + 1
+            time_range: timeRange,
+            rank_position: i + 1,
+            genres: genres
           };
 
           await db.query(`
             INSERT INTO user_data (
-              user_id, spotify_track_id, track_name, artist_name, artist_id, 
-              album_name, album_id, image_url, preview_url, duration_ms, 
-              popularity, external_url, explicit, release_date, time_range, rank_position
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              user_id, 
+              spotify_track_id, 
+              track_name, 
+              artist_name, 
+              artist_id, 
+              album_name, 
+              album_id, 
+              image_url, 
+              preview_url, 
+              duration_ms, 
+              popularity, 
+              external_url, 
+              explicit, 
+              release_date, 
+              time_range, 
+              rank_position, 
+              genres
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
               track_name = VALUES(track_name),
               artist_name = VALUES(artist_name),
@@ -161,14 +206,26 @@ app.get('/api/user-stats', async (req, res) => {
               explicit = VALUES(explicit),
               release_date = VALUES(release_date),
               rank_position = VALUES(rank_position),
-              created_at = CURRENT_TIMESTAMP
+              created_at = CURRENT_TIMESTAMP,
+              genres = VALUES(genres)
           `, [
-            trackData.user_id, trackData.spotify_track_id, trackData.track_name,
-            trackData.artist_name, trackData.artist_id, trackData.album_name,
-            trackData.album_id, trackData.image_url, trackData.preview_url,
-            trackData.duration_ms, trackData.popularity, trackData.external_url,
-            trackData.explicit, trackData.release_date, trackData.time_range,
-            trackData.rank_position
+            trackData.user_id, 
+            trackData.spotify_track_id, 
+            trackData.track_name,
+            trackData.artist_name,  
+            trackData.artist_id, 
+            trackData.album_name,
+            trackData.album_id, 
+            trackData.image_url, 
+            trackData.preview_url,
+            trackData.duration_ms, 
+            trackData.popularity, 
+            trackData.external_url,
+            trackData.explicit, 
+            trackData.release_date, 
+            trackData.time_range,
+            trackData.rank_position,
+            trackData.genres,
           ]);
         }
       }
@@ -524,6 +581,40 @@ app.get('/api/top-all-albums', async (req, res) => {
   } catch(e) {
     console.error("error fetching top all albums", e);
     res.status(500).json({ error: 'failed to fetch dashboard content'});
+  }
+})
+
+//route to fetch top genres
+app.get('/api/top-all-genres', async (req, res) => {
+  const timeRange = req.query.timeRange || 'medium_term';
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    const [rows] = await db.query (`   
+      SELECT genres
+      FROM user_data
+      WHERE user_id = ? AND time_range = ?
+        AND genres IS NOT NULL AND genres <> ''
+      `, [req.session.userId, timeRange])
+      const genreCount = {};
+      rows.forEach(row => {
+        row.genres.split(',').forEach(genre => {
+          const g = genre.trim();
+          if (g) genreCount[g] = (genreCount[g] || 0) + 1;
+        });
+      });
+
+      const genres = Object.entries(genreCount)
+      .map(([genre, count]) => ({ genres: genre, track_count: count }))
+      .sort((a, b) => b.track_count - a.track_count)
+      .slice(0, 50);
+
+      res.json({ genres });
+  } catch (e) {
+    console.error("error fetching top genres:", e);
+     res.status(500).json({ error: 'failed to fetch genres content'});
   }
 })
 
