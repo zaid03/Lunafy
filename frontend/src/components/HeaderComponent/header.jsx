@@ -40,7 +40,6 @@ function Header() {
                     <NavLink to="/songs" className="dashboard-link">Songs</NavLink>
                     <NavLink to="/albums" className="dashboard-link">Albums</NavLink>
                     <NavLink to="/genres" className="dashboard-link">Genres</NavLink>
-                    <NavLink to="/playlists" className="dashboard-link">Playlists</NavLink>
                     <NavLink to="/taste" className="dashboard-link">Discover your taste</NavLink>
                     <NavLink to="/roast" className="dashboard-link">roast</NavLink>
                 </div>
@@ -65,7 +64,6 @@ function Header() {
                                     <NavLink to="/songs">Songs</NavLink>
                                     <NavLink to="/albums">Albums</NavLink>
                                     <NavLink to="/genres">Genres</NavLink>
-                                    <NavLink to="/playlists">Playlists</NavLink>
                                     <NavLink to="/taste">Discover your taste</NavLink>
                                     <NavLink to="/roast">Roast</NavLink>
                                     <a href="/profile">Profile</a>

@@ -3,6 +3,7 @@ import './Artist.css';
 import Header from "../HeaderComponent";
 import Footer from "../FooterComponent";
 import { useNavigate } from 'react-router-dom';
+import ShareImage from '../ShareImageComponent/ShareImage';
 
 function Artists() {
 
@@ -38,6 +39,16 @@ function Artists() {
         .catch(err => console.error('Error fetching duration data:', err));
     }, [timeRange]);
 
+    const [shareModal, setShareModal] = useState({ isOpen: false, type: '', data: [] });
+
+    const handleShare = () => {
+    setShareModal({ isOpen: true, type: 'artists', data: artistData }); 
+    };
+
+    const closeShareModal = () => {
+    setShareModal({ isOpen: false, type: '', data: [] });
+    };
+
     return (
         < >
             <Header />
@@ -48,6 +59,7 @@ function Artists() {
                         <option value="medium_term">Medium range</option>
                         <option value="long_term">Long range</option>
                     </select>
+                    <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
                     {artistData.map((artist, idx) => (
@@ -80,6 +92,14 @@ function Artists() {
                     <Footer />
                 </div>
             </div>
+            {shareModal.isOpen && (
+                <ShareImage
+                    data={shareModal.data}
+                    type={shareModal.type}
+                    timeRange={timeRange}
+                    onClose={closeShareModal}
+                />
+            )}
         </>
     )
 }

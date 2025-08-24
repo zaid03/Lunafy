@@ -27,9 +27,11 @@
 
 .time-periode{
     padding: 20px 40px;
+    display: flex;
+    gap: 10px;
 }
 
-.time-periode select {
+.time-periode select, .time-periode button {
     background: #282828;
     color: white;
     border: 1px solid #535353;

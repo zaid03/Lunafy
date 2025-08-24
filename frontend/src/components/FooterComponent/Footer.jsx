@@ -16,7 +16,8 @@ function Footer() {
             <li><a href="/dashboard">Overview</a></li>
             <li><a href="/Artists">Top Artists</a></li>
             <li><a href="/songs">Top Songs</a></li>
-            <li><a href="/playlists">Ai</a></li>
+            <li><a href="/discover">Discover your taste</a></li>
+            <li><a href="/roast">Roast</a></li>
           </ul>
         </div>
         

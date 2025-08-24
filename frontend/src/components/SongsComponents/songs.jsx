@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import Header from "../HeaderComponent";
 import Footer from "../FooterComponent";
 import { useNavigate } from 'react-router-dom';
+import ShareImage from '../ShareImageComponent/ShareImage';
 
 function Songs () {
     const navigate = useNavigate();
@@ -36,6 +37,16 @@ function Songs () {
         .catch(err => console.error('Error fetching songs data:', err));
     }, [timeRange]);
 
+    const [shareModal, setShareModal] = useState({ isOpen: false, type: '', data: [] });
+
+    const handleShare = () => {
+    setShareModal({ isOpen: true, type: 'songs', data: songData });
+    };
+
+    const closeShareModal = () => {
+    setShareModal({ isOpen: false, type: '', data: [] });
+    };
+
     return (
         <>
             <Header />
@@ -46,6 +57,7 @@ function Songs () {
                         <option value="medium_term">Medium range</option>
                         <option value="long_term">Long range</option>
                     </select>
+                    <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
                     {songData.map((song, idx) => (
@@ -78,7 +90,14 @@ function Songs () {
                     <Footer />
                 </div>
             </div>
-            
+            {shareModal.isOpen && (
+                <ShareImage
+                    data={shareModal.data}
+                    type={shareModal.type}
+                    timeRange={timeRange}
+                    onClose={closeShareModal}
+                />
+            )}
         </>
     )
 }
