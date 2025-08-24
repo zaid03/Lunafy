@@ -11,6 +11,7 @@ import Artists from './components/ArtistsComponent/Artists';
 import Songs from './components/SongsComponents/songs';
 import Albums from './components/AlbumsComponent/album';
 import Genre from './components/GenreComponent';
+import Taste from './components/TasteComponent';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path='/songs' element={<Songs />} />
         <Route path='/albums' element={<Albums />} />
         <Route path='/genres' element={<Genre />} />
+        <Route path='/taste' element={<Taste />} />
        </Routes>
     </Router>
   );

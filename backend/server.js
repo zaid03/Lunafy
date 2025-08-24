@@ -6,6 +6,7 @@ const { handleSpotifyAuth } = require('./controller/SpotifyCallbackController');
 const session = require('express-session');
 const axios = require('axios');
 const { db } = require('./config/db');
+const { deepai } = require("./config/deepai");
 
 dotenv.config();
 connectDB();
@@ -35,6 +36,32 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+
+const getClientCredentialsToken = async () => {
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const tokenUrl = 'https://accounts.spotify.com/api/token';
+
+  const params = new URLSearchParams();
+  params.append('grant_type', 'client_credentials');
+
+  const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+  try {
+    const res = await axios.post(tokenUrl, params, {
+      headers: {
+        'Authorization': `Basic ${authHeader}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    return res.data.access_token;
+  } catch (err) {
+    console.error('Error getting client credentials token:', err.response?.data || err.message);
+    return null;
+  }
+};
+
 
 // route for contact's form
 const contactRoutes = require('./routes/contactRoute');
@@ -110,11 +137,7 @@ app.get('/api/user-stats', async (req, res) => {
     if (!tokenRow || !tokenRow[0] || !tokenRow[0].access_token) {
       return res.status(401).json({ error: 'No access token found' });
     }
-    console.log('Session userId:', req.session.userId);
     const timeRanges = ['short_term', 'medium_term', 'long_term'];
-
-    // Cache for artist genres (in-memory for this request)
-    const artistGenreMap = {};
 
     for (const timeRange of timeRanges) {
       // Fetch top tracks
@@ -122,37 +145,10 @@ app.get('/api/user-stats', async (req, res) => {
         headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
       });
 
-      // Collect unique artist IDs from tracks
-      const uniqueArtistIds = new Set();
-      if (topTracksRes.data && topTracksRes.data.items) {
-        topTracksRes.data.items.forEach(track => {
-          track.artists.forEach(artist => {
-            uniqueArtistIds.add(artist.id);
-          });
-        });
-      }
-
-      // Fetch genres for each unique artist (cache in artistGenreMap)
-      for (const artistId of uniqueArtistIds) {
-        if (!artistGenreMap[artistId]) {
-          try {
-            const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
-              headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
-            });
-            artistGenreMap[artistId] = artistRes.data.genres.join(',');
-          } catch (e) {
-            console.error(`Error fetching genres for artist ${artistId}:`, e.message);
-            artistGenreMap[artistId] = '';
-          }
-        }
-      }
-
-      // Save tracks to DB with genres
       if (topTracksRes.data && topTracksRes.data.items) {
         for (let i = 0; i < topTracksRes.data.items.length; i++) {
           const track = topTracksRes.data.items[i];
           const artistId = track.artists[0]?.id || null;
-          const genres = artistGenreMap[artistId] || '';
 
           const trackData = {
             user_id: req.session.userId,
@@ -170,8 +166,7 @@ app.get('/api/user-stats', async (req, res) => {
             explicit: track.explicit,
             release_date: track.album.release_date || null,
             time_range: timeRange,
-            rank_position: i + 1,
-            genres: genres
+            rank_position: i + 1
           };
 
           await db.query(`
@@ -191,9 +186,8 @@ app.get('/api/user-stats', async (req, res) => {
               explicit, 
               release_date, 
               time_range, 
-              rank_position, 
-              genres
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              rank_position
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
               track_name = VALUES(track_name),
               artist_name = VALUES(artist_name),
@@ -206,8 +200,7 @@ app.get('/api/user-stats', async (req, res) => {
               explicit = VALUES(explicit),
               release_date = VALUES(release_date),
               rank_position = VALUES(rank_position),
-              created_at = CURRENT_TIMESTAMP,
-              genres = VALUES(genres)
+              created_at = CURRENT_TIMESTAMP
           `, [
             trackData.user_id, 
             trackData.spotify_track_id, 
@@ -224,8 +217,7 @@ app.get('/api/user-stats', async (req, res) => {
             trackData.explicit, 
             trackData.release_date, 
             trackData.time_range,
-            trackData.rank_position,
-            trackData.genres,
+            trackData.rank_position
           ]);
         }
       }
@@ -584,7 +576,58 @@ app.get('/api/top-all-albums', async (req, res) => {
   }
 })
 
-//route to fetch top genres
+//route to fetch generes from spotify
+app.post('/api/fetch-top-genres', async (req, res) => {
+  console.log('fetch-top-genres called');
+
+  const accessToken = await getClientCredentialsToken();
+  if (!accessToken) {
+    return res.status(500).json({ error: 'Could not get Spotify token' });
+  }
+
+  try {
+    // Only fetch 1 uncached artist per call
+    const [rows] = await db.query(`
+      SELECT DISTINCT artist_id FROM user_data WHERE user_id = ? AND artist_id NOT IN (SELECT artist_id FROM artist_genres) LIMIT 1
+    `, [req.session.userId]);
+
+    const uncachedArtistIds = rows.map(r => r.artist_id);
+    const updatedGenres = {};
+
+    for (const artistId of uncachedArtistIds) {
+      try {
+        const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        const genres = (artistRes.data.genres || []).join(',');
+        updatedGenres[artistId] = genres;
+
+        await db.query(
+          'INSERT INTO artist_genres (artist_id, genres) VALUES (?, ?) ON DUPLICATE KEY UPDATE genres = VALUES(genres)',
+          [artistId, genres]
+        );
+
+        // Add a long delay to avoid rate limit (10 seconds)
+        await new Promise(r => setTimeout(r, 10000));
+      } catch (e) {
+        console.error(`Error fetching artist ${artistId}:`, e.response?.status, e.response?.data);
+        updatedGenres[artistId] = '';
+        if (e.response && e.response.status === 429) {
+          console.error('Rate limit hit, stopping further requests.');
+          break;
+        }
+      }
+    }
+
+    res.json({ updatedGenres });
+  } catch (err) {
+    console.error('Error fetching missing genres:', err);
+    res.status(500).json({ error: 'Failed to fetch missing genres' });
+  }
+});
+
+//route to fetch top genres from my db
 app.get('/api/top-all-genres', async (req, res) => {
   const timeRange = req.query.timeRange || 'medium_term';
   if (!req.session.userId) {
@@ -593,10 +636,11 @@ app.get('/api/top-all-genres', async (req, res) => {
 
   try {
     const [rows] = await db.query (`   
-      SELECT genres
-      FROM user_data
-      WHERE user_id = ? AND time_range = ?
-        AND genres IS NOT NULL AND genres <> ''
+      SELECT ag.genres
+      FROM user_data ud
+      JOIN artist_genres ag ON ud.artist_id = ag.artist_id
+      WHERE ud.user_id = ? AND ud.time_range = ?
+        AND ag.genres IS NOT NULL AND ag.genres <> ''
       `, [req.session.userId, timeRange])
       const genreCount = {};
       rows.forEach(row => {
@@ -617,6 +661,59 @@ app.get('/api/top-all-genres', async (req, res) => {
      res.status(500).json({ error: 'failed to fetch genres content'});
   }
 })
+
+
+//route to get user's taste
+app.get("/api/music-insight", async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "not authenticated" });
+  }
+
+  try {
+    const [rows] = await db.query(
+      `SELECT track_name, artist_name, popularity
+       FROM user_data
+       WHERE user_id = ?
+       ORDER BY popularity DESC`,
+      [req.session.userId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "no music data found" });
+    }
+
+    const tasteSummary = rows
+      .map(row => `${row.track_name} by ${row.artist_name} (popularity ${row.popularity})`)
+      .join(", ");
+
+    const response = await deepai.chat.completions.create({
+      model: "text-generator",
+      messages: [
+        { role: "system", content: "You are a music taste analyst. Be insightful and engaging." },
+        { role: "user", content: `Analyze this user’s music taste: ${tasteSummary}` },
+      ],
+    });
+
+    const insight = response.choices[0].message.content;
+    console.log('Insight:', insight);
+
+    if (!insight || insight.trim() === "") {
+      return res.status(500).json({ error: "No insight generated" });
+    }
+
+    await db.query(
+      `INSERT INTO user_insights (user_id, insight_text) VALUES (?, ?)`,
+      [req.session.userId, insight]
+    );
+
+    res.json({ insight });
+
+  } catch (e) {
+    console.error("error generating music insight:", e);
+    res.status(500).json({ error: "failed to generate insight" });
+  }
+});
+
 
 //route to logout
 app.post('/api/logout', (req, res) => {

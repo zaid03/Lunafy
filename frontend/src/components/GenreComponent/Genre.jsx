@@ -27,19 +27,34 @@ function Genre() {
         setTimeRange(newTimeRange);
     }
 
+    const handleFetchGenres = () => {
+        fetch('http://127.0.0.1:5000/api/fetch-top-genres', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Updated genres:', data.updatedGenres);
+        })
+        .catch(err => console.error('Error updating genres:', err));
+    };
+
     const [genreData, setGenreData] = useState([]);
     useEffect(() => {
         fetch(`http://127.0.0.1:5000/api/top-all-genres?timeRange=${timeRange}`, {credentials: 'include'})
         .then(res => res.json())
         .then(data => {
-            console.log(data);
             setGenreData(data.genres);
         })
-        .catch(err => console.error('Error fetching albums data:', err));
+        .catch(err => console.error('Error fetching genres data:', err));
     }, [timeRange]);
 
     return (
         <>  
+        <button onClick={handleFetchGenres} style={{margin: '10px 0'}}>
+                    Fetch Next Artist Genres
+                </button>
             <div className='artist-container'>
                 <Header />
                 <div className='time-periode'>
