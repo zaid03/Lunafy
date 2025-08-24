@@ -82,11 +82,12 @@ function Dashboard() {
   }
   
   useEffect(() => {
-  // First save data, then get overview
-  fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
-    .then(() => {
-      return fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' });
-    })
+  if (localStorage.getItem('shouldFetchSpotifyData') === 'true') {
+    fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
+      .then(() => {
+        localStorage.setItem('shouldFetchSpotifyData', 'false');
+        return fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' });
+      })
       .then(res => res.json())
       .then(data => {
         if (data.artists) setArtistsData(data.artists);
@@ -94,7 +95,17 @@ function Dashboard() {
         if (data.songs) setSongsData(data.songs);
       })
       .catch(err => console.error('Error:', err));
-  }, [timeRange]);
+  } else {
+    fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.artists) setArtistsData(data.artists);
+        if (data.albums) setAlbumsData(data.albums);
+        if (data.songs) setSongsData(data.songs);
+      })
+      .catch(err => console.error('Error:', err));
+  }
+}, [timeRange]);
 
   const [popularData, setPopularData] = useState([]);
   const [durationData, setDurationData] = useState([]);

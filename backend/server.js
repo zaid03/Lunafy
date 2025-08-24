@@ -586,81 +586,86 @@ app.post('/api/fetch-top-genres', async (req, res) => {
   }
 
   try {
-    // Only fetch 1 uncached artist per call
+    // Fetch up to 50 uncached artist IDs per call
     const [rows] = await db.query(`
-      SELECT DISTINCT artist_id FROM user_data WHERE user_id = ? AND artist_id NOT IN (SELECT artist_id FROM artist_genres) LIMIT 1
+      SELECT DISTINCT artist_id FROM user_data WHERE user_id = ? AND artist_id NOT IN (SELECT artist_id FROM artist_genres) LIMIT 50
     `, [req.session.userId]);
 
-    const uncachedArtistIds = rows.map(r => r.artist_id);
+    const uncachedArtistIds = rows.map(r => r.artist_id).filter(Boolean);
     const updatedGenres = {};
 
-    for (const artistId of uncachedArtistIds) {
-      try {
-        const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-
-        const genres = (artistRes.data.genres || []).join(',');
-        updatedGenres[artistId] = genres;
-
-        await db.query(
-          'INSERT INTO artist_genres (artist_id, genres) VALUES (?, ?) ON DUPLICATE KEY UPDATE genres = VALUES(genres)',
-          [artistId, genres]
-        );
-
-        // Add a long delay to avoid rate limit (10 seconds)
-        await new Promise(r => setTimeout(r, 10000));
-      } catch (e) {
-        console.error(`Error fetching artist ${artistId}:`, e.response?.status, e.response?.data);
-        updatedGenres[artistId] = '';
-        if (e.response && e.response.status === 429) {
-          console.error('Rate limit hit, stopping further requests.');
-          break;
-        }
-      }
+    if (uncachedArtistIds.length === 0) {
+      return res.json({ updatedGenres });
     }
 
-    res.json({ updatedGenres });
+    // Batch request for up to 50 artists
+    const idsParam = uncachedArtistIds.join(',');
+    try {
+      const artistRes = await axios.get(`https://api.spotify.com/v1/artists?ids=${idsParam}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      for (const artist of artistRes.data.artists) {
+        const genres = (artist.genres || []).join(',');
+        updatedGenres[artist.id] = genres;
+        await db.query(
+          'INSERT INTO artist_genres (artist_id, genres) VALUES (?, ?) ON DUPLICATE KEY UPDATE genres = VALUES(genres)',
+          [artist.id, genres]
+        );
+      }
+
+      res.json({ updatedGenres });
+    } catch (err) {
+      // Handle rate limit
+      if (err.response && err.response.status === 429) {
+        const retryAfter = err.response.headers['retry-after'];
+        const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000; // default to 60 seconds
+        console.error(`Rate limit hit, wait for ${waitTime / 1000} seconds.`);
+        return res.status(429).json({ error: 'Rate limit hit, try again later', waitTime });
+      }
+      console.error('Error fetching missing genres:', err.response?.data || err.message);
+      return res.status(500).json({ error: 'Failed to fetch missing genres' });
+    }
   } catch (err) {
-    console.error('Error fetching missing genres:', err);
+    console.error('Error fetching missing genres:', err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to fetch missing genres' });
   }
 });
 
 //route to fetch top genres from my db
-app.get('/api/top-all-genres', async (req, res) => {
-  const timeRange = req.query.timeRange || 'medium_term';
-  if (!req.session.userId) {
-    return res.status(401).json({ error: 'not authenticated'});
-  }
+// app.get('/api/top-all-genres', async (req, res) => {
+//   const timeRange = req.query.timeRange || 'medium_term';
+//   if (!req.session.userId) {
+//     return res.status(401).json({ error: 'not authenticated'});
+//   }
 
-  try {
-    const [rows] = await db.query (`   
-      SELECT ag.genres
-      FROM user_data ud
-      JOIN artist_genres ag ON ud.artist_id = ag.artist_id
-      WHERE ud.user_id = ? AND ud.time_range = ?
-        AND ag.genres IS NOT NULL AND ag.genres <> ''
-      `, [req.session.userId, timeRange])
-      const genreCount = {};
-      rows.forEach(row => {
-        row.genres.split(',').forEach(genre => {
-          const g = genre.trim();
-          if (g) genreCount[g] = (genreCount[g] || 0) + 1;
-        });
-      });
+//   try {
+//     const [rows] = await db.query (`   
+//       SELECT ag.genres
+//       FROM user_data ud
+//       JOIN artist_genres ag ON ud.artist_id = ag.artist_id
+//       WHERE ud.user_id = ? AND ud.time_range = ?
+//         AND ag.genres IS NOT NULL AND ag.genres <> ''
+//       `, [req.session.userId, timeRange])
+//       const genreCount = {};
+//       rows.forEach(row => {
+//         row.genres.split(',').forEach(genre => {
+//           const g = genre.trim();
+//           if (g) genreCount[g] = (genreCount[g] || 0) + 1;
+//         });
+//       });
 
-      const genres = Object.entries(genreCount)
-      .map(([genre, count]) => ({ genres: genre, track_count: count }))
-      .sort((a, b) => b.track_count - a.track_count)
-      .slice(0, 50);
+//       const genres = Object.entries(genreCount)
+//       .map(([genre, count]) => ({ genres: genre, track_count: count }))
+//       .sort((a, b) => b.track_count - a.track_count)
+//       .slice(0, 50);
 
-      res.json({ genres });
-  } catch (e) {
-    console.error("error fetching top genres:", e);
-     res.status(500).json({ error: 'failed to fetch genres content'});
-  }
-})
+//       res.json({ genres });
+//   } catch (e) {
+//     console.error("error fetching top genres:", e);
+//      res.status(500).json({ error: 'failed to fetch genres content'});
+//   }
+// })
 
 
 //route to get user's taste

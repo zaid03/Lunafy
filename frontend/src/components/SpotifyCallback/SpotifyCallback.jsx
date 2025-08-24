@@ -11,22 +11,21 @@ function SpotifyCallback() {
     if (handled.current) return;
     handled.current = true;
 
-  const code = searchParams.get('code');
-  if (code) {
-
-
-    fetch('http://127.0.0.1:5000/api/auth/spotify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ code }),
-    })
+    const code = searchParams.get('code');
+    if (code) {
+      fetch('http://127.0.0.1:5000/api/auth/spotify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ code }),
+      })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           navigate('/dashboard');
+          localStorage.setItem('shouldFetchSpotifyData', 'true');
         } 
         else {
           console.log(data.error || "Spotify authentication failed.");
@@ -37,20 +36,20 @@ function SpotifyCallback() {
          console.error("Error sending code to backend:", err);
          alert("Error");
          navigate('/');
-        });
-  } else {
-    console.error("No authorization code found.");
-    navigate('/');
-  }
-}, [navigate, searchParams]);
+      });
+    } else {
+      console.error("No authorization code found.");
+      navigate('/');
+    }
+  }, [navigate, searchParams]);
 
     return (
-    <div style={{ textAlign: 'center', marginTop: '60px' }}>
-      <div className="spotify-spinner"></div>
-      <p style={{ color: '#1DB954', fontWeight: 'bold', marginTop: '20px' }}>
-        Authenticating with Spotify...
-      </p>
-    </div>
+      <div style={{ textAlign: 'center', marginTop: '60px' }}>
+        <div className="spotify-spinner"></div>
+        <p style={{ color: '#1DB954', fontWeight: 'bold', marginTop: '20px' }}>
+          Authenticating with Spotify...
+        </p>
+      </div>
   );
 }
 
