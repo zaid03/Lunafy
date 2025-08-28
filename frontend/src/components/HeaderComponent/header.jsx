@@ -41,7 +41,6 @@ function Header() {
                     <NavLink to="/albums" className="dashboard-link">Albums</NavLink>
                     <NavLink to="/genres" className="dashboard-link">Genres</NavLink>
                     <NavLink to="/taste" className="dashboard-link">Discover your taste</NavLink>
-                    <NavLink to="/roast" className="dashboard-link">roast</NavLink>
                 </div>
                 <div className='burger-menu-right'>
                     <div className='burger-all' onClick={() => setMenuOpen(!menuOpen)}>
@@ -65,7 +64,6 @@ function Header() {
                                     <NavLink to="/albums">Albums</NavLink>
                                     <NavLink to="/genres">Genres</NavLink>
                                     <NavLink to="/taste">Discover your taste</NavLink>
-                                    <NavLink to="/roast">Roast</NavLink>
                                     <a href="/profile">Profile</a>
                                     <a href='/settings'>Settings</a>
                                     <a href='/logout'>Logout</a>
