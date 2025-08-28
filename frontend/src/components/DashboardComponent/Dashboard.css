@@ -14,9 +14,9 @@
 .container-dash { width: 100%; height: auto; background-color: var(--primary-bg); }
 .header-dash { background-color: var(--header-bg); width: 100%; height: 420px; position: relative; }
 .nav-bar-dash { display: flex; height: 60px; }
-.logo-name-dash { width: 30%; height: 60px; display: flex; align-items: center; justify-content: center; }
+.logo-name-dash { width: 30%; height: 60px; display: flex; align-items: center; justify-content: center;}
 .logo-name-dash img { width: 30px; height: 30px; border-radius: 8px; margin-right: 10px; }
-.name-dash { font-family: var(--font-main); font-size: 22px; font-weight: bold; color: var(--text-white); }
+.name-dash { font-family: var(--font-main); font-size: 22px; font-weight: bold; color: var(--text-white); text-decoration: none;}
 .burger-menu { display: flex; align-items: center; justify-content: flex-end; margin-left: auto; margin-right: 50px; }
 .burger { background: transparent; display: flex; align-content: center; flex-direction: column; gap: 6px; cursor: pointer; transition: transform 0.2s; }
 .burger:hover { transform: scale(1.08); }

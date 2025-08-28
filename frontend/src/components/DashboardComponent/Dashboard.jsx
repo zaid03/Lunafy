@@ -190,7 +190,7 @@ function Dashboard() {
         <div className='nav-bar-dash'>
           <div className='logo-name-dash'>
             <img src={logo} alt='Lunafy logo' />
-            <span className='name-dash'>Lunafy</span>
+            <a href='/dashboard' className='name-dash'>Lunafy</a>
           </div>
           <div className='burger-menu'>
             <div className='burger' onClick={() => setMenuOpen(!menuOpen)}>
@@ -200,8 +200,8 @@ function Dashboard() {
             </div>
             {menuOpen && (
               <div className='menu'>
-                <a href='/dashboard'>Profile</a>
-                <a href='/profile'>Settings</a>
+                <a href='/profile'>Profile</a>
+                <a href='/settings'>Settings</a>
                 <a href='/logout'>Logout</a>
               </div>
             )}

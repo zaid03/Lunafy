@@ -32,7 +32,7 @@ function Header() {
             <div className='header-all'>
                 <div className='logo-on-left'>
                     <img src={logo} alt='Lunafy logo' />
-                    <span className='name-dash'>Lunafy</span>
+                    <a href="/dashboard" className='name-dash'>Lunafy</a>
                 </div>
                 <div className="nav-center">
                     <NavLink to="/dashboard"  className="dashboard-link">Overview</NavLink>
