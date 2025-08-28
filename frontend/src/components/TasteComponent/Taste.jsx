@@ -78,7 +78,7 @@ function Taste() {
                             You listen mostly to <span className='diff'>{tasteData.topGenre}</span> music, with an average track popularity of <span className='diff'>{tasteData.avgPopularity}</span>.
                         </p>
                         <p>
-                            You listen most to <span className='diff'>{tasteData.topGenre}</span> music,and you’ve explored <span className='diff'>{tasteData.uniqueArtists?.[0]?.uniqueArtists}</span> different artists this month!
+                            You’ve explored <span className='diff'>{tasteData.uniqueArtists?.[0]?.uniqueArtists}</span> different artists this month!
                         </p>
                     </div>
                 </div>

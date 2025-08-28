@@ -136,7 +136,11 @@ app.get('/api/user-stats', async (req, res) => {
     if (!tokenRow || !tokenRow[0] || !tokenRow[0].access_token) {
       return res.status(401).json({ error: 'No access token found' });
     }
+    console.log('Session userId:', req.session.userId);
     const timeRanges = ['short_term', 'medium_term', 'long_term'];
+
+    // Cache for artist genres (in-memory for this request)
+    const artistGenreMap = {};
 
     for (const timeRange of timeRanges) {
       // Fetch top tracks
@@ -144,10 +148,37 @@ app.get('/api/user-stats', async (req, res) => {
         headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
       });
 
+      // Collect unique artist IDs from tracks
+      const uniqueArtistIds = new Set();
+      if (topTracksRes.data && topTracksRes.data.items) {
+        topTracksRes.data.items.forEach(track => {
+          track.artists.forEach(artist => {
+            uniqueArtistIds.add(artist.id);
+          });
+        });
+      }
+
+      // Fetch genres for each unique artist (cache in artistGenreMap)
+      for (const artistId of uniqueArtistIds) {
+        if (!artistGenreMap[artistId]) {
+          try {
+            const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
+              headers: { Authorization: `Bearer ${tokenRow[0].access_token}` }
+            });
+            artistGenreMap[artistId] = artistRes.data.genres.join(',');
+          } catch (e) {
+            console.error(`Error fetching genres for artist ${artistId}:`, e.message);
+            artistGenreMap[artistId] = '';
+          }
+        }
+      }
+
+      // Save tracks to DB with genres
       if (topTracksRes.data && topTracksRes.data.items) {
         for (let i = 0; i < topTracksRes.data.items.length; i++) {
           const track = topTracksRes.data.items[i];
           const artistId = track.artists[0]?.id || null;
+          const genres = artistGenreMap[artistId] || '';
 
           const trackData = {
             user_id: req.session.userId,
@@ -165,7 +196,8 @@ app.get('/api/user-stats', async (req, res) => {
             explicit: track.explicit,
             release_date: track.album.release_date || null,
             time_range: timeRange,
-            rank_position: i + 1
+            rank_position: i + 1,
+            genres: genres
           };
 
           await db.query(`
@@ -185,8 +217,9 @@ app.get('/api/user-stats', async (req, res) => {
               explicit, 
               release_date, 
               time_range, 
-              rank_position
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              rank_position, 
+              genres
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
               track_name = VALUES(track_name),
               artist_name = VALUES(artist_name),
@@ -199,7 +232,8 @@ app.get('/api/user-stats', async (req, res) => {
               explicit = VALUES(explicit),
               release_date = VALUES(release_date),
               rank_position = VALUES(rank_position),
-              created_at = CURRENT_TIMESTAMP
+              created_at = CURRENT_TIMESTAMP,
+              genres = VALUES(genres)
           `, [
             trackData.user_id, 
             trackData.spotify_track_id, 
@@ -216,7 +250,8 @@ app.get('/api/user-stats', async (req, res) => {
             trackData.explicit, 
             trackData.release_date, 
             trackData.time_range,
-            trackData.rank_position
+            trackData.rank_position,
+            trackData.genres,
           ]);
         }
       }
@@ -605,23 +640,22 @@ app.get("/api/music-insight", async (req, res) => {
     const [topGenre] = await db.query(`
       SELECT genre, COUNT(*) AS count
       FROM (
-        SELECT TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(ag.genres, ',', n.n), ',', -1)) AS genre
-        FROM user_data ud
-        JOIN artist_genres ag ON ud.artist_id = ag.artist_id
-        JOIN (
-          SELECT a.N + b.N * 10 + 1 n
-          FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a
-          CROSS JOIN (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b
-        ) n
-        WHERE ud.user_id = ? AND ud.time_range = 'short_term'
-          AND n.n <= 1 + LENGTH(ag.genres) - LENGTH(REPLACE(ag.genres, ',', ''))
-      ) genres
+        SELECT TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(genres, ',', numbers.n), ',', -1)) AS genre
+        FROM user_data
+        CROSS JOIN (
+          SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10
+        ) numbers
+        WHERE user_id = ? AND time_range = 'short_term'
+          AND genres IS NOT NULL AND genres <> ''
+          AND LENGTH(genres) > 0
+          AND numbers.n <= 1 + LENGTH(genres) - LENGTH(REPLACE(genres, ',', ''))
+          AND TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(genres, ',', numbers.n), ',', -1)) <> ''
+      ) AS all_genres
       GROUP BY genre
       ORDER BY count DESC
       LIMIT 1;
     `, [req.session.userId]);
 
-    // Unique artists (use medium_term as in your query)
     const [uniqueArtists] = await db.query(`
       SELECT COUNT(DISTINCT artist_name) AS uniqueArtists
       FROM user_data
@@ -647,6 +681,39 @@ app.get("/api/music-insight", async (req, res) => {
   }
 });
 
+//route to fetch top genres
+app.get('/api/top-all-genres', async (req, res) => {
+  const timeRange = req.query.timeRange || 'medium_term';
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try {
+    const [rows] = await db.query (`   
+      SELECT genres
+      FROM user_data
+      WHERE user_id = ? AND time_range = ?
+        AND genres IS NOT NULL AND genres <> ''
+      `, [req.session.userId, timeRange])
+      const genreCount = {};
+      rows.forEach(row => {
+        row.genres.split(',').forEach(genre => {
+          const g = genre.trim();
+          if (g) genreCount[g] = (genreCount[g] || 0) + 1;
+        });
+      });
+
+      const genres = Object.entries(genreCount)
+      .map(([genre, count]) => ({ genres: genre, track_count: count }))
+      .sort((a, b) => b.track_count - a.track_count)
+      .slice(0, 50);
+
+      res.json({ genres });
+  } catch (e) {
+    console.error("error fetching top genres:", e);
+     res.status(500).json({ error: 'failed to fetch genres content'});
+  }
+})
 
 //route to logout
 app.post('/api/logout', (req, res) => {

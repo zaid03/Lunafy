@@ -29,34 +29,13 @@ function Genre() {
 
     const [genreData, setGenreData] = useState([]);
     useEffect(() => {
-        if (!localStorage.getItem('hasFetchedGenres')) {
-            console.log('First visit: Fetching genres from Spotify...');
-            fetch('http://127.0.0.1:5000/api/fetch-top-genres', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log('Updated genres:', data.updatedGenres);
-                localStorage.setItem('hasFetchedGenres', 'true');
-            })
-            .catch(err => {
-                console.error('Error updating genres:', err);
-                localStorage.setItem('hasFetchedGenres', 'true');
-            });
-        }
-    }, []);
-
-    useEffect(() => {
-        console.log('Fetching genres from DB for timeRange:', timeRange);
-        fetch(`http://127.0.0.1:5000/api/top-all-genres?timeRange=${timeRange}`, { credentials: 'include' })
-            .then(res => res.json())
-            .then(data => {
-                setGenreData(data.genres);
-                console.log('Fetched genres from DB:', data.genres);
-            })
-            .catch(err => console.error('Error fetching genres data:', err));
+        fetch(`http://127.0.0.1:5000/api/top-all-genres?timeRange=${timeRange}`, {credentials: 'include'})
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            setGenreData(data.genres);
+        })
+        .catch(err => console.error('Error fetching albums data:', err));
     }, [timeRange]);
 
     return (
@@ -93,5 +72,4 @@ function Genre() {
         </>
     )
 }
-
 export default Genre;
