@@ -3,29 +3,35 @@ import './TasteStyle.css'
 import Header from '../HeaderComponent';
 import Footer from '../FooterComponent';
 import ShareImage from '../ShareImageComponent/ShareImage';
+import { useNavigate } from 'react-router-dom';
 
 function Taste() {
 
-    // const navigate = useNavigate();
-    // useEffect(() => {
-    //     fetch('http://127.0.0.1:5000/api/test-session', {
-    //       credentials: 'include',
-    //     })
-    //       .then(res => res.json())
-    //       .then(data => {
-    //         if (!data.userId) {
-    //           navigate('/');
-    //         }
-    //       })
-    //       .catch(() => {
-    //         navigate('/');
-    //       });
-    //   }, [navigate]);
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/api/test-session', {
+          credentials: 'include',
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.userId) {
+              navigate('/');
+            }
+          })
+          .catch(() => {
+            navigate('/');
+          });
+      }, [navigate]);
 
     const [shareModal, setShareModal] = useState({ isOpen: false, type: '', data: [] });
     
     const handleShare = () => {
-    // setShareModal({ isOpen: true, type: 'artists', data: artistData }); 
+        const insightText = `
+            Your favorite artist is ${tasteData.topArtist}, and your most played song is "${tasteData.topSong}".
+            You listen mostly to ${tasteData.topGenre} music, with an average track popularity of ${tasteData.avgPopularity}.
+            You’ve explored ${tasteData.uniqueArtists?.[0]?.uniqueArtists} different artists this month!
+        `;
+        setShareModal({ isOpen: true, type: 'Taste', data: [insightText] });
     };
 
     const closeShareModal = () => {
@@ -33,28 +39,46 @@ function Taste() {
     };
 
 
-    const [tasteData, setTasteData] = useState([]);
+    const [tasteData, setTasteData] = useState({
+        topArtist: '',
+        topSong: '',
+        topGenre: '',
+        avgPopularity: '',
+        uniqueArtists: ''
+    });
     useEffect(() => {
         fetch(`http://127.0.0.1:5000/api/music-insight`, {credentials: 'include'})
         .then(res => res.json())
         .then(data => {
-            setTasteData(data.artists);
+            setTasteData({
+                topArtist: data.topArtist?.[0]?.topArtist || '',
+                topSong: data.topSong?.[0]?.topSong || '',
+                topGenre: data.topGenre?.[0]?.genre || '',
+                avgPopularity: data.avgPopularity || '',
+                uniqueArtists: data.uniqueArtists || ''
+            });
         })
         .catch(err => console.error('Error fetching duration data:', err));
-    });
+    }, []);
     
     return (
         <>
             <Header />
             <div className='taste-container'>
                 <div className='page-button'>
-                    <button className='butt'>Discover your Taste</button>
                     <button className='butt' onClick={handleShare}>Share</button>
                 </div>
                 
                 <div className='page-content'>
                     <div className='text-center'>
-                        <p>Zaid Terguy, huh? I see we’re dealing with a man who has somehow made a career out of listening to music that sounds like it was produced in a Moroccan food truck. Seriously, you've got more 'Pop' in your playlist than a teenager at a summer festival, and your taste is so niche it makes hipsters look mainstream. It's like you took a world tour and somehow ended up at a Moroccan wedding, where every track is guaranteed to make you question your life choices. You must be a real hit at parties—instead of breaking the ice, you’re just freezing everyone out with your obscure genre selections. 
+                        <p>
+                            Your favorite artist is <span className='diff'>{tasteData.topArtist}</span>, and your most played song is "<span className='diff'>{tasteData.topSong}</span>". 
+                        </p>
+                        <p>
+                            You listen mostly to <span className='diff'>{tasteData.topGenre}</span> music, with an average track popularity of <span className='diff'>{tasteData.avgPopularity}</span>.
+                        </p>
+                        <p>
+                            You listen most to <span className='diff'>{tasteData.topGenre}</span> music,and you’ve explored <span className='diff'>{tasteData.uniqueArtists?.[0]?.uniqueArtists}</span> different artists this month!
                         </p>
                     </div>
                 </div>

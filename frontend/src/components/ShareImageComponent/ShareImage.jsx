@@ -48,38 +48,46 @@ function ShareImage({ data, type, timeRange, onClose }) {
         
         <div ref={shareRef} className="share-content">
           <div className="share-header">
-            <h2>My {getTypeText()}</h2>
+            <h2>
+              {type === 'Taste' ? 'My Music Taste Insight' : `My ${getTypeText()}`}
+            </h2>
             <p>{getTimeRangeText()}</p>
             <span className="lunafy-brand">Lunafy</span>
           </div>
           
-          <div className="share-list">
-            {data.slice(0, 5).map((item, index) => (
-              <div key={index} className="share-item">
-                <span className="share-rank">{index + 1}</span>
-                <img 
-                  src={item.image_url} 
-                  alt={type === 'artists' ? item.main_artist : item.track_name || item.album_name}
-                  className="share-image"
-                />
-                <div className="share-info">
-                  <span className="share-title">
-                    {type === 'artists' 
-                      ? item.main_artist 
-                      : type === 'songs' 
-                        ? item.track_name 
-                        : item.album_name
-                    }
-                  </span>
-                  {type !== 'artists' && (
-                    <span className="share-artist">
-                      {item.artist_name?.split(',')[0]?.trim()}
+          {type === 'Taste' ? (
+            <div className="share-paragraph">
+              <p>{data[0]}</p>
+            </div>
+          ) : (
+            <div className="share-list">
+              {data.slice(0, 5).map((item, index) => (
+                <div key={index} className="share-item">
+                  <span className="share-rank">{index + 1}</span>
+                  <img 
+                    src={item.image_url} 
+                    alt={type === 'artists' ? item.main_artist : item.track_name || item.album_name}
+                    className="share-image"
+                  />
+                  <div className="share-info">
+                    <span className="share-title">
+                      {type === 'artists' 
+                        ? item.main_artist 
+                        : type === 'songs' 
+                          ? item.track_name 
+                          : item.album_name
+                      }
                     </span>
-                  )}
+                    {type !== 'artists' && (
+                      <span className="share-artist">
+                        {item.artist_name?.split(',')[0]?.trim()}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           
           <div className="share-footer">
             <p>Generated with Lunafy</p>

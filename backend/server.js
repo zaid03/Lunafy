@@ -6,7 +6,6 @@ const { handleSpotifyAuth } = require('./controller/SpotifyCallbackController');
 const session = require('express-session');
 const axios = require('axios');
 const { db } = require('./config/db');
-const { deepai } = require("./config/deepai");
 
 dotenv.config();
 connectDB();
@@ -576,98 +575,6 @@ app.get('/api/top-all-albums', async (req, res) => {
   }
 })
 
-//route to fetch generes from spotify
-app.post('/api/fetch-top-genres', async (req, res) => {
-  console.log('fetch-top-genres called');
-
-  const accessToken = await getClientCredentialsToken();
-  if (!accessToken) {
-    return res.status(500).json({ error: 'Could not get Spotify token' });
-  }
-
-  try {
-    // Fetch up to 50 uncached artist IDs per call
-    const [rows] = await db.query(`
-      SELECT DISTINCT artist_id FROM user_data WHERE user_id = ? AND artist_id NOT IN (SELECT artist_id FROM artist_genres) LIMIT 50
-    `, [req.session.userId]);
-
-    const uncachedArtistIds = rows.map(r => r.artist_id).filter(Boolean);
-    const updatedGenres = {};
-
-    if (uncachedArtistIds.length === 0) {
-      return res.json({ updatedGenres });
-    }
-
-    // Batch request for up to 50 artists
-    const idsParam = uncachedArtistIds.join(',');
-    try {
-      const artistRes = await axios.get(`https://api.spotify.com/v1/artists?ids=${idsParam}`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-
-      for (const artist of artistRes.data.artists) {
-        const genres = (artist.genres || []).join(',');
-        updatedGenres[artist.id] = genres;
-        await db.query(
-          'INSERT INTO artist_genres (artist_id, genres) VALUES (?, ?) ON DUPLICATE KEY UPDATE genres = VALUES(genres)',
-          [artist.id, genres]
-        );
-      }
-
-      res.json({ updatedGenres });
-    } catch (err) {
-      // Handle rate limit
-      if (err.response && err.response.status === 429) {
-        const retryAfter = err.response.headers['retry-after'];
-        const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000; // default to 60 seconds
-        console.error(`Rate limit hit, wait for ${waitTime / 1000} seconds.`);
-        return res.status(429).json({ error: 'Rate limit hit, try again later', waitTime });
-      }
-      console.error('Error fetching missing genres:', err.response?.data || err.message);
-      return res.status(500).json({ error: 'Failed to fetch missing genres' });
-    }
-  } catch (err) {
-    console.error('Error fetching missing genres:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to fetch missing genres' });
-  }
-});
-
-//route to fetch top genres from my db
-// app.get('/api/top-all-genres', async (req, res) => {
-//   const timeRange = req.query.timeRange || 'medium_term';
-//   if (!req.session.userId) {
-//     return res.status(401).json({ error: 'not authenticated'});
-//   }
-
-//   try {
-//     const [rows] = await db.query (`   
-//       SELECT ag.genres
-//       FROM user_data ud
-//       JOIN artist_genres ag ON ud.artist_id = ag.artist_id
-//       WHERE ud.user_id = ? AND ud.time_range = ?
-//         AND ag.genres IS NOT NULL AND ag.genres <> ''
-//       `, [req.session.userId, timeRange])
-//       const genreCount = {};
-//       rows.forEach(row => {
-//         row.genres.split(',').forEach(genre => {
-//           const g = genre.trim();
-//           if (g) genreCount[g] = (genreCount[g] || 0) + 1;
-//         });
-//       });
-
-//       const genres = Object.entries(genreCount)
-//       .map(([genre, count]) => ({ genres: genre, track_count: count }))
-//       .sort((a, b) => b.track_count - a.track_count)
-//       .slice(0, 50);
-
-//       res.json({ genres });
-//   } catch (e) {
-//     console.error("error fetching top genres:", e);
-//      res.status(500).json({ error: 'failed to fetch genres content'});
-//   }
-// })
-
-
 //route to get user's taste
 app.get("/api/music-insight", async (req, res) => {
   if (!req.session.userId) {
@@ -675,47 +582,68 @@ app.get("/api/music-insight", async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query(
-      `SELECT track_name, artist_name, popularity
-       FROM user_data
-       WHERE user_id = ?
-       ORDER BY popularity DESC`,
-      [req.session.userId]
-    );
+    // Top artist
+    const [topArtist] = await db.query(`
+      SELECT SUBSTRING_INDEX(artist_name, ',', 1) AS topArtist
+      FROM user_data
+      WHERE user_id = ? AND time_range = 'short_term'
+      GROUP BY topArtist
+      ORDER BY COUNT(*) DESC
+      LIMIT 1;
+    `, [req.session.userId]);
 
-    if (!rows.length) {
-      return res.status(404).json({ error: "no music data found" });
-    }
+    // Top song
+    const [topSong] = await db.query(`
+      SELECT track_name AS topSong
+      FROM user_data
+      WHERE user_id = ? AND time_range = 'short_term'
+      ORDER BY rank_position ASC
+      LIMIT 1;
+    `, [req.session.userId]);
 
-    const tasteSummary = rows
-      .map(row => `${row.track_name} by ${row.artist_name} (popularity ${row.popularity})`)
-      .join(", ");
+    // Top genre
+    const [topGenre] = await db.query(`
+      SELECT genre, COUNT(*) AS count
+      FROM (
+        SELECT TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(ag.genres, ',', n.n), ',', -1)) AS genre
+        FROM user_data ud
+        JOIN artist_genres ag ON ud.artist_id = ag.artist_id
+        JOIN (
+          SELECT a.N + b.N * 10 + 1 n
+          FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a
+          CROSS JOIN (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b
+        ) n
+        WHERE ud.user_id = ? AND ud.time_range = 'short_term'
+          AND n.n <= 1 + LENGTH(ag.genres) - LENGTH(REPLACE(ag.genres, ',', ''))
+      ) genres
+      GROUP BY genre
+      ORDER BY count DESC
+      LIMIT 1;
+    `, [req.session.userId]);
 
-    const response = await deepai.chat.completions.create({
-      model: "text-generator",
-      messages: [
-        { role: "system", content: "You are a music taste analyst. Be insightful and engaging." },
-        { role: "user", content: `Analyze this user’s music taste: ${tasteSummary}` },
-      ],
+    // Unique artists (use medium_term as in your query)
+    const [uniqueArtists] = await db.query(`
+      SELECT COUNT(DISTINCT artist_name) AS uniqueArtists
+      FROM user_data
+      WHERE user_id = ? AND time_range = 'medium_term'
+    `, [req.session.userId]);
+
+    const [avgPopularity] = await db.query(`
+      SELECT AVG(popularity) AS avgPopularity
+      FROM user_data
+      WHERE user_id = ? AND time_range = 'short_term'
+    `, [req.session.userId]);
+
+    res.json({
+      topArtist,
+      topSong,
+      topGenre,
+      uniqueArtists,
+      avgPopularity: avgPopularity[0]?.avgPopularity || ''
     });
-
-    const insight = response.choices[0].message.content;
-    console.log('Insight:', insight);
-
-    if (!insight || insight.trim() === "") {
-      return res.status(500).json({ error: "No insight generated" });
-    }
-
-    await db.query(
-      `INSERT INTO user_insights (user_id, insight_text) VALUES (?, ?)`,
-      [req.session.userId, insight]
-    );
-
-    res.json({ insight });
-
   } catch (e) {
-    console.error("error generating music insight:", e);
-    res.status(500).json({ error: "failed to generate insight" });
+    console.error("Error fetching insights:", e);
+    res.status(500).json({ error: "failed to fetch insights" });
   }
 });
 
