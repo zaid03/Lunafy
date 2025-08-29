@@ -7,18 +7,21 @@
     --text-white: #fff;
     --text-dark: #333;
     --border: #282828;
+    --font-family: 'Poppins', sans-serif;
+    --text-gray: #aaa;
 }
 
-body, #root {
+/* body, #root {
+    border: 1px solid green;
     height: 100vh;
     margin: 0;
     padding: 0;
     background: var(--primary-bg);
-}
+} */
 
 .profile-container {
     min-height: 100vh;
-    width: 100vw;
+    width: 100% ;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,11 +38,13 @@ body, #root {
     color: var(--accent-green);
     font-weight: 700;
     letter-spacing: 1px;
+    font-family: var(--font-family);
+    font-weight: bold;
 }
 
 .profile-section {
-    width: 100%;
-    max-width: 420px;
+    width: 80%;
+    max-width: 80%;
     margin-bottom: 32px;
     padding: 24px 28px;
     border-radius: 14px;
@@ -55,12 +60,33 @@ body, #root {
     border-bottom: none;
 }
 
-.profile-row {
+.profile-section h3{
+    color: var(--text-white);
+    font-size: 28px;
+}
+
+.profile-section h3, p{
+    font-weight: bold;
+    font-family: var(--font-family);
+}
+
+.profile-section p{
+    font-size: 15px;
+    color: var(--text-gray);
+    margin-bottom: 20px;
+}
+
+.profile-row, .profile-row-password {
     width: 100%;
     display: flex;
     align-items: center;
     gap: 14px;
     margin-bottom: 12px;
+}
+
+.profile-row-password{
+    display: flex;
+    flex-direction: column;
 }
 
 .profile-label {
@@ -136,10 +162,10 @@ body, #root {
     .profile-section {
         max-width: 98vw;
         padding: 12px 6px;
+        padding: 5%;
     }
     .profile-row {
         flex-direction: column;
-        align-items: stretch;
         gap: 8px;
     }
     .profile-input {
