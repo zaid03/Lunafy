@@ -137,6 +137,7 @@
 .profile-signout {
     background: var(--accent-orange);
     color: var(--text-dark);
+    text-decoration: 0;
 }
 
 .profile-signout:hover {
@@ -150,6 +151,26 @@
 
 .profile-delete:hover {
     background: #ff5252;
+}
+
+.error{
+    margin: 10px;
+    color: red;
+    font-size: 22px;
+    font-family: var(--font-family);
+}
+
+.success {
+    color: #1db954;
+    background: #191414;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-weight: 500;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px #0002;
+    text-align: center;
+    letter-spacing: 0.5px;
 }
 
 @media (max-width: 600px) {
