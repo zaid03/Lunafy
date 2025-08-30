@@ -814,6 +814,84 @@ app.get('/api/verify-email', async (req, res) => {
   }
 });
 
+//route to insert or update bio for user
+app.post('/api/user-bio', async(req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  const { bio } = req.body
+
+  try {
+    const [rows] = await db.query(`
+      select user_id from user_personnalisation where user_id = ?
+      `, [req.session.userId]);
+
+    if (rows.length > 0 ) {
+      await db.query(`
+        UPDATE user_personnalisation SET bio = ? WHERE user_id = ?
+        `, [bio, req.session.userId]);
+    } else {
+      await db.query(`
+        INSERT INTO user_personnalisation (user_id, bio) VALUES (?, ?)
+        `, [req.session.userId, bio]);
+    }
+
+    res.json({ message: 'Bio Saved!' });
+  } catch (e) {
+    console.error('Error saving bio:', e);
+    res.status(500).json({ error: 'Failed to save bio' });
+  }
+});
+
+//route to fetch bio from db
+app.get('/api/bio-get', async(req,res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  try { 
+    const [bio] = await db.query(`
+      select bio from user_personnalisation where user_id = ?
+      `, [req.session.userId]);
+    
+    res.json({bio})
+  } catch(e) {
+    console.error('Error fetching bio:', e);
+    res.status(500).json({ error: 'Failed to fetch bio' });
+  }
+})
+
+//route to insert and update country
+app.post('/api/user-country', async(req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'not authenticated'});
+  }
+
+  const { country } = req.body
+
+  try {
+    const [rows] = await db.query(`
+      select user_id from user_personnalisation where user_id = ?
+      `, [req.session.userId]);
+
+    if (rows.length > 0 ) {
+      await db.query(`
+        UPDATE user_personnalisation SET country = ? WHERE user_id = ?
+        `, [country, req.session.userId]);
+    } else {
+      await db.query(`
+        INSERT INTO user_personnalisation (user_id, country) VALUES (?, ?)
+        `, [req.session.userId, country]);
+    }
+
+    res.json({ message: 'country Saved!' });
+  } catch (e) {
+    console.error('Error saving country:', e);
+    res.status(500).json({ error: 'Failed to save country' });
+  }
+});
+
 //route to logout
 app.post('/api/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -827,7 +905,6 @@ app.post('/api/logout', (req, res) => {
 
 //route to delete account
 app.post('/api/delete-account', async(req, res) => {
-  const timeRange = req.query.timeRange || 'medium_term';
   if (!req.session.userId) {
     return res.status(401).json({ error: 'not authenticated'});
   }
@@ -844,7 +921,8 @@ app.post('/api/delete-account', async(req, res) => {
     console.error("error deleting account:", e);
     res.status(500).json({ error: "error deleting account"});
   }
-})
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

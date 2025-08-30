@@ -184,6 +184,15 @@ function Dashboard() {
     }
   };
 
+  const [bio, setBio] = useState('');
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/api/bio-get`, {credentials: 'include'})
+    .then(res => res.json())
+    .then(data => {
+        setBio(data.bio[0]?.bio || '');
+    })
+  }, []);
+
   return (
     <div className='container-dash'>
       <div className='header-dash'>
@@ -212,7 +221,11 @@ function Dashboard() {
             <div className='photo-name'>
               <div className='all-info'>
                 <img src={userData?.profileImage} alt='user-pic' />
-                <span className='user-name'>{userData?.display_name || userData?.name || "User"}</span>
+                <div className='bio-name'>
+                  <span className='user-name'>{userData?.display_name || userData?.name || "User"}</span>
+                  <span>{bio}</span>
+                </div>
+                
               </div>
             </div>
             <div className='playing-now'>

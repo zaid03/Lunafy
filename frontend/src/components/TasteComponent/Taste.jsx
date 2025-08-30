@@ -46,6 +46,7 @@ function Taste() {
         avgPopularity: '',
         uniqueArtists: ''
     });
+    
     useEffect(() => {
         fetch(`http://127.0.0.1:5000/api/music-insight`, {credentials: 'include'})
         .then(res => res.json())

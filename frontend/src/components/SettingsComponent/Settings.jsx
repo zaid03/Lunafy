@@ -1,21 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import countryList from 'react-select-country-list';
 import './settings.css';
 import Header from '../HeaderComponent';
 import Footer from '../FooterComponent';
+import { useNavigate } from 'react-router-dom';
 
 function Settings() {
 
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/api/test-session', {
+          credentials: 'include',
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.userId) {
+              navigate('/');
+            }
+          })
+          .catch(() => {
+            navigate('/');
+          });
+      }, [navigate]);
+
     const [showBioInput, setShowBioInput] = useState(false);
     const [bio, setBio] = useState('');
+    const [bioMsg, setBioMsg] = useState('');
     const [country, setCountry] = useState('');
-    const [refreshMsg, setRefreshMsg] = useState('');
     const options = countryList().getData();
+    const [countryMsg, setCountryMsg] = useState('');
 
     const handleRefreshProfile = () => {
-        setRefreshMsg('Profile refreshed!');
-        setTimeout(() => setRefreshMsg(''), 2000);
+        navigate('/dashboard');
     };
+
+    useEffect(() => {
+        fetch(`http://127.0.0.1:5000/api/bio-get`, {credentials: 'include'})
+        .then(res => res.json())
+        .then(data => {
+            setBio(data.bio[0]?.bio || '');
+        })
+    }, []);
+
     return (
         <>
             <Header />
@@ -31,13 +57,39 @@ function Settings() {
                         </button>
                     </div>
                     {showBioInput && (
-                        <textarea
-                            className="settings-input-wide"
-                            placeholder="Type your bio here..."
-                            value={bio}
-                            onChange={e => setBio(e.target.value)}
-                        />
+                        <>
+                            <textarea
+                                className='settings-input-wide'
+                                placeholder='Type your bio here...'
+                                value={bio}
+                                onChange={e => setBio(e.target.value)}
+                            >
+                                {bio}
+                            </textarea>
+                            <button
+                                className='settings-btn'
+                                onClick={() => {
+                                    fetch('http://127.0.0.1:5000/api/user-bio', {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ bio })
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        setShowBioInput(false);
+                                        setBioMsg('Bio updated!');
+                                        setTimeout(() => setBioMsg(''), 2000);
+                                    });
+                                }}
+                            >
+                                Save
+                            </button>
+                            
+                        </>
+                        
                     )}
+                    {bioMsg && <h6 className="success">{bioMsg}</h6>}
                 </div>
 
                 <div className="settings-section">
@@ -47,7 +99,20 @@ function Settings() {
                         <select
                         className="settings-input"
                         value={country}
-                        onChange={e => setCountry(e.target.value)}
+                        onChange={e => {
+                            setCountry(e.target.value);
+                            fetch('http://127.0.0.1:5000/api/user-country', {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ country: e.target.value })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                setCountryMsg('Country updated!');
+                                setTimeout(() => setCountryMsg(''), 2000);
+                            });
+                        }}
                         >
                         <option value="">Choose country</option>
                         {options.map(c => (
@@ -55,6 +120,7 @@ function Settings() {
                         ))}
                         </select>
                     </div>
+                    {countryMsg && <h6 className="success">{countryMsg}</h6>}
                 </div>
 
                 <div className="settings-section">
@@ -63,7 +129,6 @@ function Settings() {
                     <button className="settings-btn settings-refresh" onClick={handleRefreshProfile}>
                         Refresh Profile
                     </button>
-                    {refreshMsg && <h6 className="success">{refreshMsg}</h6>}
                 </div>
                 <Footer />
             </div>
