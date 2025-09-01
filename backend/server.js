@@ -8,6 +8,7 @@ const axios = require('axios');
 const { db } = require('./config/db');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer')
+const csurf = require('csurf');
 
 dotenv.config();
 connectDB();
@@ -24,6 +25,7 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000
    }
 }));
+app.use(csurf({ cookie: true }));
 
 app.use(cors({
     origin: [
@@ -38,31 +40,10 @@ app.use(cors({
 
 app.use(express.json());
 
-
-const getClientCredentialsToken = async () => {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-  const tokenUrl = 'https://accounts.spotify.com/api/token';
-
-  const params = new URLSearchParams();
-  params.append('grant_type', 'client_credentials');
-
-  const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-
-  try {
-    const res = await axios.post(tokenUrl, params, {
-      headers: {
-        'Authorization': `Basic ${authHeader}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
-    return res.data.access_token;
-  } catch (err) {
-    console.error('Error getting client credentials token:', err.response?.data || err.message);
-    return null;
-  }
-};
-
+//route to send csurf token to the front
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // route for contact's form
 const contactRoutes = require('./routes/contactRoute');
