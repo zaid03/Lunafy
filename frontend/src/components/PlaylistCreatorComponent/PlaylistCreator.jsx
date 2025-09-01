@@ -29,10 +29,14 @@ function PlaylistCreator({ timeRange, onClose, onSuccess }) {
     setIsCreating(true);
 
     try {
+      const tokenRes = await fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' });
+      const tokenData = await tokenRes.json();
+
       const response = await fetch('http://127.0.0.1:5000/api/create-playlist', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': tokenData.csrfToken
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -41,7 +45,6 @@ function PlaylistCreator({ timeRange, onClose, onSuccess }) {
           timeRange: timeRange
         }),
       });
-
       const data = await response.json();
 
       if (response.ok) {

@@ -7,9 +7,15 @@ function Logout() {
     useEffect(() => {
         const handleLogout = async() => {
             try {
+                const tokenRes = await fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' });
+                const tokenData = await tokenRes.json();
                 const response = await fetch('http://127.0.0.1:5000/api/logout', {
                     method: 'POST',
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': tokenData.csrfToken
+                    },
                 });
 
                 if (response.ok) {

@@ -40,35 +40,52 @@ function Profile() {
 
     const [deleteError, setDeleteError] = useState('');
     const handleDeleteAccount = () => {
-        fetch('http://127.0.0.1:5000/api/delete-account', {
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then(res => res.json())
-        .then(data => {
-            navigate('/');
-        })
-        .catch(e => {
-            setDeleteError('failed to delete account, try again later');
-            console.error('Error deleting account:', e);
-        });
+        fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+            .then(res => res.json())
+            .then(tokenData => {
+                fetch('http://127.0.0.1:5000/api/delete-account', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': tokenData.csrfToken
+                        },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    navigate('/');
+                })
+                .catch(e => {
+                    setDeleteError('failed to delete account, try again later');
+                    console.error('Error deleting account:', e);
+                });
+            })
     };
 
     const [verifyMsg, setVerifyMsg] = useState('');
 
     const handleVerifyEmail = () => {
-        fetch('http://127.0.0.1:5000/api/send-verification-email', {
-            method: 'POST',
-            credentials: 'include'
-        })
-        .then(res => res.json())
-        .then(data => {
-            setVerifyMsg(data.message || 'Verification email sent! Please check your inbox.');
-        })
-        .catch(e => {
-            setVerifyMsg('Failed to send verification email. Try again later.');
-            console.error('Error sending verification email:', e);
-        });
+         fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+            .then(res => res.json())
+            .then(tokenData => {
+                fetch('http://127.0.0.1:5000/api/send-verification-email', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': tokenData.csrfToken
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    setVerifyMsg(data.message || 'Verification email sent! Please check your inbox.');
+                })
+                .catch(e => {
+                    setVerifyMsg('Failed to send verification email. Try again later.');
+                    console.error('Error sending verification email:', e);
+                });
+            })
+        
     };
 
     return (

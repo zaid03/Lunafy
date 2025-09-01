@@ -9,23 +9,24 @@ const { db } = require('./config/db');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer')
 const csurf = require('csurf');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
+app.use(cookieParser());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: true,
+    secure: false,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000
    }
 }));
-app.use(csurf({ cookie: true }));
 
 app.use(cors({
     origin: [
@@ -40,11 +41,7 @@ app.use(cors({
 
 app.use(express.json());
 
-//route to send csurf token to the front
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
+//move these 2 routes above the scurf cause they dont need scurf
 // route for contact's form
 const contactRoutes = require('./routes/contactRoute');
 app.use('/api', contactRoutes);
@@ -52,6 +49,14 @@ app.use('/api', contactRoutes);
 //route for callback
 const spotifyRoutes = require('./routes/SpotifyCallbackRoute');
 app.use('/api', spotifyRoutes);
+
+//csurf initilization
+app.use(csurf({ cookie: true }));
+
+//route to send csurf token to the front
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 //route to test session
 app.get('/api/test-session', (req, res) => {

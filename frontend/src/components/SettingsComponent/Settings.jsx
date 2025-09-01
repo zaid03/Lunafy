@@ -69,19 +69,26 @@ function Settings() {
                             <button
                                 className='settings-btn'
                                 onClick={() => {
-                                    fetch('http://127.0.0.1:5000/api/user-bio', {
-                                        method: 'POST',
-                                        credentials: 'include',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ bio })
-                                    })
-                                    .then(res => res.json())
-                                    .then(data => {
-                                        setShowBioInput(false);
-                                        setBioMsg('Bio updated!');
-                                        setTimeout(() => setBioMsg(''), 2000);
-                                    });
-                                }}
+                                    fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+                                        .then(res => res.json())
+                                        .then(tokenData => {
+                                            fetch('http://127.0.0.1:5000/api/user-bio', {
+                                                method: 'POST',
+                                                credentials: 'include',
+                                                headers: { 
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-Token': tokenData.csrfToken
+                                                 },
+                                                body: JSON.stringify({ bio })
+                                            })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                setShowBioInput(false);
+                                                setBioMsg('Bio updated!');
+                                                setTimeout(() => setBioMsg(''), 2000);
+                                            });
+                                        })
+                                    }}
                             >
                                 Save
                             </button>
@@ -101,18 +108,25 @@ function Settings() {
                         value={country}
                         onChange={e => {
                             setCountry(e.target.value);
-                            fetch('http://127.0.0.1:5000/api/user-country', {
-                                method: 'POST',
-                                credentials: 'include',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ country: e.target.value })
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                setCountryMsg('Country updated!');
-                                setTimeout(() => setCountryMsg(''), 2000);
-                            });
-                        }}
+                            fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+                                .then(res => res.json())
+                                .then(tokenData => {
+                                    fetch('http://127.0.0.1:5000/api/user-country', {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: { 
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-Token': tokenData.csrfToken
+                                        },
+                                        body: JSON.stringify({ country: e.target.value })
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        setCountryMsg('Country updated!');
+                                        setTimeout(() => setCountryMsg(''), 2000);
+                                    });
+                                })
+                            }}
                         >
                         <option value="">Choose country</option>
                         {options.map(c => (
