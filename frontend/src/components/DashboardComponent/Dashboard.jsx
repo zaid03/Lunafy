@@ -82,30 +82,43 @@ function Dashboard() {
   }
   
   useEffect(() => {
-  if (localStorage.getItem('shouldFetchSpotifyData') === 'true') {
-    fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
-      .then(() => {
-        localStorage.setItem('shouldFetchSpotifyData', 'false');
-        return fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' });
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.artists) setArtistsData(data.artists);
-        if (data.albums) setAlbumsData(data.albums);
-        if (data.songs) setSongsData(data.songs);
-      })
-      .catch(err => console.error('Error:', err));
-  } else {
-    fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.artists) setArtistsData(data.artists);
-        if (data.albums) setAlbumsData(data.albums);
-        if (data.songs) setSongsData(data.songs);
-      })
-      .catch(err => console.error('Error:', err));
-  }
-}, [timeRange]);
+    setAlbumsData([]);
+    setArtistsData([]); 
+    setSongsData([]);
+    if (localStorage.getItem('shouldFetchSpotifyData') === 'true') {
+      fetch('http://127.0.0.1:5000/api/user-stats', { credentials: 'include' })
+        .then(() => {
+          localStorage.setItem('shouldFetchSpotifyData', 'false');
+          return fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' });
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.artists) setArtistsData(data.artists);
+          if (data.albums) setAlbumsData(data.albums);
+          if (data.songs) setSongsData(data.songs);
+        })
+        .catch(err => console.error('Error:', err));
+    } else {
+      fetch(`http://127.0.0.1:5000/api/dashboard-overview?timeRange=${timeRange}`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.artists) setArtistsData(data.artists);
+          if (data.albums) setAlbumsData(data.albums);
+          if (data.songs) setSongsData(data.songs);
+        })
+        .catch(err => console.error('Error:', err));
+    }
+  }, [timeRange]);
+
+  const uniqueAlbums = [];
+    const seen = new Set();
+    for (const album of albumsData) {
+        const key = album.album_name + '|' + album.artist_name;
+        if (!seen.has(key)) {
+            uniqueAlbums.push(album);
+            seen.add(key);
+        }
+    }
 
   const [popularData, setPopularData] = useState([]);
   const [durationData, setDurationData] = useState([]);
@@ -350,8 +363,8 @@ function Dashboard() {
               </div>
             </div>
             <div className='album-list'>
-              {albumsData.length > 0 ? (
-                albumsData.map((album, index) => (
+              {uniqueAlbums.length > 0 ? (
+                uniqueAlbums.map((album, index) => (
                   <div key={album.album_id} className='album-item'>
                     <span className='album-rank'>{index + 1}</span>
                     <img 

@@ -29,6 +29,7 @@ function Album () {
 
     const [albumData, setAlbumData] = useState([]);
     useEffect(() => {
+        setAlbumData([]);
         fetch(`http://127.0.0.1:5000/api/top-all-albums?timeRange=${timeRange}`, {credentials: 'include'})
         .then(res => res.json())
         .then(data => {
@@ -46,6 +47,17 @@ function Album () {
     const closeShareModal = () => {
     setShareModal({ isOpen: false, type: '', data: [] });
     };
+
+    const uniqueAlbums = [];
+    const seen = new Set();
+    for (const album of albumData) {
+        const key = album.album_name + '|' + album.artist_name;
+        if (!seen.has(key)) {
+            uniqueAlbums.push(album);
+            seen.add(key);
+        }
+    }
+
     return (
         
         <>
@@ -60,7 +72,7 @@ function Album () {
                     <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
-                    {albumData.map((album, idx) => (
+                    {uniqueAlbums.map((album, idx) => (
                         <div key={album.album_id || idx}className='artist-content'>
                             <div className='artist-rank-all'>
                                 #{idx + 1}
