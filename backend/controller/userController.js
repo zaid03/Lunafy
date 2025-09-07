@@ -214,3 +214,85 @@ exports.topByDecade = async (req, res) => {
         res.status(500).json({ error: 'failed to fetch songs by decade'});
     }
 }
+
+//route to fetch all artists
+exports.topAllArtists = async (req, res) => {
+    const timeRange = req.query.timeRange || 'medium_term';
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const topAllArtists = await userModel.topAllArtists(req.session.userId, timeRange);
+
+        res.json({ artists: topAllArtists });
+    } catch (e) {
+        console.error('Error fetching top all artists', e);
+        res.status(500).json({ error: 'failed to fetch dashboard content'});
+    }
+}
+
+//route to fetch all songs
+exports.topAllSongs = async (req, res) => {
+    const timeRange = req.query.timeRange || 'medium_term';
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const topAllSongs = await userModel.topAllSongs(req.session.userId, timeRange);
+
+        res.json({ 
+            songs : topAllSongs
+        })
+    } catch (e) {
+        console.error('error fetching all songs:', e);
+        res.status(500).json({ error: 'failed to fetch dashboard content'});
+    }
+}
+
+//route to fetch all albums
+exports.topAllAlbums = async (req, res) => {
+    const timeRange = req.query.timeRange || 'medium_term';
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try { 
+        const topAllAlbums = await userModel.topAllAlbums(req.session.userId, timeRange);
+
+        res.json({ 
+            albums : topAllAlbums
+        })
+    } catch (e) {
+        console.error("error fetching top all albums", e);
+        res.status(500).json({ error: 'failed to fetch dashboard content'});
+    }
+}
+
+//route to get user's taste
+exports.musicInsight = async (req, res) => {
+    const timeRange = req.query.timeRange || 'medium_term';
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const musicInsightArtists = await userModel.musicInsightArtists(req.session.userId);
+        const musicInsightSongs = await userModel.musicInsightSongs(req.session.userId);
+        const musicInsightAlbums = await userModel.musicInsightAlbums(req.session.userId);
+        const musicInsightUniqueArtists = await userModel.musicInsightUniqueArtists(req.session.userId);
+        const musicInsightavgPopularity = await userModel.musicInsightavgPopularity(req.session.userId);
+
+         res.json({
+            topArtist: musicInsightArtists,
+            topSong: musicInsightSongs,
+            topGenre: musicInsightAlbums,
+            uniqueArtists: musicInsightUniqueArtists?.[0].uniqueArtists || '',
+            avgPopularity: musicInsightavgPopularity?.[0].avgPopularity || ''
+        });
+    } catch (e) {
+        console.error("Error fetching insights:", e);
+        res.status(500).json({ error: "failed to fetch insights" });
+    }
+}

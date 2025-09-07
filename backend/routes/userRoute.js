@@ -20,6 +20,19 @@ router.get('/longest-shortest-song', userController.longestShortes);
 //top by decade 2010s and 2020s
 router.get('/top-by-decade', userController.topByDecade);
 
+//route to fetch all artists
+router.get('/top-all-artists', userController.topAllArtists);
+
+//route to fetch all songs
+router.get('/top-all-songs', userController.topAllSongs);
+
+//route to fetch all albums
+router.get('/top-all-albums', userController.topAllAlbums);
+
+//route to get user's taste
+router.get('/music-insight', userController.musicInsight)
+
+
 
 
 

@@ -29,7 +29,7 @@ function Taste() {
         const insightText = `
             Your favorite artist is ${tasteData.topArtist}, and your most played song is "${tasteData.topSong}".
             You listen mostly to ${tasteData.topGenre} music, with an average track popularity of ${tasteData.avgPopularity}.
-            You’ve explored ${tasteData.uniqueArtists?.[0]?.uniqueArtists} different artists this month!
+            You’ve explored ${tasteData.uniqueArtists} different artists this month!
         `;
         setShareModal({ isOpen: true, type: 'Taste', data: [insightText] });
     };
@@ -79,7 +79,7 @@ function Taste() {
                             You listen mostly to <span className='diff'>{tasteData.topGenre}</span> music, with an average track popularity of <span className='diff'>{tasteData.avgPopularity}</span>.
                         </p>
                         <p>
-                            You’ve explored <span className='diff'>{tasteData.uniqueArtists?.[0]?.uniqueArtists}</span> different artists this month!
+                            You’ve explored <span className='diff'>{tasteData.uniqueArtists}</span> different artists this month!
                         </p>
                     </div>
                 </div>
