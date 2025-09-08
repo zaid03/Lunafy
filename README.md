@@ -14,27 +14,16 @@
 
 ## Project Structure
 
-    /lunafy
-    ├── backend     # Node.js backend (Express + Spotify OAuth)
-    │   ├── controller    # Route controllers (business logic)
-    │   ├── models        # Database models/queries
-    │   ├── routes        # API route definitions
-    │   ├── config        # DB and environment config
-    │   └── server.js     # Main backend entry point
-    └── frontend          # React frontend (User interface)
-        └── src
-            ├── Assets
-            ├── components    # React components
-            └── App.jsx         # Main React app entry point
+    <pre> ```plaintext /lunafy ├── backend # Node.js backend (Express + Spotify OAuth) │ ├── controller # Route controllers (business logic) │ ├── models # Database models/queries │ ├── routes # API route definitions │ ├── config # DB and environment config │ └── server.js # Main backend entry point └── frontend # React frontend (User interface) └── src ├── Assets ├── components # React components └── App.jsx # Main React app entry point ``` </pre>
 
 ## Tech Stack
-    - Frontend: React
-    - Backend: Node.js + Express
-    - Database: MySQL
-    - Authentication: Spotify OAuth 2.0
-    - Email: Nodemailer (Gmail SMTP)
-    - State Management: React useState/useEffect (no Redux)
-    - HTTP Client: Axios
+- Frontend: React
+- Backend: Node.js + Express
+- Database: MySQL
+- Authentication: Spotify OAuth 2.0
+- Email: Nodemailer (Gmail SMTP)
+- State Management: React useState/useEffect (no Redux)
+- HTTP Client: Axios
 
 ## Hosting:
     - Frontend: Vercel
@@ -59,4 +48,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For questions or feedback, open an issue or contact [terguyzaid@gmail.com].
+For questions or feedback, open an issue or contact terguyzaid@gmail.com.
