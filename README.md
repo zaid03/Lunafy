@@ -2,7 +2,8 @@
     -Lunafy is a Spotify-powered web application that connects with your Spotify account to analyze your listening habits, visualize stats, and offer musical insights.
 
 ## Project Status
-    -Lunafy backend and frontend are fully implemented, with user authentication, Spotify integration, personalized stats, playlist creation, and more. Admin panel development is planned next.
+    Lunafy backend and frontend are fully implemented, with user authentication, Spotify integration, personalized stats, playlist creation, and more.
+    Admin panel development is planned next.
 
 ## Features
 
@@ -14,7 +15,18 @@
 
 ## Project Structure
 
-    <pre> ```plaintext /lunafy ├── backend # Node.js backend (Express + Spotify OAuth) │ ├── controller # Route controllers (business logic) │ ├── models # Database models/queries │ ├── routes # API route definitions │ ├── config # DB and environment config │ └── server.js # Main backend entry point └── frontend # React frontend (User interface) └── src ├── Assets ├── components # React components └── App.jsx # Main React app entry point ``` </pre>
+    /lunafy
+    ├── backend     # Node.js backend (Express + Spotify OAuth)
+    │   ├── controller    # Route controllers (business logic)
+    │   ├── models        # Database models/queries
+    │   ├── routes        # API route definitions
+    │   ├── config        # DB and environment config
+    │   └── server.js     # Main backend entry point
+    └── frontend          # React frontend (User interface)
+        └── src
+            ├── Assets
+            ├── components    # React components
+            └── App.jsx         # Main React app entry point
 
 ## Tech Stack
 - Frontend: React
