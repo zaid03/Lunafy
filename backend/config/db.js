@@ -18,13 +18,13 @@ const connectDB = () => {
     if (err) {
       console.error('DB connection failed:', err.message);
     } else {
-      console.log('Connected to MySQL DB');
+      // console.log('Connected to MySQL DB');
       connection.release();
     }
   });
 };
 
 module.exports = {
-    connectDB,
-    db: pool.promise(),
+  connectDB,
+  db: pool.promise(),
 };

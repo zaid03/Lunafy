@@ -353,6 +353,7 @@
 }
 
 .more-content {
+  text-decoration: 0;
   background: transparent;
   border: 2px solid #1db954;
   border-radius: 25px;

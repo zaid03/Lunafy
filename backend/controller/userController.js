@@ -1,5 +1,8 @@
 const axios = require('axios');
 const userModel = require('../models/userModel');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const { db } = require('../config/db');
 
 // route for user info to the dahsboard
 exports.getMe = async (req, res) => {
@@ -42,7 +45,7 @@ exports.getMe = async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: 'Failed to fetch user info' });
     }
-}
+};
 
 //route to get albums, songs and artists
 exports.saveUserStats = async (req, res) => {
@@ -126,7 +129,7 @@ exports.saveUserStats = async (req, res) => {
         console.error('Error saving content into database:', err.response?.data || err.message);
         res.status(500).json({ error: 'Error saving content into database'});
     }
-}
+};
 
 //dashboard overview - top 10 of each
 exports.dashboardOverview = async (req, res) => {
@@ -149,7 +152,7 @@ exports.dashboardOverview = async (req, res) => {
         console.log('Error fetching dashboard overview data:', e);
         res.status(500).json({ error: 'failed to fetch dashboard content'});
     }
-}
+};
 
 //route to fetch the most and least popular song
 exports.mostLeastPop = async (req,res) => {
@@ -170,7 +173,7 @@ exports.mostLeastPop = async (req,res) => {
         console.log('Error fetching songs by popularity:', e);
         res.status(500).json({ error: 'failed to fetch songs by popularity'});
     }
-}
+};
 
 //route to get longes/shortest songs
 exports.longestShortes = async (req, res) => {
@@ -191,7 +194,7 @@ exports.longestShortes = async (req, res) => {
         console.log('Error fetching songs by duration:', e);
         res.status(500).json({ error: 'failed to fetch songs by duration'});
     }
-}
+};
 
 //top by decade 2010s and 2020s
 exports.topByDecade = async (req, res) => {
@@ -213,7 +216,7 @@ exports.topByDecade = async (req, res) => {
         console.log('Error fetching songs by decade:', e);
         res.status(500).json({ error: 'failed to fetch songs by decade'});
     }
-}
+};
 
 //route to fetch all artists
 exports.topAllArtists = async (req, res) => {
@@ -230,7 +233,7 @@ exports.topAllArtists = async (req, res) => {
         console.error('Error fetching top all artists', e);
         res.status(500).json({ error: 'failed to fetch dashboard content'});
     }
-}
+};
 
 //route to fetch all songs
 exports.topAllSongs = async (req, res) => {
@@ -249,7 +252,7 @@ exports.topAllSongs = async (req, res) => {
         console.error('error fetching all songs:', e);
         res.status(500).json({ error: 'failed to fetch dashboard content'});
     }
-}
+};
 
 //route to fetch all albums
 exports.topAllAlbums = async (req, res) => {
@@ -268,11 +271,10 @@ exports.topAllAlbums = async (req, res) => {
         console.error("error fetching top all albums", e);
         res.status(500).json({ error: 'failed to fetch dashboard content'});
     }
-}
+};
 
 //route to get user's taste
 exports.musicInsight = async (req, res) => {
-    const timeRange = req.query.timeRange || 'medium_term';
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not authenticated' });
     }
@@ -295,4 +297,276 @@ exports.musicInsight = async (req, res) => {
         console.error("Error fetching insights:", e);
         res.status(500).json({ error: "failed to fetch insights" });
     }
+};
+
+//route to fetch top genres
+exports.topAllGeneres = async (req, res) => {
+    const timeRange = req.query.timeRange || 'medium_term';
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const topAllGeneres = await userModel.topAllGeneres(req.session.userId, timeRange)
+        const genreCount = {};
+        topAllGeneres.forEach(row => {
+            row.genres.split(',').forEach(genre => {
+                const g = genre.trim();
+                if (g) genreCount[g] = (genreCount[g] || 0) + 1;
+            });
+        });
+
+        const genres = Object.entries(genreCount)
+        .map(([genre, count]) => ({ genres: genre, track_count: count }))
+        .sort((a, b) => b.track_count - a.track_count)
+        .slice(0, 50);
+
+        res.json({ 
+            genres
+         });
+    } catch (e) {
+        console.error("error fetching top genres:", e);
+        res.status(500).json({ error: 'failed to fetch genres content'});
+    }
+};
+
+//profile route to fetch email, password, verification and plan in future
+exports.profileInfo = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const profileInfo = await userModel.profileInfo(req.session.userId);
+        res.json({
+            info: profileInfo
+        })
+
+    } catch(e) {
+        console.error("error fetching user's profile's info:", e);
+        res.status(500).json({ error: "error fetching user's profile's info"});
+    }
+};
+
+//route to insert or update bio for user
+exports.saveUserBio = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const { bio } = req.body;
+
+    try {
+        await userModel.saveUserBio(req.session.userId, bio);
+        res.json({ message: 'Bio Saved!' });
+    } catch (e) {
+        console.error('Error saving bio:', e);
+        res.status(500).json({ error: 'Failed to save bio' });
+    }
+};
+
+//route to fetch bio from db
+exports.bioGet = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const bioGet = await userModel.bioGet(req.session.userId)
+        res.json({
+            bio : bioGet
+        })
+    } catch(e) {
+        console.error('Error fetching bio:', e);
+        res.status(500).json({ error: 'Failed to fetch bio' });
+    }
+};
+
+//route to insert and update country
+exports.userCountry = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const { country } = req.body;
+
+    try {
+        await userModel.userCountry(req.session.userId, country);
+        res.json({ message: 'country Saved!' });
+    } catch (e) {
+        console.error('Error saving country:', e);
+        res.status(500).json({ error: 'Failed to save country' });
+    }
+};
+
+//route to logout
+exports.logout = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("error destroying session:", err);
+            return res.status(500).json({ error: 'failed to logout' });
+        }
+        res.redirect('http://127.0.0.1:3000/');
+    });
+};
+
+//route to delete account
+exports.deleteAccount = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        await userModel.deleteAccount(req.session.userId)
+        res.json({
+            message: "account deleted successfully"
+        })
+    } catch(e) {
+        console.error("error deleting account:", e);
+        res.status(500).json({ error: "error deleting account"});
+    }
 }
+
+//route to add playlists to spotify
+exports.createPlaylist = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    try {
+        const { name, description, timeRange } = req.body;
+        const tokenRow = await userModel.getUserToken(req.session.userId);
+        const accessToken = tokenRow?.access_token;
+
+        if (!accessToken) {
+            return res.status(401).json({ error: 'No access token found' });
+        }
+
+        const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const spotifyUserId = userResponse.data.id;
+
+        const playlistResponse = await axios.post(
+            `https://api.spotify.com/v1/users/${spotifyUserId}/playlists`,
+            { name, description, public: false },
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        const playlistId = playlistResponse.data.id;
+
+        const songs = await userModel.getTopSongsForPlaylist(req.session.userId, timeRange);
+        if (songs.length === 0) {
+            return res.status(400).json({ error: 'No songs found for this time range' });
+        }
+        const trackUris = songs.map(song => `spotify:track:${song.spotify_track_id}`);
+
+        await axios.post(
+            `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+            { uris: trackUris },
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        res.json({
+            success: true,
+            message: 'Playlist created successfully!',
+            playlist: {
+                id: playlistId,
+                name: playlistResponse.data.name,
+                url: playlistResponse.data.external_urls.spotify,
+                tracks_added: songs.length
+            }
+        });
+    } catch (error) {
+        console.error('Error creating playlist:', error.response?.data || error.message);
+        res.status(500).json({
+            error: 'Failed to create playlist',
+            details: error.response?.data?.error?.message || error.message
+        });
+    }
+};
+
+//route to verify account (generating token and sending email)
+exports.sendVerificationEmail = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    try {
+        const token = crypto.randomBytes(32).toString('hex');
+        await db.query('UPDATE users SET verification_token = ? WHERE id = ?', [token, req.session.userId]);
+
+        const [user] = await db.query('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const email = user[0]?.email;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const verifyUrl = `http://localhost:5000/api/verify-email?token=${token}`;
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Verify your email',
+            html: `<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #181818; color: #fff; padding: 32px; border-radius: 12px; max-width: 420px; margin: 40px auto; box-shadow: 0 2px 12px #0003;">
+      <h2 style="color: #1db954; margin-bottom: 18px;">Lunafy Email Verification</h2>
+      <p style="font-size: 1.1rem; margin-bottom: 24px;">
+        Welcome to <b>Lunafy</b>! Please verify your email address to unlock all features and keep your account secure.
+      </p>
+      <a href="${verifyUrl}" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 1.1rem; box-shadow: 0 2px 8px #0002;">
+        ✅ Verify My Email
+      </a>
+      <p style="margin-top: 32px; font-size: 0.95rem; color: #aaa;">
+        If you did not request this, you can safely ignore this email.<br>
+        <span style="color: #1db954;">Lunafy</span> &mdash; Your music, your stats.
+      </p>
+    </div>`
+        });
+
+        res.json({ message: 'Verification email sent!' });
+    } catch (e) {
+        console.error("error sending verification email:", e);
+        res.status(500).json({ error: "error sending verification email" });
+    }
+};
+
+//route to verify the email
+exports.verifyEmail = async (req, res) => {
+    const { token } = req.query;
+    if (!token) {
+        return res.status(400).send('No token provided');
+    }
+
+    try {
+        const [user] = await db.query('SELECT id FROM users WHERE verification_token = ?', [token]);
+        if (!user.length) {
+            return res.status(400).send('Invalid or expired token');
+        }
+
+        await db.query('UPDATE users SET verified = 1, verification_token = NULL WHERE id = ?', [user[0].id]);
+        res.send(`<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #181818; color: #fff; padding: 48px 32px; border-radius: 14px; max-width: 420px; margin: 80px auto; box-shadow: 0 2px 16px #0005; text-align: center;">
+    <h2 style="color: #1db954; margin-bottom: 18px;">✅ Email Verified!</h2>
+    <p style="font-size: 1.15rem; margin-bottom: 24px;">
+      Your email has been successfully verified.<br>
+      You can now close this tab and continue using <span style="color: #1db954;">Lunafy</span>.
+    </p>
+    <a href="http://localhost:3000/" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
+      Go to Lunafy
+    </a>
+  </div>`);
+    } catch (e) {
+        console.error('Error verifying email:', e);
+        res.status(500).send('Failed to verify email');
+    }
+};

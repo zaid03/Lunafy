@@ -313,7 +313,7 @@ function Dashboard() {
                 </div>
               )}
               <div className='see-more'>
-                <button className='more-content'>See more</button>
+                <NavLink className='more-content' to="/Artists" >See more</NavLink>
               </div>
             </div>
           </div>
@@ -348,7 +348,7 @@ function Dashboard() {
                 </div>
               )}
               <div className='see-more'>
-                <button className='more-content'>See more</button>
+                <NavLink className='more-content' to="/songs" >See more</NavLink>
               </div>
             </div>
           </div>
@@ -388,7 +388,7 @@ function Dashboard() {
               </div>
             )}
             <div className='see-more'>
-              <button className='more-content'>See more</button>
+              <NavLink className='more-content' to="/albums" >See more</NavLink>
             </div>
           </div>
         </div>

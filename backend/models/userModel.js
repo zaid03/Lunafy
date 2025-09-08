@@ -1,5 +1,6 @@
 const { db } = require('../config/db');
 
+
 exports.getUserById = async (userId) => {
     const [user] = await db.query('SELECT name, email, country, followers, profile_image FROM users WHERE id = ?', [userId]);
     return user[0];
@@ -70,7 +71,7 @@ exports.fetchTopTenArtists = async (userId, timeRange) =>{
     `, [userId, timeRange]);
     
     return artists;
-}
+};
 
 exports.fetchTopTenAlbums = async (userId, timeRange) =>{
     const [albums] = await db.query(`
@@ -92,7 +93,7 @@ exports.fetchTopTenAlbums = async (userId, timeRange) =>{
     `, [userId, timeRange]);
 
     return albums;
-}
+};
 
 exports.fetchTopTenSongs = async (userId, timeRange) => {
     const [songs] = await db.query(`
@@ -100,7 +101,7 @@ exports.fetchTopTenSongs = async (userId, timeRange) => {
     `, [userId, timeRange]);
 
     return songs
-}
+};
 
 //route to fetch the most and least popular song
 exports.PopularSongs = async (userId, timeRange) => {
@@ -122,7 +123,7 @@ exports.PopularSongs = async (userId, timeRange) => {
       )`, [userId, timeRange, userId, timeRange]);
 
     return topSongs;
-}
+};
 
 //route to get longes/shortest songs
 exports.longestShortes = async (userId, timeRange) => {
@@ -146,7 +147,7 @@ exports.longestShortes = async (userId, timeRange) => {
       `, [userId, timeRange, userId, timeRange]);
 
     return longSongs;
-}
+};
 
 //top by decade 2010s and 2020s
 exports.topByDecade = async (userId, timeRange) => {
@@ -174,7 +175,7 @@ exports.topByDecade = async (userId, timeRange) => {
       `, [userId, timeRange, userId, timeRange]);
 
     return decade;
-}
+};
 
 //route to fetch all artists
 exports.topAllArtists = async (userId, timeRange) => {
@@ -195,7 +196,7 @@ exports.topAllArtists = async (userId, timeRange) => {
       `, [userId, timeRange]);
 
     return artists;
-}
+};
 
 //route to fetch all songs
 exports.topAllSongs = async (userId, timeRange) => {
@@ -204,7 +205,7 @@ exports.topAllSongs = async (userId, timeRange) => {
       `, [userId, timeRange])
 
     return songs;
-}
+};
 
 //route to fetch all albums
 exports.topAllAlbums = async (userId, timeRange) => {
@@ -227,7 +228,7 @@ exports.topAllAlbums = async (userId, timeRange) => {
       `, [userId, timeRange])
 
     return albums;
-}
+};
 
 //route to get user's taste
 exports.musicInsightArtists = async (userId) => {
@@ -241,7 +242,8 @@ exports.musicInsightArtists = async (userId) => {
     `, [userId]);
 
     return topArtist;
-}
+};
+
 exports.musicInsightSongs = async (userId) => {
     const [topSong] = await db.query(`
       SELECT track_name AS topSong
@@ -252,7 +254,7 @@ exports.musicInsightSongs = async (userId) => {
     `, [userId]);
 
     return topSong;
-}
+};
 
 exports.musicInsightAlbums = async (userId) => {
     const [topGenre] = await db.query(`
@@ -275,7 +277,7 @@ exports.musicInsightAlbums = async (userId) => {
     `, [userId]);
 
     return topGenre;
-}
+};
 
 exports.musicInsightUniqueArtists = async(userId) =>{
     const [uniqueArtists] = await db.query(`
@@ -285,7 +287,7 @@ exports.musicInsightUniqueArtists = async(userId) =>{
     `, [userId]);
 
     return uniqueArtists;
-}
+};
 
 exports.musicInsightavgPopularity = async(userId) => {
     const [avgPopularity] = await db.query(`
@@ -295,4 +297,89 @@ exports.musicInsightavgPopularity = async(userId) => {
     `, [userId]);
 
     return avgPopularity;
-}
+};
+
+//route to fetch top genres
+exports.topAllGeneres = async(userId, timeRange) => {
+    const [rows] = await db.query (`   
+      SELECT genres
+      FROM user_data
+      WHERE user_id = ? AND time_range = ?
+        AND genres IS NOT NULL AND genres <> ''
+      `, [userId, timeRange])
+
+    return rows;
+};
+
+//profile route to fetch email, password, verification and plan in future
+exports.profileInfo = async(userId) => {
+    const [info] = await db.query(`
+      select email, verified from users where id = ?
+      `, [userId]);
+    return info;
+};
+
+//route to insert or update bio for user
+exports.saveUserBio = async (userId, bio) => {
+    const [rows] = await db.query(
+        'SELECT user_id FROM user_personnalisation WHERE user_id = ?',
+        [userId]
+    );
+
+    if (rows.length > 0) {
+        await db.query(
+            'UPDATE user_personnalisation SET bio = ? WHERE user_id = ?',
+            [bio, userId]
+        );
+    } else {
+        await db.query(
+            'INSERT INTO user_personnalisation (user_id, bio) VALUES (?, ?)',
+            [userId, bio]
+        );
+    }
+};
+
+//route to fetch bio from db
+exports.bioGet = async (userId) => {
+    const [bio] = await db.query(`
+      select bio from user_personnalisation where user_id = ?
+      `, [userId]);
+
+    return bio;
+};
+
+//route to insert and update country
+exports.userCountry = async (userId, country) => {
+    const [rows] = await db.query(`
+      select user_id from user_personnalisation where user_id = ?
+      `, [userId]);
+
+    if (rows.length > 0 ) {
+      await db.query(`
+        UPDATE user_personnalisation SET country = ? WHERE user_id = ?
+        `, [country, userId]);
+    } else {
+      await db.query(`
+        INSERT INTO user_personnalisation (user_id, country) VALUES (?, ?)
+        `, [userId, country]);
+    }
+};
+
+//route to delete account
+exports.deleteAccount = async(userId) => {
+    const [deletion] = await db.query(`
+      update users set deletion = 1 where id = ?
+      `, [userId]);
+};
+
+//route to add playlists to spotify
+exports.getTopSongsForPlaylist = async (userId, timeRange) => {
+    const [songs] = await db.query(`
+      SELECT spotify_track_id 
+      FROM user_data 
+      WHERE user_id = ? AND time_range = ? 
+      ORDER BY rank_position ASC 
+      LIMIT 50
+    `, [userId, timeRange]);
+    return songs;
+};
