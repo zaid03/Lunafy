@@ -1,8 +1,10 @@
 ## Lunafy
-    -Lunafy is a Spotify-powered web application that connects with your Spotify account to analyze your listening habits, visualize stats, and offer musical insights.
+    -Lunafy is a Spotify-powered web application that connects with your Spotify account to 
+    analyze your listening habits, visualize stats, and offer musical insights.
 
 ## Project Status
-    Lunafy backend and frontend are fully implemented, with user authentication, Spotify integration, personalized stats, playlist creation, and more.
+    Lunafy backend and frontend are fully implemented, with user authentication,
+    Spotify integration, personalized stats, playlist creation, and more.
     Admin panel development is planned next.
 
 ## Features
