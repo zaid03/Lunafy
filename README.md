@@ -1,7 +1,7 @@
 # Lunafy
 
 <p align="center">
-    <img src="frontend/public/logo512.png" alt="Lunafy Logo" width="120" />
+    <img src="frontend/src/assets/logo.png" alt="Lunafy Logo" width="120" />
 </p>
 
 <p align="center">
