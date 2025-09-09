@@ -459,6 +459,11 @@
   color: var(--text-gray);
 }
 
+.noDataForYou {
+  font-size: 14px !important;
+  color: var(--text-gray);
+}
+
 @media (max-width: 767px) {
   .top-cards {
     flex-direction: column;

@@ -60,30 +60,44 @@ function Songs () {
                     <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
-                    {songData.map((song, idx) => (
-                        <div key={song.artist_id || idx}className='artist-content'>
-                            <div className='artist-rank-all'>
-                                #{idx + 1}
-                            </div>
-                            <div className='artist-image'>
-                                <img src={song.image_url} alt={song.artist_name} />
-                            </div>
-                            <div className='artist-info-all'>
-                                <a
-                                    href={song.external_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className='song-name'
-                                    style={{textDecoration: 'none'}}
-                                >
-                                    {song.track_name}
-                                </a>
-                                <div className='artist-name-all'>
-                                    {song.artist_name}
+                    {songData && songData.length > 0 ?(
+                        songData.map((song, idx) => (
+                            <div key={song.artist_id || idx}className='artist-content'>
+                                <div className='artist-rank-all'>
+                                    #{idx + 1}
+                                </div>
+                                <div className='artist-image'>
+                                    <img src={song.image_url} alt={song.artist_name} />
+                                </div>
+                                <div className='artist-info-all'>
+                                    <a
+                                        href={song.external_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className='song-name'
+                                        style={{textDecoration: 'none'}}
+                                    >
+                                        {song.track_name}
+                                    </a>
+                                    <div className='artist-name-all'>
+                                        {song.artist_name}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ): (
+                        <h1
+                        className='warningTest'
+                        style={{
+                            gridColumn: '1 / -1',
+                            width: '100%',
+                            textAlign: 'center',
+                            margin: '40px 0'
+                        }}
+                        >
+                        No Song data yet. Start listening to music on Spotify to see your stats here!
+                        </h1>
+                    )}
                 </div>
 
                 <div className='footer-all'>

@@ -72,15 +72,23 @@ function Taste() {
                 
                 <div className='page-content'>
                     <div className='text-center'>
-                        <p>
+                       { !tasteData.topArtist && !tasteData.topSong && !tasteData.topGenre && !tasteData.avgPopularity && !tasteData.uniqueArtists ? (
+                        <h2 className="warningTest" style={{fontSize: 18}}>
+                            No taste data yet. Start listening to music on Spotify to see your insights here!
+                        </h2>
+                        ) : (
+                        <>
+                            <p>
                             Your favorite artist is <span className='diff'>{tasteData.topArtist}</span>, and your most played song is "<span className='diff'>{tasteData.topSong}</span>". 
-                        </p>
-                        <p>
+                            </p>
+                            <p>
                             You listen mostly to <span className='diff'>{tasteData.topGenre}</span> music, with an average track popularity of <span className='diff'>{tasteData.avgPopularity}</span>.
-                        </p>
-                        <p>
+                            </p>
+                            <p>
                             You’ve explored <span className='diff'>{tasteData.uniqueArtists}</span> different artists this month!
-                        </p>
+                            </p>
+                        </>
+                        )}
                     </div>
                 </div>
                 <Footer />

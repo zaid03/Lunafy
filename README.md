@@ -9,7 +9,7 @@
 
 ## Features
 
-- Spotify authentication and integration
+- Spotify authentication and integration    
 - Personalized music stats and insights
 - Playlist creation based on your top tracks
 - Email verification for account security

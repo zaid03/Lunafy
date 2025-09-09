@@ -62,30 +62,44 @@ function Artists() {
                     <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
-                    {artistData.map((artist, idx) => (
-                        <div key={artist.artist_id || idx}className='artist-content'>
-                            <div className='artist-rank-all'>
-                                #{idx + 1}
+                    {artistData && artistData.length > 0 ? (
+                        artistData.map((artist, idx) => (
+                            <div key={artist.artist_id || idx}className='artist-content'>
+                                <div className='artist-rank-all'>
+                                    #{idx + 1}
+                                </div>
+                                <div className='artist-image'>
+                                    <img src={artist.image_url} alt={artist.main_artist} />
+                                </div>
+                                <div className='artist-info-all'>
+                                    <a
+                                        href={
+                                            artist.artist_id
+                                            ? `https://open.spotify.com/artist/${artist.artist_id.split(':').pop()}`
+                                            : '#'
+                                        }
+                                        className='artist-name-all'
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        >
+                                        {artist.main_artist}
+                                    </a>
+                                </div>
                             </div>
-                            <div className='artist-image'>
-                                <img src={artist.image_url} alt={artist.main_artist} />
-                            </div>
-                            <div className='artist-info-all'>
-                                <a
-                                    href={
-                                        artist.artist_id
-                                        ? `https://open.spotify.com/artist/${artist.artist_id.split(':').pop()}`
-                                        : '#'
-                                    }
-                                    className='artist-name-all'
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    >
-                                    {artist.main_artist}
-                                </a>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    ):  (
+                       <h1
+                        className='warningTest'
+                        style={{
+                            gridColumn: '1 / -1',
+                            width: '100%',
+                            textAlign: 'center',
+                            margin: '40px 0'
+                        }}
+                        >
+                        No artist data yet. Start listening to music on Spotify to see your stats here!
+                        </h1>
+                    )}
                 </div>
           
                 <div className='footer-all'>

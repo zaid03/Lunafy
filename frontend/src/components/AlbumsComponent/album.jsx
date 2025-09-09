@@ -72,30 +72,44 @@ function Album () {
                     <button className='save-all' onClick={handleShare}>Share</button>
                 </div>
                 <div className='display-artists'>
-                    {uniqueAlbums.map((album, idx) => (
-                        <div key={album.album_id || idx}className='artist-content'>
-                            <div className='artist-rank-all'>
-                                #{idx + 1}
-                            </div>
-                            <div className='artist-image'>
-                                <img src={album.image_url} alt={album.album_url} />
-                            </div>
-                            <div className='artist-info-all'>
-                                <a
-                                    href={album.album_id ? `https://open.spotify.com/album/${album.album_id}` : '#'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className='song-name'
-                                    style={{ textDecoration: 'none' }}
-                                >
-                                    {album.album_name}
-                                </a>
-                                <div className='artist-name-all'>
-                                    {album.artist_name}
+                    {uniqueAlbums && uniqueAlbums.length > 0 ? (
+                        uniqueAlbums.map((album, idx) => (
+                            <div key={album.album_id || idx}className='artist-content'>
+                                <div className='artist-rank-all'>
+                                    #{idx + 1}
+                                </div>
+                                <div className='artist-image'>
+                                    <img src={album.image_url} alt={album.album_url} />
+                                </div>
+                                <div className='artist-info-all'>
+                                    <a
+                                        href={album.album_id ? `https://open.spotify.com/album/${album.album_id}` : '#'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className='song-name'
+                                        style={{ textDecoration: 'none' }}
+                                    >
+                                        {album.album_name}
+                                    </a>
+                                    <div className='artist-name-all'>
+                                        {album.artist_name}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ): (
+                        <h1
+                        className='warningTest'
+                        style={{
+                            gridColumn: '1 / -1',
+                            width: '100%',
+                            textAlign: 'center',
+                            margin: '40px 0'
+                        }}
+                        >
+                        No Album data yet. Start listening to music on Spotify to see your stats here!
+                        </h1>
+                    )}
                 </div>
                 <div className='footer-all'>
                     <Footer />

@@ -5,7 +5,7 @@ exports.getUserById = async (userId) => {
     const [user] = await db.query('SELECT name, email, country, followers, profile_image FROM users WHERE id = ?', [userId]);
     return user[0];
 };
-
+  
 exports.getUserToken = async (userId) => {
     const [tokenRow] = await db.query('SELECT access_token FROM user_tokens WHERE user_id = ?', [userId]);
     return tokenRow[0];

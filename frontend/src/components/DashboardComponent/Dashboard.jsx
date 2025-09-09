@@ -233,7 +233,9 @@ function Dashboard() {
           <div className='info-dash'>
             <div className='photo-name'>
               <div className='all-info'>
-                <img src={userData?.profileImage} alt='user-pic' />
+                {userData?.profileImage ? (
+                  <img src={userData.profileImage} alt='user-pic' />
+                ): null }
                 <div className='bio-name'>
                   <span className='user-name'>{userData?.display_name || userData?.name || "User"}</span>
                   <span>{bio}</span>
@@ -275,7 +277,7 @@ function Dashboard() {
             <NavLink to="/songs" className="dashboard-link">Songs</NavLink>
             <NavLink to="/albums" className="dashboard-link">Albums</NavLink>
             <NavLink to="/genres" className="dashboard-link">Genres</NavLink>
-            <NavLink to="/taste" className="dashboard-link">Dicover your taste</NavLink>
+            <NavLink to="/taste" className="dashboard-link">Discover your taste</NavLink>
           </div>
         </div>
       </div>
@@ -309,9 +311,10 @@ function Dashboard() {
               ) : (
                 <div className='artist-item'>
                   <span className='artist-rank'>-</span>
-                  <span className='artist-name'>Loading artists...</span>
+                  <span className='artist-name' >Waiting for data</span>
                 </div>
-              )}
+              ) 
+              }
               <div className='see-more'>
                 <NavLink className='more-content' to="/Artists" >See more</NavLink>
               </div>
@@ -342,8 +345,8 @@ function Dashboard() {
                 <div className='song-item'>
                   <span className='song-rank'>-</span>
                   <div className='song-info'>
-                    <span className='song-title'>Loading songs...</span>
-                    <span className='song-artist'>Please wait</span>
+                    <span className='song-title'>Waiting for data</span>
+                    {/* <span className='song-artist'>Please wait</span> */}
                   </div>
                 </div>
               )}
@@ -382,8 +385,8 @@ function Dashboard() {
               <div className='album-item'>
                 <span className='album-rank'>-</span>
                 <div className='album-info'>
-                  <span className='album-title'>Loading albums...</span>
-                  <span className='album-artist'>Please wait</span>
+                  <span className='album-title'>Waiting for data...</span>
+                  {/* <span className='album-artist'>Please wait</span> */}
                 </div>
               </div>
             )}
@@ -400,21 +403,36 @@ function Dashboard() {
               <h5>Most popular</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={popularData?.mostPopular?.image_url} alt='song' />
+                  {popularData?.mostPopular ? (
+                    <img src={popularData?.mostPopular?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+                  
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{popularData?.mostPopular?.track_name}</span>
-                  <span className='name-artist'>{popularData?.mostPopular?.artist_name.split(',')[0].trim()}</span>
+                  {popularData?.mostPopular ? (
+                    <>
+                      <span className='name-song'>{popularData?.mostPopular?.track_name}</span>
+                      <span className='name-artist'>{popularData?.mostPopular?.artist_name.split(',')[0].trim()}</span></>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
+                  
+                  
                 </div>
               </div>
               <h5>Least popular</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={popularData?.leastPopular?.image_url} alt='song' />
+                  {popularData?.leastPopular ? (
+                    <img src={popularData?.leastPopular?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{popularData?.leastPopular?.track_name}</span>
-                  <span className='name-artist'>{popularData?.leastPopular?.artist_name.split(',')[0].trim()}</span>
+                  {popularData?.leastPopular ? (
+                    <>
+                      <span className='name-song'>{popularData?.leastPopular?.track_name}</span>
+                      <span className='name-artist'>{popularData?.leastPopular?.artist_name.split(',')[0].trim()}</span>
+                    </>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
                 </div>
               </div>
             </div>
@@ -422,53 +440,74 @@ function Dashboard() {
               <h5>Top in 2020s</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={decadeData?.decade2020s?.image_url || 'Not available'} alt='song' />
+                  {decadeData?.decade2020s ? (
+                    <img src={decadeData?.decade2020s?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+                  
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{decadeData?.decade2020s?.track_name || 'Not available'}</span>
-                  <span className='name-artist'>{decadeData?.decade2020s?.artist_name.split(',')[0].trim() || 'Not available'}</span>
+                  {decadeData?.decade2020s ? (
+                    <>
+                      <span className='name-song'>{decadeData?.decade2020s?.track_name || 'Not available'}</span>
+                      <span className='name-artist'>{decadeData?.decade2020s?.artist_name.split(',')[0].trim()}</span>
+                    </>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
+                  
                 </div>
               </div>
               <h5>Top in 2010s</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={decadeData?.decade2010s?.image_url || 'Not available'} alt='song' />
+                  {decadeData?.decade2020s ? (
+                    <img src={decadeData?.decade2010s?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+                  
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{decadeData?.decade2010s?.track_name || 'Not available'}</span>
-                  <span className='name-artist'>{decadeData?.decade2010s?.artist_name.split(',')[0].trim() || 'Not available'}</span>
+                  {decadeData?.decade2020s ? (
+                    <>
+                      <span className='name-song'>{decadeData?.decade2010s?.track_name}</span>
+                    <span className='name-artist'>{decadeData?.decade2010s?.artist_name.split(',')[0].trim()}</span>
+                    </>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
                 </div>
               </div>
-              {/* <h5>Top in 2000s</h5>
-              <div className='the-song'>
-                <div className='image-song'>
-                  <img src={test} alt='song' />
-                </div>
-                <div className='details-song'>
-                  <span className='name-song'>name of the song</span>
-                  <span className='name-artist'>name of the Artist</span>
-                </div>
-              </div> */}
             </div>
             <div className='length'>
               <h5>Longest</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={durationData?.longest?.image_url || 'Not available'} alt='song' />
+                  {durationData?.longest ? (
+                    <img src={durationData?.longest?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+                 
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{durationData?.longest?.track_name || 'Not available'}</span>
-                  <span className='name-artist'>{durationData?.longest?.artist_name.split(',')[0].trim() || 'Not available'}</span>
+                  {durationData?.longest ? (
+                    <>
+                      <span className='name-song'>{durationData?.longest?.track_name}</span>
+                      <span className='name-artist'>{durationData?.longest?.artist_name.split(',')[0].trim()}</span>
+                    </>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
+                  
                 </div>
               </div>
               <h5>Shortest</h5>
               <div className='the-song'>
                 <div className='image-song'>
-                  <img src={durationData?.shortest?.image_url || 'Not available'} alt='song' />
+                  {durationData?.shortest ? (
+                    <img src={durationData?.shortest?.image_url} alt='song' />
+                  ): <h1 className='noDataForYou'>No data yet.</h1>}
+                  
                 </div>
                 <div className='details-song'>
-                  <span className='name-song'>{durationData?.shortest?.track_name || 'Not available'}</span>
-                  <span className='name-artist'>{durationData?.shortest?.artist_name.split(',')[0].trim() || 'Not available'}</span>
+                  {durationData?.shortest ? (
+                    <>
+                      <span className='name-song'>{durationData?.shortest?.track_name}</span>
+                      <span className='name-artist'>{durationData?.shortest?.artist_name.split(',')[0].trim()}</span>
+                    </>
+                  ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
+                  
                 </div>
               </div>  
             </div>
