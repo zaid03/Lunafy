@@ -14,6 +14,8 @@ import Genre from './components/GenreComponent';
 import Taste from './components/TasteComponent';
 import Profile from './components/ProfileComponent';
 import Settings from './components/SettingsComponent/Settings';
+import Privacy from './components/PrivacyComponent';
+import Terms from './components/TermsComponents/Terms';
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
         <Route path='/taste' element={<Taste />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/settings' element={<Settings />} />
+        <Route path='/privacy' element={<Privacy />} />
+        <Route path='/terms' element={<Terms />} />
        </Routes>
     </Router>
   );

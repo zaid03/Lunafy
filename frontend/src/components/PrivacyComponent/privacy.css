@@ -1,0 +1,56 @@
+:root {
+  --accent-green: #1DB954;
+  --primary-bg: #1A1A1A;
+  --text-white: #fff;
+  --text-gray: #aaa;
+  --font-main: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+.privacy-content {
+  max-width: 700px;
+  margin: 48px auto 64px auto;
+  padding: 36px 28px;
+  background: var(--primary-bg);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  font-family: var(--font-main);
+  color: var(--text-white);
+  border: 1.5px solid rgba(29,185,84,0.08);
+  transition: box-shadow 0.2s;
+}
+
+.privacy-content:hover {
+  box-shadow: 0 8px 32px rgba(29,185,84,0.10);
+}
+
+.privacy-content h1 {
+  font-size: 2.3rem;
+  margin-bottom: 22px;
+  color: var(--accent-green);
+  text-align: center;
+  font-family: var(--font-main);
+  letter-spacing: 1px;
+}
+
+.privacy-content p {
+  font-size: 1.13rem;
+  color: var(--text-gray);
+  line-height: 1.8;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .privacy-content {
+    padding: 20px 8px;
+    max-width: 98vw;
+    margin: 32px 1vw 48px 1vw;
+  }
+  .privacy-content h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+  .privacy-content p {
+    font-size: 1rem;
+  }
+}

@@ -426,8 +426,6 @@ function Dashboard() {
                       <span className='name-song'>{popularData?.mostPopular?.track_name}</span>
                       <span className='name-artist'>{popularData?.mostPopular?.artist_name.split(',')[0].trim()}</span></>
                   ): <h1 className='noDataForYou'>Start listening to see your stats here!</h1>}
-                  
-                  
                 </div>
               </div>
               <h5>Least popular</h5>
