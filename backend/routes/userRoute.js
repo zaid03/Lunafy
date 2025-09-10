@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controller/userController');
 
-// route for user info to the dahsboard
+// route for user info to the dashboard
 router.get('/me', userController.getMe);
 
 //route to get albums, songs and artists

@@ -36,7 +36,7 @@
 .test { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; box-shadow: var(--shadow-light); }
 .content-all > div { display: flex; flex-direction: column; justify-content: center; }
 .song-name { color: var(--text-white); font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
-.artist-name { color: var(--accent-dark); font-size: 1rem; font-weight: 500; margin-bottom: 2px; }
+.artist-name { color: var(--accent-dark); font-size: 1rem; font-weight: 500; margin-bottom: 2px; text-decoration: 0;}
 .album-name { color: var(--text-gray); font-size: 0.92rem; font-weight: 400; }
 .nav-dash { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; gap: 20px; height: 52px; }
 .nav-dash a { text-decoration: none; font-family: var(--font-main); font-size: 16px; font-weight: bold; color: var(--text-white); padding: 12px; }
@@ -321,6 +321,8 @@
 .song-title,
 .song-artist,
 .artist-name{
+  text-decoration: 0;
+  color: var(--text-white);
   min-width: 1% !important;
   max-width: 100%;
 }
@@ -332,11 +334,15 @@
 .song-artist:hover,
 .name-song:hover,
 .name-artist:hover {
-  cursor: pointer;
   text-shadow: 0 0 8px rgba(29, 185, 84, 0.6);
   transition: all 0.3s ease;
   border-bottom: 1px solid rgba(29, 185, 84, 0.6);
   padding-bottom: 2px;
+}
+
+.artist-name:hover,
+.album-title:hover{
+  cursor: pointer;
 }
 
 .name-artist,

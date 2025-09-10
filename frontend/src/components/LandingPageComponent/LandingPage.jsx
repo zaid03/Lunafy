@@ -6,7 +6,7 @@ import spotify from '../../assets/spotify.png';
 import demo from '../../assets/demo.png';
 import white from '../../assets/white-spotify.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMusic, faUser, faCompactDisc, faRobot } from '@fortawesome/free-solid-svg-icons';
+import { faMusic, faUser, faCompactDisc, faStar} from '@fortawesome/free-solid-svg-icons';
 import { faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
 
@@ -112,7 +112,7 @@ function LandingPage() {
                     <div className='card'>
                         <FontAwesomeIcon icon={faMusic} />
                         <h1>Top track</h1>
-                        <p>Discover your most played songs across diffrent time periods</p>
+                        <p>Discover your most played songs across different time periods</p>
                     </div>
                     <div className='card'>
                         <FontAwesomeIcon icon={faUser} />
@@ -122,13 +122,12 @@ function LandingPage() {
                     <div className='card'>
                         <FontAwesomeIcon icon={faCompactDisc} />
                         <h1>Top genres</h1>
-                        <p>Discover how you favourite genre changes depending on your mood</p>
+                        <p>Discover how you favorite genre changes depending on your mood</p>
                     </div>
                     <div className='card'>
-                        <FontAwesomeIcon icon={faRobot} />
+                        <FontAwesomeIcon icon={faStar} />
                         <h1>Music Personality</h1>
-                        <p>Discover your personality through music, powered by smart AI analysis.</p>
-                    </div>
+                        <p>Get a personalized snapshot of your music taste</p>                    </div>
                 </div>
             </div>
             

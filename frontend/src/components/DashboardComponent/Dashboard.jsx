@@ -305,7 +305,13 @@ function Dashboard() {
                   <div key={artist.artist_id} className='artist-item'>
                     <span className='artist-rank'>{artist.best_track_rank}</span>
                     <img src={artist.image_url} alt='Artist' className='artist-pfp' />
-                    <span className='artist-name'>{artist.main_artist}</span>
+                    <a 
+                    href={`https://open.spotify.com/artist/${artist.artist_id}`}  rel='noopener noreferrer' 
+                    target='_blank' 
+                    className='artist-name'
+                    >
+                      {artist.main_artist}
+                    </a>
                   </div>
                 ))
               ) : (
@@ -376,7 +382,13 @@ function Dashboard() {
                       className='album-cover' 
                     />
                     <div className='album-info'>
-                      <span className='album-title'>{album.album_name}</span>
+                      <a 
+                      href={`https://open.spotify.com/album/${album.album_id}`}  rel='noopener noreferrer' 
+                      target='_blank' 
+                      className='album-title'
+                      >
+                        {album.album_name}
+                      </a>
                       <span className='album-artist'>{album.artist_name.split(',')[0].trim()}</span>
                     </div>
                   </div>
