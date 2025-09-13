@@ -32,7 +32,10 @@ app.use(cors({
         'http://localhost:3000', 
         'http://127.0.0.1:3000',
         'http://localhost:5000',    
-        'http://127.0.0.1:5000'   
+        'http://127.0.0.1:5000',
+        'http://127.0.0.1:3001',
+        'http://localhost:3001',
+        'http://192.168.1.3:3001'   
     ],
     methods: ['GET', 'POST', 'put', 'delete'],
     credentials: true
@@ -67,6 +70,10 @@ app.get('/api/test-session', (req, res) => {
 // route for all user related apis
 const userRoutes = require('./routes/userRoute');
 app.use('/api', userRoutes);
+
+// route for all admin related apis
+const adminRoutes = require('./routes/adminRoute');
+app.use('/admin', adminRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {});
