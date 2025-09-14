@@ -1,0 +1,124 @@
+.sidebar-container {
+  width: 240px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #181c2f 0%, #232946 100%);
+  border-right: 1px solid rgba(184, 193, 236, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  position: sticky;
+  top: 0;
+  left: 0;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.navigation-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.navigation-btns a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #b8c1ec;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.navigation-btns a:hover {
+  background: #2b3057;
+  color: #e7e9ff;
+  border-color: rgba(184, 193, 236, 0.18);
+  transform: translateX(2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+}
+
+.navigation-btns a.active {
+  background: linear-gradient(90deg, #eebbc3 0%, #b8c1ec 100%);
+  color: #232946;
+  font-weight: 700;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+}
+
+.navigation-btns a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #eebbc3, 0 0 0 4px rgba(238, 187, 195, 0.3);
+}
+
+.sidebar-container {
+  overflow-y: auto;
+}
+.sidebar-container::-webkit-scrollbar {
+  width: 10px;
+}
+.sidebar-container::-webkit-scrollbar-track {
+  background: #1a1e36;
+}
+.sidebar-container::-webkit-scrollbar-thumb {
+  background: #2b3057;
+  border-radius: 8px;
+  border: 2px solid #1a1e36;
+}
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+  background: #3a4069;
+}
+
+.logo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5%;
+    padding: 2%;
+}
+
+.logo img {
+    width: 60px;
+    height: 50px;
+    border-radius: 12px;
+}
+
+.logo h1{
+    font-family: inherit;
+    color: #b8c1ec;
+}
+
+.navigation-btns a.active,
+.navigation-btns a[aria-current="page"] {
+  background: linear-gradient(90deg, #eebbc3 0%, #b8c1ec 100%);
+  color: #232946;
+  font-weight: 700;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+  position: relative;
+  transform: translateX(2px);
+}
+
+.navigation-btns a.active::before,
+.navigation-btns a[aria-current="page"]::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 4px;
+  background: #eebbc3;
+  box-shadow: 0 0 8px rgba(238, 187, 195, 0.6);
+}
+
+@media (max-width: 700px) {
+  .sidebar-container {
+    width: 200px;
+    padding: 12px 8px;
+  }
+  .navigation-btns a {
+    padding: 9px 10px;
+  }
+}

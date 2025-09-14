@@ -1,7 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './login.css';
+import { useNavigate } from 'react-router-dom';
 
 function Login () {
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/api/test-session', {
+            credentials: 'include',
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.userId) {
+                navigate('/dashboard');
+            }
+            })
+        .catch(() => {
+            navigate('/');
+        });
+    }, [navigate]);
 
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
@@ -11,12 +28,10 @@ function Login () {
         e.preventDefault();
         setMessage('');
         try {
-            console.log('here 1');
-            const tokenRes = await fetch('http://localhost:5000/api/csrf-token', { credentials: 'include' });
+            const tokenRes = await fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' });
             const tokenData = await tokenRes.json();
 
-            console.log('here 2');
-            const res = await fetch('http://localhost:5000/admin/login', {
+            const res = await fetch('http://127.0.0.1:5000/admin/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,12 +40,10 @@ function Login () {
                 credentials: 'include',
                 body: JSON.stringify({ name, password })
             });
-            console.log('here 13');
             const data = await res.json();
-            console.log('here 14');
-            console.log(data);
             if (res.ok) {
                 setMessage('Login successful!');
+                navigate('/dashboard');
             } else {
                 setMessage(data.message || 'Login failed');
             }
@@ -40,7 +53,6 @@ function Login () {
     };
 
     return(
-
         <div className='main-container'>
             <div className='content-container'>
                 <div className='form-container'>
@@ -70,7 +82,7 @@ function Login () {
                         >
                             Sign In
                         </button>
-                        {message && <div style={{marginTop: 16, color: '#eebbc3', textAlign: 'center'}}>{message}</div>}
+                        {message && <div style={{marginTop: 16, color: 'red', textAlign: 'center'}}>{message}</div>}
                     </form>
                 </div>
             </div>

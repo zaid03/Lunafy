@@ -43,8 +43,22 @@ app.use(cors({
 
 //add middleware to parse incoming json for post and put request that allows req.body  to work otherwise it'll be undefined
 app.use(express.json());
+app.use(async (req, res, next) => {
+  try {
+    if (req.session?.userId) {
+      await db.query('UPDATE users SET last_seen = NOW() WHERE id = ?', [req.session.userId]);
+    }
 
-//move these 2 routes above the scurf cause they dont need scurf
+    if (req.session?.adminId) {
+      await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+    }
+
+  } catch (_) {}
+  next();
+});
+
+
+//move these 2 routes above the scurf cause they don't need scurf
 
 // route for contact's form
 const contactRoutes = require('./routes/contactRoute');
