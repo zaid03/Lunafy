@@ -5,9 +5,9 @@ export default function ProtectedRoute({ children }) {
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/test-session', { credentials: 'include' })
+    fetch('http://127.0.0.1:5000/api/test-session-admin', { credentials: 'include' })
       .then(r => r.json())
-      .then(d => setStatus(d.userId ? 'ok' : 'no'))
+      .then(d => setStatus(d.adminId ? 'ok' : 'no'))
       .catch(() => setStatus('no'));
   }, []);
 

@@ -76,9 +76,14 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 
-//route to test session
+//route to test session for users
 app.get('/api/test-session', (req, res) => {
   res.json({ userId: req.session.userId || null });
+});
+
+//route to test session for admins
+app.get('/api/test-session-admin', (req, res) => {
+  res.json({ adminId: req.session.adminId || null });
 });
 
 // route for all user related apis
