@@ -14,7 +14,7 @@ exports.handleAuth = async (req, res) => {
     }
 
     try {
-      // 1. Exchange code for tokens
+      // Exchange code for tokens
     const response = await axios.post(
       'https://accounts.spotify.com/api/token',
       querystring.stringify({
@@ -32,7 +32,7 @@ exports.handleAuth = async (req, res) => {
     );
 
     const { access_token, refresh_token, expires_in, token_type, scope } = response.data;
-    // 2. Fetch user info from Spotify
+    // Fetch user info from Spotify
     const userRes = await axios.get('https://api.spotify.com/v1/me', {
       headers: { Authorization: `Bearer ${access_token}` }
     });
@@ -41,7 +41,7 @@ exports.handleAuth = async (req, res) => {
     const followerCount = followers?.total || 0;
     const profileImage = images && images.length > 0 ? images[0].url : null;
 
-    // 3. Upsert user in DB
+    // update user in DB
     let [user] = await db.query('select * from users where email = ?', [email]);
     let userId;
     if(user.length > 0) {
@@ -83,10 +83,15 @@ exports.handleAuth = async (req, res) => {
       playingNow = null;
     }
 
-    // Send tokens to frontend (or save them later in a DB)
+    //setting items to send and save in db
     req.session.userId = userId;
     req.session.display_name = display_name;
     req.session.profileImage = profileImage;
+
+    // updating the last_login and seen for admin panel
+    await db.query('UPDATE users SET last_login = NOW(), last_seen = NOW() WHERE id = ?', [userId]);
+
+    // Send and save token with other items into db
     res.json({ success: true, userId, display_name, profileImage, playingNow});
 
   } catch (err) {

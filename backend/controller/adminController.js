@@ -1,3 +1,4 @@
+const { db } = require('../config/db');
 const adminModel = require('../models/adminModel');
 const bcrypt = require('bcrypt')
 
@@ -13,6 +14,7 @@ exports.checkAdmin = async (req, res) => {
         if (!match) return res.status(401).json({ message: 'invalid credentials '});
 
         req.session.userId = user.id;
+        await db.query('UPDATE admin_users SET last_login = NOW(), last_seen = NOW() WHERE id = ?', [user.id]);
         res.json({ message: 'Login successful' });
     } catch (e) {
         res.status(500).json({ message: 'server error' });
