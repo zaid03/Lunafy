@@ -68,7 +68,7 @@ app.use('/api', contactRoutes);
 const spotifyRoutes = require('./routes/SpotifyCallbackRoute');
 app.use('/api', spotifyRoutes);
 
-//csurf initilization
+//csurf initialization
 app.use(csurf({ cookie: true }));
 
 //route to send csurf token to the front
@@ -93,6 +93,39 @@ app.use('/api', userRoutes);
 // route for all admin related apis
 const adminRoutes = require('./routes/adminRoute');
 app.use('/admin', adminRoutes);
+
+// CSRF error
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') err.status = 403;
+  next(err);
+});
+
+// Global error logger
+app.use(async (err, req, res, next) => {
+  try {
+    const status = err.status || 500;
+    await db.query(
+      `INSERT INTO error_logs 
+       (level, source, route, method, status_code, error_code, message, stack, user_id, admin_id) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'ERROR',
+        'backend',
+        req.originalUrl?.slice(0,255) || null,
+        req.method || null,
+        status,
+        err.code || null,
+        String(err.message || '').slice(0,1000),
+        String(err.stack || '').slice(0,2000),
+        req.session?.userId || null,
+        req.session?.adminId || null
+      ]
+    );
+  } catch (_) { /* swallow logging errors */ }
+
+  const status = err.status || 500;
+  res.status(status).json({ message: status === 403 ? 'invalid csrf token' : 'server error' });
+});
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {});

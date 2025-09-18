@@ -3,6 +3,7 @@ const userModel = require('../models/userModel');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { db } = require('../config/db');
+const { logActivity } = require('../utils/activityLogger');
 
 // route for user info to the dahsboard
 exports.getMe = async (req, res) => {
@@ -35,6 +36,12 @@ exports.getMe = async (req, res) => {
                 playingNow = null;
             }
         }
+        await logActivity({
+            action: 'user_fetched_their_data',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has fetched their data`
+        });
         res.json({
             userId: req.session.userId,
             display_name: req.session.display_name,
@@ -228,6 +235,14 @@ exports.topAllArtists = async (req, res) => {
     try {
         const topAllArtists = await userModel.topAllArtists(req.session.userId, timeRange);
 
+        //to log action
+        await logActivity({
+            action: 'user_fetched_top_artists',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has fetched top artists`
+        });
+
         res.json({ artists: topAllArtists });
     } catch (e) {
         console.error('Error fetching top all artists', e);
@@ -244,6 +259,14 @@ exports.topAllSongs = async (req, res) => {
 
     try {
         const topAllSongs = await userModel.topAllSongs(req.session.userId, timeRange);
+
+        //to log action
+        await logActivity({
+            action: 'user_fetched_top_songs',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has fetched top songs`
+        });
 
         res.json({ 
             songs : topAllSongs
@@ -263,6 +286,14 @@ exports.topAllAlbums = async (req, res) => {
 
     try { 
         const topAllAlbums = await userModel.topAllAlbums(req.session.userId, timeRange);
+
+        //to log action
+        await logActivity({
+            action: 'user_fetched_top_albums',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has fetched top albums`
+        });
 
         res.json({ 
             albums : topAllAlbums
@@ -286,6 +317,14 @@ exports.musicInsight = async (req, res) => {
         const musicInsightUniqueArtists = await userModel.musicInsightUniqueArtists(req.session.userId);
         const musicInsightavgPopularity = await userModel.musicInsightavgPopularity(req.session.userId);
 
+        //to log action
+        await logActivity({
+            action: 'user_discovered_their_taste',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has visited their taste`
+        });
+
          res.json({
             topArtist: musicInsightArtists,
             topSong: musicInsightSongs,
@@ -305,7 +344,6 @@ exports.topAllGeneres = async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not authenticated' });
     }
-
     try {
         const topAllGeneres = await userModel.topAllGeneres(req.session.userId, timeRange)
         const genreCount = {};
@@ -320,6 +358,14 @@ exports.topAllGeneres = async (req, res) => {
         .map(([genre, count]) => ({ genres: genre, track_count: count }))
         .sort((a, b) => b.track_count - a.track_count)
         .slice(0, 50);
+
+        //to log action
+        await logActivity({
+            action: 'user_fetched_top_genres',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has fetched top genres`
+        });
 
         res.json({ 
             genres
@@ -357,6 +403,15 @@ exports.saveUserBio = async (req, res) => {
 
     try {
         await userModel.saveUserBio(req.session.userId, bio);
+
+        //to log action
+        await logActivity({
+            action: 'user_updated_their_bio',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has updated their bio`
+        });
+
         res.json({ message: 'Bio Saved!' });
     } catch (e) {
         console.error('Error saving bio:', e);
@@ -391,6 +446,14 @@ exports.userCountry = async (req, res) => {
 
     try {
         await userModel.userCountry(req.session.userId, country);
+
+        //to log action
+        await logActivity({
+            action: 'user_updated_Their_country',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has updated their country`
+        });
         res.json({ message: 'country Saved!' });
     } catch (e) {
         console.error('Error saving country:', e);
@@ -399,13 +462,27 @@ exports.userCountry = async (req, res) => {
 };
 
 //route to logout
-exports.logout = (req, res) => {
+exports.logout = async(req, res) => {
+    try {
+        if (req.session?.userId) {
+            await logActivity({
+                action: 'user_logged_out',
+                actorType: 'user',
+                actorId: req.session.userId,
+                message: `user ${req.session.display_name || 'unknown'} logged out`,
+            });
+        }
+    } catch (e) {
+    // ignore logging errors
+    }
+
     req.session.destroy((err) => {
         if (err) {
-            console.error("error destroying session:", err);
+            console.error('error destroying session:', err);
             return res.status(500).json({ error: 'failed to logout' });
         }
-        res.redirect('http://127.0.0.1:3000/');
+        res.clearCookie('connect.sid');
+        return res.redirect('http://127.0.0.1:3000/');
     });
 };
 
@@ -416,7 +493,16 @@ exports.deleteAccount = async (req, res) => {
     }
 
     try {
-        await userModel.deleteAccount(req.session.userId)
+        await userModel.deleteAccount(req.session.userId);
+
+        //to log action
+        await logActivity({
+            action: 'user_deleted_Account',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has deleted their account`
+        });
+
         res.json({
             message: "account deleted successfully"
         })
@@ -475,6 +561,14 @@ exports.createPlaylist = async (req, res) => {
             }
         );
 
+        //to log action
+        await logActivity({
+            action: 'user_added_a_playlist_to_spotify',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has added a new playlist, ${playlistResponse.data.name}`
+        });
+
         res.json({
             success: true,
             message: 'Playlist created successfully!',
@@ -520,20 +614,27 @@ exports.sendVerificationEmail = async (req, res) => {
             to: email,
             subject: 'Verify your email',
             html: `<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #181818; color: #fff; padding: 32px; border-radius: 12px; max-width: 420px; margin: 40px auto; box-shadow: 0 2px 12px #0003;">
-      <h2 style="color: #1db954; margin-bottom: 18px;">Lunafy Email Verification</h2>
-      <p style="font-size: 1.1rem; margin-bottom: 24px;">
-        Welcome to <b>Lunafy</b>! Please verify your email address to unlock all features and keep your account secure.
-      </p>
-      <a href="${verifyUrl}" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 1.1rem; box-shadow: 0 2px 8px #0002;">
-        ✅ Verify My Email
-      </a>
-      <p style="margin-top: 32px; font-size: 0.95rem; color: #aaa;">
-        If you did not request this, you can safely ignore this email.<br>
-        <span style="color: #1db954;">Lunafy</span> &mdash; Your music, your stats.
-      </p>
-    </div>`
+            <h2 style="color: #1db954; margin-bottom: 18px;">Lunafy Email Verification</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 24px;">
+                Welcome to <b>Lunafy</b>! Please verify your email address to unlock all features and keep your account secure.
+            </p>
+            <a href="${verifyUrl}" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 1.1rem; box-shadow: 0 2px 8px #0002;">
+                ✅ Verify My Email
+            </a>
+            <p style="margin-top: 32px; font-size: 0.95rem; color: #aaa;">
+                If you did not request this, you can safely ignore this email.<br>
+                <span style="color: #1db954;">Lunafy</span> &mdash; Your music, your stats.
+            </p>
+            </div>`
         });
 
+        //to log action
+        await logActivity({
+            action: 'user_tried_to_verify_their_email',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has sent a verification email`
+        });
         res.json({ message: 'Verification email sent!' });
     } catch (e) {
         console.error("error sending verification email:", e);
@@ -555,16 +656,25 @@ exports.verifyEmail = async (req, res) => {
         }
 
         await db.query('UPDATE users SET verified = 1, verification_token = NULL WHERE id = ?', [user[0].id]);
+
+        //to log action
+        await logActivity({
+            action: 'user_verified_their_email',
+            actorType: 'user',
+            actorId:  req.session.userId,
+            message: `user ${req.session.display_name || unknown} has verified their email`
+        });
+
         res.send(`<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #181818; color: #fff; padding: 48px 32px; border-radius: 14px; max-width: 420px; margin: 80px auto; box-shadow: 0 2px 16px #0005; text-align: center;">
-    <h2 style="color: #1db954; margin-bottom: 18px;">✅ Email Verified!</h2>
-    <p style="font-size: 1.15rem; margin-bottom: 24px;">
-      Your email has been successfully verified.<br>
-      You can now close this tab and continue using <span style="color: #1db954;">Lunafy</span>.
-    </p>
-    <a href="http://localhost:3000/" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
-      Go to Lunafy
-    </a>
-  </div>`);
+        <h2 style="color: #1db954; margin-bottom: 18px;">✅ Email Verified!</h2>
+        <p style="font-size: 1.15rem; margin-bottom: 24px;">
+            Your email has been successfully verified.<br>
+            You can now close this tab and continue using <span style="color: #1db954;">Lunafy</span>.
+        </p>
+        <a href="http://localhost:3000/" style="display: inline-block; background: #1db954; color: #fff; font-weight: 600; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
+            Go to Lunafy
+        </a>
+        </div>`);
     } catch (e) {
         console.error('Error verifying email:', e);
         res.status(500).send('Failed to verify email');

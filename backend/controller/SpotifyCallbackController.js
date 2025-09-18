@@ -1,14 +1,14 @@
 const axios = require('axios');
 const querystring = require('querystring');
 const { db } = require('../config/db');
+const { logActivity } = require('../utils/activityLogger');
 
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-exports.handleAuth = async (req, res) => {
+exports.handleAuth = async (req, res, next) => {
     const code = req.body.code;
-
     if (!code) {
         return res.status(400).json({ error: 'authorization code missing'});
     }
@@ -91,20 +91,24 @@ exports.handleAuth = async (req, res) => {
     // updating the last_login and seen for admin panel
     await db.query('UPDATE users SET last_login = NOW(), last_seen = NOW() WHERE id = ?', [userId]);
 
+    await logActivity({
+      action: 'user_login',
+      actorType: 'user',
+      actorId: userId,
+      message: `User ${display_name} logged in`
+    });
     // Send and save token with other items into db
-    res.json({ success: true, userId, display_name, profileImage, playingNow});
+    return res.json({ success: true, userId, display_name, profileImage, playingNow});
 
   } catch (err) {
-    console.error('Spotify OAuth error:', err);
-    if (err.response) {
-      console.error('Error response data:', err.response.data);
-      console.error('Error response status:', err.response.status);
-      console.error('Error response headers:', err.response.headers);
+    if (err.isAxiosError) {
+      err.status = 502;
+      err.code = err.code || 'AXIOS_ERROR';
+      const m = err.config?.method?.toUpperCase();
+      const u = err.config?.url;
+      const s = err.response?.status;
+      err.message = `[axios ${m} ${u} -> ${s}] ${err.message}`;
     }
-    if (err.request) {
-      console.error('Error request:', err.request);
-    }
-    console.error('Error stack:', err.stack);
-    res.status(500).json({ error: 'Failed to get access token' });
+    return next(err);
   }
 };
