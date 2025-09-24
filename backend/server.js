@@ -37,7 +37,7 @@ app.use(cors({
         'http://localhost:3001',
         'http://192.168.1.3:3001'   
     ],
-    methods: ['GET', 'POST', 'put', 'delete'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
 

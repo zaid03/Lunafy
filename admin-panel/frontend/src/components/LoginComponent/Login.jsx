@@ -6,16 +6,18 @@ function Login () {
 
     const navigate = useNavigate();
     useEffect(() => {
-        fetch('http://127.0.0.1:5000/api/test-session', {
+        fetch('http://127.0.0.1:5000/api/test-session-admin', {
             credentials: 'include',
         })
         .then(res => res.json())
         .then(data => {
-            if (data.userId) {
+            console.log(data);
+            if (data.adminId) {
                 navigate('/dashboard');
             }
             })
         .catch(() => {
+            
             navigate('/');
         });
     }, [navigate]);
