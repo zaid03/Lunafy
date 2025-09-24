@@ -38,9 +38,9 @@ exports.getMe = async (req, res) => {
         }
         await logActivity({
             action: 'user_fetched_their_data',
-            actorType: 'user',
+            actorType: `${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has fetched their data`
+            message: `user ${req.session.display_name || 'unknown'} has fetched their data`
         });
         res.json({
             userId: req.session.userId,
@@ -56,7 +56,6 @@ exports.getMe = async (req, res) => {
 
 //route to get albums, songs and artists
 exports.saveUserStats = async (req, res) => {
-    const timeRange = req.query.timeRange || 'medium_term';
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not authenticated' });
     }
@@ -64,48 +63,60 @@ exports.saveUserStats = async (req, res) => {
     try {
         const tokenRow = await userModel.getUserToken(req.session.userId);
         if (!tokenRow || !tokenRow.access_token) {
-            return res.status(401).json({ error: 'No access token found' });
+            return res.status(401).json({ error: 'No valid Spotify token' });
         }
+
         const accessToken = tokenRow.access_token;
         const timeRanges = ['short_term', 'medium_term', 'long_term'];
         const artistGenreMap = {};
 
         for (const timeRange of timeRanges) {
-            // Fetch top tracks
+            
             const topTracksRes = await axios.get(`https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=${timeRange}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
 
+            if (!topTracksRes.data || !topTracksRes.data.items) {
+                continue;
+            }
+
             // Collect unique artist IDs from tracks
             const uniqueArtistIds = new Set();
-            if (topTracksRes.data && topTracksRes.data.items) {
-                topTracksRes.data.items.forEach(track => {
-                    track.artists.forEach(artist => {
-                        uniqueArtistIds.add(artist.id);
+            topTracksRes.data.items.forEach(track => {
+                track.artists.forEach(artist => {
+                    uniqueArtistIds.add(artist.id);
                 });
             });
-        }
 
-        // Fetch genres for each unique artist (cache in artistGenreMap)
-        for (const artistId of uniqueArtistIds) {
-            if (!artistGenreMap[artistId]) {
-                try {
-                    const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` }
-                    });
-                    artistGenreMap[artistId] = artistRes.data.genres.join(',');
-                } catch (e) {
-                    artistGenreMap[artistId] = '';
+            for (const artistId of uniqueArtistIds) {
+                if (!artistGenreMap[artistId]) {
+                    try {
+                        const artistRes = await axios.get(`https://api.spotify.com/v1/artists/${artistId}`, {
+                            headers: { Authorization: `Bearer ${accessToken}` }
+                        });
+                        artistGenreMap[artistId] = artistRes.data.genres.join(',');
+                    } catch (e) {
+                        console.error(`Failed to fetch genres for artist ${artistId}:`, e.message);
+                        artistGenreMap[artistId] = '';
+                    }
                 }
             }
-        }
 
-        // Save tracks to DB with genres
-        if (topTracksRes.data && topTracksRes.data.items) {
             for (let i = 0; i < topTracksRes.data.items.length; i++) {
                 const track = topTracksRes.data.items[i];
                 const artistId = track.artists[0]?.id || null;
                 const genres = artistGenreMap[artistId] || '';
+
+                let formattedReleaseDate = null;
+                if (track.album.release_date) {
+                    if (track.album.release_date.length === 4) {
+                        formattedReleaseDate = `${track.album.release_date}-01-01`;
+                    } else if (track.album.release_date.length === 7) {
+                        formattedReleaseDate = `${track.album.release_date}-01`;
+                    } else {
+                        formattedReleaseDate = track.album.release_date;
+                    }
+                }
 
                 const trackData = {
                     user_id: req.session.userId,
@@ -121,7 +132,7 @@ exports.saveUserStats = async (req, res) => {
                     popularity: track.popularity,
                     external_url: track.external_urls?.spotify || null,
                     explicit: track.explicit,
-                    release_date: track.album.release_date || null,
+                    release_date: formattedReleaseDate,
                     time_range: timeRange,
                     rank_position: i + 1,
                     genres: genres
@@ -130,11 +141,19 @@ exports.saveUserStats = async (req, res) => {
                 await userModel.saveTrack(trackData);
             }
         }
-    }
-        res.json({ message: `Saved tracks to database` });
+
+        await logActivity({
+            action: 'user_synced_spotify_data',
+            actorType: req.session.display_name || 'unknown',
+            actorId: req.session.userId,
+            message: `user ${req.session.display_name || 'unknown'} synced their Spotify data`
+        });
+
+        res.json({ message: `Saved tracks for all time ranges to database` });
+
     } catch (err) {
-        console.error('Error saving content into database:', err.response?.data || err.message);
-        res.status(500).json({ error: 'Error saving content into database'});
+        console.error('saveUserStats error:', err);
+        res.status(500).json({ error: 'Failed to save user stats' });
     }
 };
 
@@ -156,7 +175,6 @@ exports.dashboardOverview = async (req, res) => {
             songs: topsongs
         });
     } catch (e) {
-        console.log('Error fetching dashboard overview data:', e);
         res.status(500).json({ error: 'failed to fetch dashboard content'});
     }
 };
@@ -238,9 +256,9 @@ exports.topAllArtists = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_fetched_top_artists',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has fetched top artists`
+            message: `user ${req.session.display_name || 'unknown'} has fetched top artists`
         });
 
         res.json({ artists: topAllArtists });
@@ -263,9 +281,9 @@ exports.topAllSongs = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_fetched_top_songs',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has fetched top songs`
+            message: `user ${req.session.display_name || 'unknown'} has fetched top songs`
         });
 
         res.json({ 
@@ -290,9 +308,9 @@ exports.topAllAlbums = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_fetched_top_albums',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has fetched top albums`
+            message: `user ${req.session.display_name || 'unknown'} has fetched top albums`
         });
 
         res.json({ 
@@ -320,9 +338,9 @@ exports.musicInsight = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_discovered_their_taste',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has visited their taste`
+            message: `user ${req.session.display_name || 'unknown'} has visited their taste`
         });
 
          res.json({
@@ -345,7 +363,8 @@ exports.topAllGeneres = async (req, res) => {
         return res.status(401).json({ error: 'Not authenticated' });
     }
     try {
-        const topAllGeneres = await userModel.topAllGeneres(req.session.userId, timeRange)
+        const topAllGeneres = await userModel.topAllGeneres(req.session.userId, timeRange);
+        
         const genreCount = {};
         topAllGeneres.forEach(row => {
             row.genres.split(',').forEach(genre => {
@@ -359,17 +378,14 @@ exports.topAllGeneres = async (req, res) => {
         .sort((a, b) => b.track_count - a.track_count)
         .slice(0, 50);
 
-        //to log action
         await logActivity({
             action: 'user_fetched_top_genres',
-            actorType: 'user',
-            actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has fetched top genres`
+            actorType: `user ${req.session.display_name || 'unknown'}`,
+            actorId: req.session.userId,
+            message: `user ${req.session.display_name || 'unknown'} has fetched top genres`
         });
 
-        res.json({ 
-            genres
-         });
+        res.json({ genres });
     } catch (e) {
         console.error("error fetching top genres:", e);
         res.status(500).json({ error: 'failed to fetch genres content'});
@@ -407,9 +423,9 @@ exports.saveUserBio = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_updated_their_bio',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has updated their bio`
+            message: `user ${req.session.display_name || 'unknown'} has updated their bio`
         });
 
         res.json({ message: 'Bio Saved!' });
@@ -450,9 +466,9 @@ exports.userCountry = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_updated_Their_country',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has updated their country`
+            message: `user ${req.session.display_name || 'unknown'} has updated their country`
         });
         res.json({ message: 'country Saved!' });
     } catch (e) {
@@ -467,7 +483,7 @@ exports.logout = async(req, res) => {
         if (req.session?.userId) {
             await logActivity({
                 action: 'user_logged_out',
-                actorType: 'user',
+                actorType: `user ${req.session.display_name || 'unknown'}`,
                 actorId: req.session.userId,
                 message: `user ${req.session.display_name || 'unknown'} logged out`,
             });
@@ -498,9 +514,9 @@ exports.deleteAccount = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_deleted_Account',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has deleted their account`
+            message: `user ${req.session.display_name || 'unknown'} has deleted their account`
         });
 
         res.json({
@@ -564,9 +580,9 @@ exports.createPlaylist = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_added_a_playlist_to_spotify',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has added a new playlist, ${playlistResponse.data.name}`
+            message: `user ${req.session.display_name || 'unknown'} has added a new playlist, ${playlistResponse.data.name}`
         });
 
         res.json({
@@ -631,9 +647,9 @@ exports.sendVerificationEmail = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_tried_to_verify_their_email',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has sent a verification email`
+            message: `user ${req.session.display_name || 'unknown'} has sent a verification email`
         });
         res.json({ message: 'Verification email sent!' });
     } catch (e) {
@@ -660,9 +676,9 @@ exports.verifyEmail = async (req, res) => {
         //to log action
         await logActivity({
             action: 'user_verified_their_email',
-            actorType: 'user',
+            actorType: `user ${req.session.display_name || 'unknown'}`,
             actorId:  req.session.userId,
-            message: `user ${req.session.display_name || unknown} has verified their email`
+            message: `user ${req.session.display_name || 'unknown'} has verified their email`
         });
 
         res.send(`<div style="font-family: 'Segoe UI', Arial, sans-serif; background: #181818; color: #fff; padding: 48px 32px; border-radius: 14px; max-width: 420px; margin: 80px auto; box-shadow: 0 2px 16px #0005; text-align: center;">

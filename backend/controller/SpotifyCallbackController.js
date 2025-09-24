@@ -54,7 +54,7 @@ exports.handleAuth = async (req, res, next) => {
         );
     } else {
       const [result] = await db.query(
-        'insert into users (name, email, country, followers, profile_image) values (?, ?, ?, ?, ?)',
+        'insert into users (name, email, country, followers, profile_image, joined) values (?, ?, ?, ?, ?, NOW())',
         [display_name, email, country, followerCount, profileImage]
       );
       userId = result.insertId;
@@ -93,7 +93,7 @@ exports.handleAuth = async (req, res, next) => {
 
     await logActivity({
       action: 'user_login',
-      actorType: 'user',
+      actorType: `User ${display_name}`,
       actorId: userId,
       message: `User ${display_name} logged in`
     });
