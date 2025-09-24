@@ -5,8 +5,10 @@ import Sidebar from '../SidebarComponent/Sidebar';
 
 function Users() {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
 
-  // static sample rows
+  // static sample rows (expanded for pagination demo)
   const rows = [
     { id: 1, name: 'Luna', email: 'luna@example.com', status: 'Active', verified: true, lastSeen: '2m ago', joined: '2024-07-21' },
     { id: 2, name: 'Mike', email: 'mike@example.com', status: 'Active', verified: false, lastSeen: '12m ago', joined: '2024-06-15' },
@@ -15,8 +17,50 @@ function Users() {
     { id: 5, name: 'Noah', email: 'noah@example.com', status: 'Active', verified: false, lastSeen: '5m ago', joined: '2024-03-22' },
     { id: 6, name: 'Mina', email: 'mina@example.com', status: 'Active', verified: true, lastSeen: '29m ago', joined: '2024-04-18' },
     { id: 7, name: 'Eve', email: 'eve@example.com', status: 'Active', verified: true, lastSeen: '3h ago', joined: '2024-02-14' },
-    { id: 8, name: 'Zed', email: 'zed@example.com', status: 'Active', verified: false, lastSeen: '9m ago', joined: '2024-01-30' }
+    { id: 8, name: 'Zed', email: 'zed@example.com', status: 'Active', verified: false, lastSeen: '9m ago', joined: '2024-01-30' },
+    { id: 9, name: 'John', email: 'john@example.com', status: 'Active', verified: true, lastSeen: '15m ago', joined: '2024-01-15' },
+    { id: 10, name: 'Emma', email: 'emma@example.com', status: 'Active', verified: false, lastSeen: '1h ago', joined: '2024-02-20' },
+    { id: 11, name: 'David', email: 'david@example.com', status: 'Deactivated', verified: true, lastSeen: '2d ago', joined: '2024-03-05' },
+    { id: 12, name: 'Sophie', email: 'sophie@example.com', status: 'Active', verified: true, lastSeen: '30m ago', joined: '2024-04-12' },
+    { id: 13, name: 'Ryan', email: 'ryan@example.com', status: 'Active', verified: false, lastSeen: '45m ago', joined: '2024-05-18' },
+    { id: 14, name: 'Lisa', email: 'lisa@example.com', status: 'Active', verified: true, lastSeen: '10m ago', joined: '2024-06-22' },
+    { id: 15, name: 'Tom', email: 'tom@example.com', status: 'Active', verified: true, lastSeen: '5h ago', joined: '2024-07-10' },
+    { id: 16, name: 'Amy', email: 'amy@example.com', status: 'Deactivated', verified: false, lastSeen: '3d ago', joined: '2024-08-15' },
+    { id: 17, name: 'Chris', email: 'chris@example.com', status: 'Active', verified: true, lastSeen: '20m ago', joined: '2024-09-01' },
+    { id: 18, name: 'Kate', email: 'kate@example.com', status: 'Active', verified: true, lastSeen: '1m ago', joined: '2024-09-15' },
+    { id: 19, name: 'Mark', email: 'mark@example.com', status: 'Active', verified: false, lastSeen: '6h ago', joined: '2024-09-20' },
+    { id: 20, name: 'Anna', email: 'anna@example.com', status: 'Active', verified: true, lastSeen: '2h ago', joined: '2024-09-24' }
   ];
+
+  // Calculate pagination
+  const totalUsers = rows.length;
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = rows.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Pagination handlers
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
+  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
+  };
 
   return (
     <div className="dashboard-container">
@@ -60,7 +104,7 @@ function Users() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((u) => (
+                {currentUsers.map((u) => (
                   <tr key={u.id}>
                     <td><input type="checkbox" /></td>
                     <td>
@@ -93,6 +137,57 @@ function Users() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                Showing {indexOfFirstUser + 1}-{Math.min(indexOfLastUser, totalUsers)} of {totalUsers} users
+              </div>
+              
+              <div className="pagination">
+                <button 
+                  className="pagination-btn" 
+                  onClick={prevPage} 
+                  disabled={currentPage === 1}
+                >
+                  ← Previous
+                </button>
+                
+                {currentPage > 3 && (
+                  <>
+                    <button className="pagination-btn" onClick={() => paginate(1)}>1</button>
+                    {currentPage > 4 && <span className="pagination-dots">...</span>}
+                  </>
+                )}
+                
+                {getPageNumbers().map(number => (
+                  <button
+                    key={number}
+                    className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+                    onClick={() => paginate(number)}
+                  >
+                    {number}
+                  </button>
+                ))}
+                
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && <span className="pagination-dots">...</span>}
+                    <button className="pagination-btn" onClick={() => paginate(totalPages)}>{totalPages}</button>
+                  </>
+                )}
+                
+                <button 
+                  className="pagination-btn" 
+                  onClick={nextPage} 
+                  disabled={currentPage === totalPages}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Modal overlay for user details */}

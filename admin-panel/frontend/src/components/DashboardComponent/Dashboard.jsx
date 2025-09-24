@@ -31,12 +31,12 @@ function Dashboard() {
                 <section className='kpi-grid'>
                 <div className='kpi-card'>
                     <div className='kpi-title'>User Count</div>
-                    <div className='kpi-value'>{info.users.total.toLocaleString()}</div>
+                    <div className='kpi-value'>{info.users.total.toLocaleString() || 0}</div>
                     {/* <div className='kpi-sub'>+1.8% vs last week</div> */}
                 </div>
                 <div className='kpi-card'>
                     <div className='kpi-title'>Active Users (24h)</div>
-                    <div className='kpi-value'>{info.users.active24h.toLocaleString()}</div>
+                    <div className='kpi-value'>{info.users.active24h.toLocaleString() || 0}</div>
                     <div className='kpi-sub'>{info.users.onlineNow} online now</div>
                 </div>
                 <div className='kpi-card'>

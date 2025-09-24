@@ -18,7 +18,7 @@ exports.checkAdmin = async (req, res) => {
 
         await logActivity({
             action: 'admin_login',
-            actorType: 'admin',
+            actorType: `${admin.name}`,
             actorId: admin.id,
             message: `Admin ${admin.name} logged in`
         });
@@ -46,10 +46,12 @@ exports.getDashboardInfo = async(req, res) => {
         ])
 
         if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
             await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
             await logActivity({
                 action: 'admin_view_dashboard',
-                actorType: 'admin',
+                actorType: adminName,
                 actorId: req.session?.adminId,
                 message: `Admin ${req.session.adminId} viewed dashboard`
             });
@@ -65,6 +67,35 @@ exports.getDashboardInfo = async(req, res) => {
             activity: activityCount || []
         })
     } catch(e) {
+        console.error('Dashboard error:', e);
         return res.status(500).json({ message: 'server error' });
+    }
+}
+
+//users routes
+exports.getUsers = async(req, res) => {
+    try{
+        const users = await adminModel.getUsers();
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No users found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'admin_view_users',
+                actorType: admin.name,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} viewed users`
+            });
+        }
+        res.json({
+            users: users
+        });
+    } catch (e) {
+        console.error('Error fetching users:', e);
+        res.status(500).json({ message: 'Server error while fetching users' });
     }
 }
