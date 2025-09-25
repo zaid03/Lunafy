@@ -86,7 +86,7 @@ exports.getUsers = async(req, res) => {
             await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
             await logActivity({
                 action: 'admin_view_users',
-                actorType: admin.name,
+                actorType: adminName,
                 actorId: req.session?.adminId,
                 message: `Admin ${req.session.adminId} viewed users`
             });

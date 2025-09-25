@@ -42,7 +42,14 @@
   font-weight: 800;
   border: 1px solid rgba(184,193,236,0.18);
 }
+
+.avatar img{
+  width: 34px; height: 34px; border-radius: 50%;
+}
+
+
 .avatar.xl { width: 48px; height: 48px; font-size: 1.1rem; }
+.avatar.xl img { width: 48px; height: 48px; font-size: 1.1rem; }
 .user-name { font-weight: 700; color: #e7e9ff; }
 .user-name.xl { font-size: 1.1rem; }
 .user-id, .muted { color: #8f97cf; font-size: 0.85rem; }

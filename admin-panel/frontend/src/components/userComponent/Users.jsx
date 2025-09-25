@@ -1,43 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../DashboardComponent/dashboard.css';
 import './user.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
 function Users() {
+
+  const [User, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/admin/users`,
+      {credentials: 'include'}
+    )
+    .then(res => res.json())
+    .then(data => setUser(data))
+    .catch(() => {})
+  }, []);
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
-  // static sample rows (expanded for pagination demo)
-  const rows = [
-    { id: 1, name: 'Luna', email: 'luna@example.com', status: 'Active', verified: true, lastSeen: '2m ago', joined: '2024-07-21' },
-    { id: 2, name: 'Mike', email: 'mike@example.com', status: 'Active', verified: false, lastSeen: '12m ago', joined: '2024-06-15' },
-    { id: 3, name: 'Sara', email: 'sara@example.com', status: 'Deactivated', verified: true, lastSeen: '1d ago', joined: '2024-05-10' },
-    { id: 4, name: 'Alex', email: 'alex@example.com', status: 'Active', verified: true, lastSeen: 'now', joined: '2024-08-01' },
-    { id: 5, name: 'Noah', email: 'noah@example.com', status: 'Active', verified: false, lastSeen: '5m ago', joined: '2024-03-22' },
-    { id: 6, name: 'Mina', email: 'mina@example.com', status: 'Active', verified: true, lastSeen: '29m ago', joined: '2024-04-18' },
-    { id: 7, name: 'Eve', email: 'eve@example.com', status: 'Active', verified: true, lastSeen: '3h ago', joined: '2024-02-14' },
-    { id: 8, name: 'Zed', email: 'zed@example.com', status: 'Active', verified: false, lastSeen: '9m ago', joined: '2024-01-30' },
-    { id: 9, name: 'John', email: 'john@example.com', status: 'Active', verified: true, lastSeen: '15m ago', joined: '2024-01-15' },
-    { id: 10, name: 'Emma', email: 'emma@example.com', status: 'Active', verified: false, lastSeen: '1h ago', joined: '2024-02-20' },
-    { id: 11, name: 'David', email: 'david@example.com', status: 'Deactivated', verified: true, lastSeen: '2d ago', joined: '2024-03-05' },
-    { id: 12, name: 'Sophie', email: 'sophie@example.com', status: 'Active', verified: true, lastSeen: '30m ago', joined: '2024-04-12' },
-    { id: 13, name: 'Ryan', email: 'ryan@example.com', status: 'Active', verified: false, lastSeen: '45m ago', joined: '2024-05-18' },
-    { id: 14, name: 'Lisa', email: 'lisa@example.com', status: 'Active', verified: true, lastSeen: '10m ago', joined: '2024-06-22' },
-    { id: 15, name: 'Tom', email: 'tom@example.com', status: 'Active', verified: true, lastSeen: '5h ago', joined: '2024-07-10' },
-    { id: 16, name: 'Amy', email: 'amy@example.com', status: 'Deactivated', verified: false, lastSeen: '3d ago', joined: '2024-08-15' },
-    { id: 17, name: 'Chris', email: 'chris@example.com', status: 'Active', verified: true, lastSeen: '20m ago', joined: '2024-09-01' },
-    { id: 18, name: 'Kate', email: 'kate@example.com', status: 'Active', verified: true, lastSeen: '1m ago', joined: '2024-09-15' },
-    { id: 19, name: 'Mark', email: 'mark@example.com', status: 'Active', verified: false, lastSeen: '6h ago', joined: '2024-09-20' },
-    { id: 20, name: 'Anna', email: 'anna@example.com', status: 'Active', verified: true, lastSeen: '2h ago', joined: '2024-09-24' }
-  ];
 
   // Calculate pagination
-  const totalUsers = rows.length;
+  const totalUsers = User && User.users ? User.users.length : 0;
   const totalPages = Math.ceil(totalUsers / usersPerPage);
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = rows.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = User && User.users ? User.users.slice(indexOfFirstUser, indexOfLastUser) : [];
 
   // Pagination handlers
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -62,6 +51,7 @@ function Users() {
     return pageNumbers;
   };
 
+  console.log(User);
   return (
     <div className="dashboard-container">
       <div className="sidebar-placeholder">
@@ -104,36 +94,46 @@ function Users() {
                 </tr>
               </thead>
               <tbody>
-                {currentUsers.map((u) => (
-                  <tr key={u.id}>
-                    <td><input type="checkbox" /></td>
-                    <td>
-                      <div className="user-cell">
-                        <div className="avatar">{u.name[0]}</div>
-                        <div>
-                          <div className="user-name">{u.name}</div>
-                          <div className="user-id">ID #{String(u.id).padStart(4, '0')}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{u.email}</td>
-                    <td>
-                      <span className={`badge ${u.status === 'Active' ? 'ok' : 'down'}`}>{u.status}</span>
-                    </td>
-                    <td>
-                      <span className={`badge ${u.verified ? 'ok' : 'warn'}`}>{u.verified ? 'Verified' : 'Unverified'}</span>
-                    </td>
-                    <td>{u.lastSeen}</td>
-                    <td>
-                      <div className="actions">
-                        <button className="btn ghost" onClick={() => setSelectedUser(u)}>View</button>
-                        <button className="btn">Edit</button>
-                        <button className="btn warn">{u.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
-                        <button className="btn ghost">Logs</button>
-                      </div>
+                {User && User.users && User.users.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>
+                      <span className='avatar'>No users yet</span>
                     </td>
                   </tr>
-                ))}
+                ):(
+                  User && User.users && User.users.map((u) => (
+                    <tr key={u.id}>
+                      <td><input type="checkbox" /></td>
+                      <td>
+                        <div className="user-cell">
+                          <div className="avatar"><img src={u.profile_image} alt='pfp'/></div>
+                          <div>
+                            <div className="user-name">{u.name}</div>
+                            <div className="user-id">ID #{String(u.id).padStart(4, '0')}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{u.email}</td>
+                      <td>
+                        <span className={`badge ${(new Date() - new Date(u.last_seen)) < 24 * 60 * 60 * 1000 ? 'ok' : 'down'}`}>
+                          {(new Date() - new Date(u.last_seen)) < 24 * 60 * 60 * 1000 ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${u.verified ? 'ok' : 'warn'}`}>{u.verified ? 'Verified' : 'Unverified'}</span>
+                      </td>
+                      <td>{(new Date(u.last_seen)).toLocaleDateString()}</td>
+                      <td>
+                        <div className="actions">
+                          <button className="btn ghost" onClick={() => setSelectedUser(u)}>View</button>
+                          <button className="btn">Edit</button>
+                          <button className="btn warn">{u.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
+                          <button className="btn ghost">Logs</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -201,7 +201,7 @@ function Users() {
               
               <div className="card user-details">
                 <div className="details-header">
-                  <div className="avatar xl">{selectedUser.name[0]}</div>
+                  <div className="avatar xl"><img src={selectedUser.profile_image} alt='pfp'/></div>
                   <div>
                     <div className="user-name xl">{selectedUser.name}</div>
                     <div className="muted">{selectedUser.email}</div>
@@ -211,7 +211,7 @@ function Users() {
                 <div className="details-grid">
                   <div>
                     <div className="muted">Status</div>
-                    <div><span className={`badge ${selectedUser.status === 'Active' ? 'ok' : 'down'}`}>{selectedUser.status}</span></div>
+                    <div><span className={`badge ${(new Date() - new Date(selectedUser.last_seen)) < 24 * 60 * 60 * 1000 ? 'ok' : 'down'}`}>{(new Date() - new Date(selectedUser.last_seen)) < 24 * 60 * 60 * 1000 ? 'Active' : 'Inactive'}</span></div>
                   </div>
                   <div>
                     <div className="muted">Email</div>
@@ -219,7 +219,7 @@ function Users() {
                   </div>
                   <div>
                     <div className="muted">Last seen</div>
-                    <div>{selectedUser.lastSeen}</div>
+                    <div>{(new Date(selectedUser.last_seen)).toLocaleDateString()}</div>
                   </div>
                   <div>
                     <div className="muted">Joined</div>
