@@ -243,8 +243,8 @@ function Users() {
                 <div className="details-actions">
                   <button className="btn">Edit Profile</button>
                   <button className="btn warn">Deactivate</button>
-                  <button className="btn ghost">Verify Email</button>
-                  <button className="btn ghost">Download Logs</button>
+                  {/* <button className="btn ghost">Verify Email</button>
+                  <button className="btn ghost">Download Logs</button> */}
                 </div>
               </div>
             </div>
