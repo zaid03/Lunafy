@@ -6,7 +6,6 @@ import Sidebar from '../SidebarComponent/Sidebar';
 function Users() {
 
   const [User, setUser] = useState(null);
-
   useEffect(() => {
     fetch(`http://127.0.0.1:5000/admin/users`,
       {credentials: 'include'}
@@ -51,7 +50,21 @@ function Users() {
     return pageNumbers;
   };
 
-  console.log(User);
+  const [log, setLog] = useState(null);
+  const [selectedLog, setSelectedLog] = useState(null);
+  const handleClick = (user) => {
+    setSelectedLog(user);
+    fetch(`http://127.0.0.1:5000/admin/logs?name=${user.name}`,
+      {credentials: 'include'}
+    )
+    .then(res => res.json())
+    .then(data => setLog(data.logs))
+    .catch(() => {})
+  }
+  
+
+  console.log(log);
+  
   return (
     <div className="dashboard-container">
       <div className="sidebar-placeholder">
@@ -90,7 +103,8 @@ function Users() {
                   <th>Status</th>
                   <th>Verified</th>
                   <th>Last seen</th>
-                  <th style={{ width: 260 }}>Actions</th>
+                  <th>Joined</th>
+                  <th style={{ width: 20 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,12 +137,11 @@ function Users() {
                         <span className={`badge ${u.verified ? 'ok' : 'warn'}`}>{u.verified ? 'Verified' : 'Unverified'}</span>
                       </td>
                       <td>{(new Date(u.last_seen)).toLocaleDateString()}</td>
+                      <td>{(new Date(u.joined)).toLocaleDateString()}</td>
                       <td>
                         <div className="actions">
                           <button className="btn ghost" onClick={() => setSelectedUser(u)}>View</button>
-                          <button className="btn">Edit</button>
-                          <button className="btn warn">{u.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
-                          <button className="btn ghost">Logs</button>
+                          <button className="btn ghost" onClick={() => {handleClick(u)}}>Logs</button>
                         </div>
                       </td>
                     </tr>
@@ -234,6 +247,40 @@ function Users() {
                   <button className="btn ghost">Download Logs</button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+        {selectedLog && (
+          <div className="modal-overlay" onClick={() => {setSelectedLog(null); setLog(null)}}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>User Logs</h2>
+                <button className="modal-close" onClick={() => {setSelectedLog(null); setLog(null)}}>×</button>
+              </div>
+              <table>
+                <thead>
+                  <th>Date</th>
+                  <th>User id</th>
+                  <th>Action</th>
+                  <th>Action Id</th>
+                </thead>
+                <tbody>
+                  {log && log.length > 0 ? (
+                    log.map((entry, idx) => (
+                      <tr key={idx}>
+                        <td>{new Date(entry.created_at).toLocaleString()}</td> 
+                        <td>{entry.actor_id}</td>
+                        <td>{entry.action}</td>
+                        <td>{entry.actor_type}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4}>No logs found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

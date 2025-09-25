@@ -99,3 +99,33 @@ exports.getUsers = async(req, res) => {
         res.status(500).json({ message: 'Server error while fetching users' });
     }
 }
+
+exports.getUserLog = async(req, res) => {
+    const name = req.query.name;
+    try {
+        const log = await adminModel.getUserLog(name);
+        if (!log || log.length === 0 ) {
+            return res.status(404).json({ message: 'No logs were found' });
+        }
+
+        const userId = log[0]?.actor_type;
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'admin_view_users',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} fetched ${userId}'s logs`
+            });
+        }
+
+        res.json({ logs: log });
+
+    } catch (e) {
+        console.error("Error fetching user's log:", e);
+        res.status(500).json({ message: "Server error while fetching user's log" });
+    }
+}

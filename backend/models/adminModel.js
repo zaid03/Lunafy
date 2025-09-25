@@ -69,3 +69,11 @@ exports.getUsers = async() => {
     return users;
 }
 
+exports.getUserLog = async(name) => {
+    const [logs] = await db.query(`
+        SELECT action, actor_type, actor_id, message, created_at
+        FROM activity_logs 
+        WHERE actor_type = ?
+        `, [name]);
+    return logs;
+}
