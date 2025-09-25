@@ -103,7 +103,7 @@
   background: linear-gradient(180deg, #181c2f 0%, #232946 100%);
   border: 1px solid rgba(184, 193, 236, 0.18);
   border-radius: 14px;
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -144,7 +144,6 @@
   color: #e7e9ff;
 }
 
-/* User details inside modal */
 .user-details {
   margin: 0;
   padding: 24px;
@@ -152,7 +151,6 @@
   border: none;
 }
 
-/* Remove two-col since table is now full width */
 .two-col {
   display: block;
 }
@@ -175,7 +173,6 @@
   }
 }
 
-/* Pagination styles */
 .pagination-container {
   display: flex;
   justify-content: space-between;
@@ -227,6 +224,89 @@
 .pagination-dots {
   color: #666;
   padding: 0 0.5rem;
+}
+
+.modal-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #222; 
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modal-content th,
+.modal-content td {
+  padding: 0.75rem 1rem; 
+  text-align: left;
+}
+
+.modal-content th {
+  background: #232946; 
+  color: #eebbc3;     
+  font-weight: 700;
+  border-bottom: 2px solid #373d6a;
+}
+
+.modal-content td {
+  border-bottom: 1px solid #373d6a;
+  color: #e7e9ff;
+}
+
+.modal-content tr:last-child td {
+  border-bottom: none;
+}
+
+.modal-content tr:hover td {
+  background: #292929;
+}
+
+
+.modal-content td[colspan="4"] {
+  text-align: center;
+  color: #8f97cf;
+  font-style: italic;
+  padding: 2rem 1rem;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: #232946; 
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #373d6a; 
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #eebbc3; 
+}
+
+
+::-webkit-scrollbar-horizontal {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+  background: #232946;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: #373d6a;
+  border-radius: 8px;
+}
+
+
+@media (max-width: 600px) {
+  .modal-content table,
+  .modal-content th,
+  .modal-content td {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+  }
 }
 
 @media (max-width: 768px) {
