@@ -236,7 +236,7 @@ function Users() {
                   </div>
                   <div>
                     <div className="muted">Joined</div>
-                    <div>{selectedUser.joined}</div>
+                    <div>{new Date(selectedUser.joined).toLocaleDateString()}</div>
                   </div>
                 </div>
 
