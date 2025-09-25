@@ -63,7 +63,7 @@ exports.getActivity = async() => {
 //user routes
 exports.getUsers = async() => {
     const [users] = await db.query(`
-        SELECT id, name, email, profile_image, verified, last_seen 
+        SELECT id, name, email, profile_image, verified, last_seen, joined
         FROM users
         `, []);
     return users;

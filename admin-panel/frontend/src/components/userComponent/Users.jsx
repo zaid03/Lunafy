@@ -94,14 +94,14 @@ function Users() {
                 </tr>
               </thead>
               <tbody>
-                {User && User.users && User.users.length === 0 ? (
+                {currentUsers.length === 0 ? (
                   <tr>
                     <td colSpan={7}>
                       <span className='avatar'>No users yet</span>
                     </td>
                   </tr>
                 ):(
-                  User && User.users && User.users.map((u) => (
+                  currentUsers.map((u) => (
                     <tr key={u.id}>
                       <td><input type="checkbox" /></td>
                       <td>
