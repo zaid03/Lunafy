@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import '../DashboardComponent/dashboard.css';
 import './user.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
@@ -35,7 +34,7 @@ function Users() {
       emailFilter === '' ||
       (emailFilter === 'Verified' && u.verified) ||
       (emailFilter === 'Unverified' && !u.verified);
-      
+
     return matchesSearch && matchesStatus && matchesEmail;
   }) : []
 

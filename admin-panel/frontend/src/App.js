@@ -4,6 +4,7 @@ import Login from "./components/LoginComponent";
 import Dashboard from "./components/DashboardComponent/Dashboard";
 import ProtectedRoute from "./components/ProtectedRouteComponent/ProtectedRoute";
 import Users from "./components/userComponent/Users";
+import Admin from "./components/adminComponent/Admin";
 
 function App() {
   return(
@@ -24,6 +25,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Users />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path='/admins' 
+          element={
+            <ProtectedRoute>
+              <Admin />
             </ProtectedRoute>
           } 
         />
