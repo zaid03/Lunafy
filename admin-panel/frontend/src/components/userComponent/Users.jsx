@@ -92,6 +92,35 @@ function Users() {
     .catch(() => {});
   }
 
+  const handleExportCSV = () => {
+    if (!User || !User.users || User.users.length === 0) return;
+
+    const headers = ['ID', 'Name', 'Email', 'Status', 'Verified', 'Last seen', 'Joined'];
+    const rows = User.users.map(u => [
+      u.id,
+      `"${u.name}"`,
+      `"${u.email}"`,
+      (new Date() - new Date(u.last_seen)) < 24 * 60 * 60 * 1000 ? 'Active' : 'Inactive',
+      u.verified ? 'Verified' : 'Unverified',
+      new Date(u.last_seen).toLocaleDateString(),
+      new Date(u.joined).toLocaleDateString()
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'users.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   const [csrfToken, setCsrfToken] = useState('');
   useEffect(() => {
@@ -123,7 +152,7 @@ function Users() {
             <option>Unverified</option>
           </select>
           <div className="spacer" />
-          <button className="btn ghost">Export CSV</button>
+          <button className="btn ghost" onClick={handleExportCSV}>Export CSV</button>
         </div>
 
         {/* Full-width table */}
