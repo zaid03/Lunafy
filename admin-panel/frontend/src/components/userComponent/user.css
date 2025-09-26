@@ -108,6 +108,7 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  padding: 15px 12px;
 }
 
 .modal-header {
@@ -299,6 +300,53 @@
   border-radius: 8px;
 }
 
+.edit-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.edit-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-label {
+  font-weight: 600;
+  color: #bfc8e6;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.edit-input {
+  background: #23264a;
+  color: #e7e9ff;
+  border: 1px solid #373d6a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.edit-input[readonly] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
 
 @media (max-width: 600px) {
   .modal-content table,
