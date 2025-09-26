@@ -19,9 +19,19 @@ function Users() {
   const [usersPerPage] = useState(10);
 
   const [search, setSearch] = useState('');
-  const filteredUsers = User && User.users ? User.users.filter(u => 
-    u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
-  ) : []
+  const [statusFilter, setStatusFilter] = useState('');
+  const [emailFilter, setEmailFilter] = useState('');
+  const filteredUsers = User && User.users ? User.users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+
+    const isActive = (new Date() - new Date(u.last_seen)) < 24 * 60 * 60 * 1000;
+    const matchesStatus =
+      statusFilter === '' ||
+      (statusFilter === 'Active' && isActive) ||
+      (statusFilter === 'Deactivated' && !isActive);
+
+    return matchesSearch && matchesStatus;
+  }) : []
 
   // Calculate pagination
   const totalUsers = filteredUsers.length;
@@ -133,6 +143,7 @@ function Users() {
       .then(data => setCsrfToken(data.csrfToken))
       .catch(() => {});
   }, []);
+  
   return (
     <div className="dashboard-container">
       <div className="sidebar-placeholder">
@@ -150,7 +161,11 @@ function Users() {
             value={search}
             onChange={e => setSearch(e.target.value)} 
           />
-          <select className="user-select">
+          <select 
+            className="user-select"
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+          >
             <option value="">All statuses</option>
             <option>Active</option>
             <option>Deactivated</option>
