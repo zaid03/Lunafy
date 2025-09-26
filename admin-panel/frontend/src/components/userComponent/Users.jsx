@@ -18,13 +18,17 @@ function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
+  const [search, setSearch] = useState('');
+  const filteredUsers = User && User.users ? User.users.filter(u => 
+    u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
+  ) : []
 
   // Calculate pagination
-  const totalUsers = User && User.users ? User.users.length : 0;
+  const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / usersPerPage);
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = User && User.users ? User.users.slice(indexOfFirstUser, indexOfLastUser) : [];
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   // Pagination handlers
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -140,7 +144,12 @@ function Users() {
 
         {/* Toolbar */}
         <div className="user-toolbar">
-          <input className="user-input" placeholder="Search name or email..." />
+          <input 
+            className="user-input" 
+            placeholder="Search name or email..."
+            value={search}
+            onChange={e => setSearch(e.target.value)} 
+          />
           <select className="user-select">
             <option value="">All statuses</option>
             <option>Active</option>
@@ -175,7 +184,7 @@ function Users() {
                 {currentUsers.length === 0 ? (
                   <tr>
                     <td colSpan={7}>
-                      <span className='avatar'>No users yet</span>
+                      <span className='user-name'>No users yet</span>
                     </td>
                   </tr>
                 ):(
