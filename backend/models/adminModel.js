@@ -96,3 +96,10 @@ exports.userAccountActivationControl = async(deletion, id) => {
     return;
 }
 
+//admin route
+exports.getAdminList = async() => {
+    const [admins] = await db.query(`
+        select * from admin_users
+        `, [])
+    return admins;
+}

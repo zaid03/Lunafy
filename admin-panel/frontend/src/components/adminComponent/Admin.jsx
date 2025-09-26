@@ -1,223 +1,234 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './admin.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
-const staticAdmins = [
-  {
-    id: 1,
-    name: 'Alice',
-    email: 'alice@lunafy.com',
-    created: '2024-01-10',
-    lastLogin: '2024-09-25',
-    status: 'Active'
-  },
-  {
-    id: 2,
-    name: 'Bob',
-    email: 'bob@lunafy.com',
-    created: '2024-02-15',
-    lastLogin: '2024-09-20',
-    status: 'Inactive'
-  }
-];
-
 function Admin() {
-  const [search, setSearch] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
-  const [showLogsModal, setShowLogsModal] = useState(false);
+    const [admins, setAdmins] = useState([]);
+    const [search, setSearch] = useState('');
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showLogsModal, setShowLogsModal] = useState(false);
 
-  const filteredAdmins = staticAdmins.filter(a =>
-    a.name.toLowerCase().includes(search.toLowerCase()) ||
-    a.email.toLowerCase().includes(search.toLowerCase())
-  );
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/admin/admins', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => setAdmins(Array.isArray(data.admins) ? data.admins : []))
+        .catch(() => setAdmins([]));
+    }, []);
+
+    const filteredAdmins = admins.filter(a =>
+        (a.name || '').toLowerCase().includes(search.toLowerCase()) ||
+        (a.email || '').toLowerCase().includes(search.toLowerCase())
+    );
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const adminsPerPage = 10;
+
+    const totalAdmins = filteredAdmins.length;
+    const totalPages = Math.ceil(totalAdmins / adminsPerPage);
+    const indexOfLastAdmin = currentPage * adminsPerPage;
+    const indexOfFirstAdmin = indexOfLastAdmin - adminsPerPage;
+    const currentAdmins = filteredAdmins.slice(indexOfFirstAdmin, indexOfLastAdmin);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(i);
+        }
+        return pageNumbers;
+    };
 
   // CSV Export
-  const handleExportCSV = () => {
-    const headers = ['ID', 'Name', 'Email', 'Created', 'Last Login',];
-    const rows = filteredAdmins.map(a => [
-      a.id,
-      `"${a.name}"`,
-      `"${a.email}"`,
-      a.created,
-      a.lastLogin,
-    ]);
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'admins.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    const handleExportCSV = () => {
+        const headers = ['ID', 'Name', 'Email', 'Created', 'Last Login',];
+        const rows = currentAdmins.map(a => [
+        a.id,
+        `"${a.name}"`,
+        `"${a.email}"`,
+        a.created,
+        a.lastLogin,
+        ]);
+        const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+        ].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'admins.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
-  return (
-    <div className='dashboard-container'>
-      <div className="sidebar-placeholder">
-        <Sidebar />
-      </div>
-      <main className="dashboard-main">
-        <h1 className="page-title">Admins</h1>
-        <div className="user-toolbar">
-          <input
-            className="user-input"
-            placeholder="Search name or email..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <div className="spacer" />
-          <button className="btn" onClick={() => setShowAddModal(true)}>Add Admin</button>
-          <button className="btn ghost" onClick={handleExportCSV}>Export CSV</button>
+    
+    return (
+        <div className='dashboard-container'>
+        <div className="sidebar-placeholder">
+            <Sidebar />
         </div>
-        <div className="card">
-          <div className="table-scroll">
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Created</th>
-                  <th>Last Login</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAdmins.length === 0 ? (
-                  <tr>
-                    <td colSpan={8}>
-                      <span className='user-name'>No admins found</span>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredAdmins.map(a => (
-                    <tr key={a.id}>
-                      <td>{a.id}</td>
-                      <td>{a.name}</td>
-                      <td>{a.email}</td>
-                      <td>{a.created}</td>
-                      <td>{a.lastLogin}</td>
-                      <td>
-                        <div className="actions">
-                          <button className="btn ghost" onClick={() => setSelectedAdmin(a)}>Details</button>
-                          <button className="btn ghost" onClick={() => setShowLogsModal(true)}>Logs</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Add Admin Modal */}
-        {showAddModal && (
-          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2>Add Admin</h2>
-                <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
-              </div>
-              <form className="edit-profile-form">
-                <div className="edit-profile-grid">
-                  <div className="edit-field">
-                    <label className="edit-label">Name</label>
-                    <input className="edit-input" type="text" placeholder="Admin name" />
-                  </div>
-                  <div className="edit-field">
-                    <label className="edit-label">Email</label>
-                    <input className="edit-input" type="email" placeholder="Admin email" />
-                  </div>
-                  <div className="edit-field">
-                    <label className="edit-label">Password</label>
-                    <input className="edit-input" type="password" placeholder="Password" />
-                  </div>
-                </div>
-                <div className="edit-actions">
-                  <button className="btn" type="button" disabled>Add Admin</button>
-                  <button className="btn ghost" type="button" onClick={() => setShowAddModal(false)}>Cancel</button>
-                </div>
-              </form>
+        <main className="dashboard-main">
+            <h1 className="page-title">Admins</h1>
+            <div className="user-toolbar">
+            <input
+                className="user-input"
+                placeholder="Search name or email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+            />
+            <div className="spacer" />
+            <button className="btn" onClick={() => setShowAddModal(true)}>Add Admin</button>
+            <button className="btn ghost" onClick={handleExportCSV}>Export CSV</button>
             </div>
-          </div>
-        )}
-
-        {/* Admin Details Modal */}
-        {selectedAdmin && (
-          <div className="modal-overlay" onClick={() => setSelectedAdmin(null)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2>Admin Details</h2>
-                <button className="modal-close" onClick={() => setSelectedAdmin(null)}>×</button>
-              </div>
-              <div className="card user-details">
-                <div className="details-header">
-                  <div>
-                    <div className="user-name xl">{selectedAdmin.name}</div>
-                    <div className="muted">{selectedAdmin.email}</div>
-                  </div>
-                </div>
-                <div className="details-grid">
-                  <div>
-                    <div className="muted">Created</div>
-                    <div>{selectedAdmin.created}</div>
-                  </div>
-                  <div>
-                    <div className="muted">Last Login</div>
-                    <div>{selectedAdmin.lastLogin}</div>
-                  </div>
-                </div>
-                <div className="details-actions">
-                  <button className="btn" type="button" disabled>Delete</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Admin Logs Modal */}
-        {showLogsModal && (
-          <div className="modal-overlay" onClick={() => setShowLogsModal(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2>Admin Logs</h2>
-                <button className="modal-close" onClick={() => setShowLogsModal(false)}>×</button>
-              </div>
-              <table>
+            <div className="card">
+            <div className="table-scroll">
+                <table className="user-table">
                 <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Admin ID</th>
-                    <th>Action</th>
-                  </tr>
+                    <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Created</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>2024-09-25 10:00</td>
-                    <td>1</td>
-                    <td>Logged in</td>
-                  </tr>
-                  <tr>
-                    <td>2024-09-20 15:30</td>
-                    <td>2</td>
-                    <td>Changed password</td>
-                  </tr>
+                    {filteredAdmins.length === 0 ? (
+                    <tr>
+                        <td colSpan={8}>
+                        <span className='user-name'>No admins found</span>
+                        </td>
+                    </tr>
+                    ) : (
+                    currentAdmins.map(a => (
+                        <tr key={a.id}>
+                        <td>{a.id}</td>
+                        <td>{a.name}</td>
+                        <td>{a.email}</td>
+                        <td>{a.created}</td>
+                        <td>{a.lastLogin}</td>
+                        <td>
+                            <div className="actions">
+                            <button className="btn ghost" onClick={() => setShowLogsModal(true)}>Logs</button>
+                            <button className="btn ghost">Delete</button>
+                            </div>
+                        </td>
+                        </tr>
+                    ))
+                    )}
                 </tbody>
-              </table>
+                </table>
+                    {totalPages > 1 && (
+                        <div className="pagination-container">
+                            <div className="pagination-info">
+                            Showing {indexOfFirstAdmin + 1}-{Math.min(indexOfLastAdmin, totalAdmins)} of {totalAdmins} admins
+                            </div>
+                            <div className="pagination">
+                            <button
+                                className="pagination-btn"
+                                onClick={prevPage}
+                                disabled={currentPage === 1}
+                            >
+                                ← Previous
+                            </button>
+                            {currentAdmins().map(number => (
+                                <button
+                                key={number}
+                                className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+                                onClick={() => paginate(number)}
+                                >
+                                {number}
+                                </button>
+                            ))}
+                            <button
+                                className="pagination-btn"
+                                onClick={nextPage}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next →
+                            </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-          </div>
-        )}
 
-      </main>
-    </div>
-  );
+            {/* Add Admin Modal */}
+            {showAddModal && (
+            <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>Add Admin</h2>
+                    <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+                </div>
+                <form className="edit-profile-form">
+                    <div className="edit-profile-grid">
+                    <div className="edit-field">
+                        <label className="edit-label">Name</label>
+                        <input className="edit-input" type="text" placeholder="Admin name" />
+                    </div>
+                    <div className="edit-field">
+                        <label className="edit-label">Email</label>
+                        <input className="edit-input" type="email" placeholder="Admin email" />
+                    </div>
+                    <div className="edit-field">
+                        <label className="edit-label">Password</label>
+                        <input className="edit-input" type="password" placeholder="Password" />
+                    </div>
+                    </div>
+                    <div className="edit-actions">
+                    <button className="btn" type="button" disabled>Add Admin</button>
+                    <button className="btn ghost" type="button" onClick={() => setShowAddModal(false)}>Cancel</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+            )}
+
+            {/* Admin Logs Modal */}
+            {showLogsModal && (
+            <div className="modal-overlay" onClick={() => setShowLogsModal(false)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>Admin Logs</h2>
+                    <button className="modal-close" onClick={() => setShowLogsModal(false)}>×</button>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Admin ID</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>2024-09-25 10:00</td>
+                        <td>1</td>
+                        <td>Logged in</td>
+                    </tr>
+                    <tr>
+                        <td>2024-09-20 15:30</td>
+                        <td>2</td>
+                        <td>Changed password</td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            )}
+
+        </main>
+        </div>
+    );
 }
 
 export default Admin;

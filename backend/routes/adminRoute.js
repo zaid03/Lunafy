@@ -20,5 +20,7 @@ router.get('/details', adminController.getUserActivation);
 //deletion route
 router.post('/activation', adminController.userAccountActivationControl);
 
+//admin list route
+router.get('/admins', adminController.getAdminList);
 
 module.exports = router

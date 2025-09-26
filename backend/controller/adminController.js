@@ -182,3 +182,30 @@ exports.userAccountActivationControl = async(req, res) => {
     }
 }
 
+//admin routes
+exports.getAdminList = async(req, res) => {
+    try{
+        const admins = adminModel.getAdminList();
+        if(!admins || admins.length ===0 ) {
+            return res.status(404).json({ message: 'No admins were found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'admin_list_viewed',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} fetched admin list`
+            });
+        }
+
+        res.json({ admins : admins })
+
+    } catch (e) {
+        console.error("Error fetching admins:", e);
+        res.status(500).json({ message: "Server error while fetching admins list" });
+    }
+}
