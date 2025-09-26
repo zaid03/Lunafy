@@ -17,4 +17,7 @@ router.get('/logs', adminController.getUserLog);
 //details route
 router.get('/details', adminController.getUserActivation);
 
+//deletion route
+router.post('/activation', adminController.userAccountActivationControl);
+
 module.exports = router

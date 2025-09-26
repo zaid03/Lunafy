@@ -157,3 +157,27 @@ exports.getUserActivation = async(req, res) => {
         res.status(500).json({ message: "Server error while fetching user's details" });
     }
 }
+
+exports.userAccountActivationControl = async(req, res) => {
+    const { deletion, id } = req.body;
+    try { 
+        await adminModel.userAccountActivationControl(deletion, id);
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: deletion === 1 ? 'user_activated' : 'user_deactivated',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} set user ${id} deletion to ${deletion}`
+            });
+        }
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error("Error updating user's activation:", e);
+        res.status(500).json({ message: "Server error while updating user's activation" });
+    }
+}

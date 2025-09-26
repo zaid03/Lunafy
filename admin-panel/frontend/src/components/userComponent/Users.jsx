@@ -73,6 +73,32 @@ function Users() {
     .catch(() => {})
   }
   
+  const handleActivation = () => {
+    if (!selectedUser || !userDetails) return;
+    const newDeletion = userDetails.deletion === 1 ? 0 : 1;
+    fetch(`http://127.0.0.1:5000/admin/activation`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ id: selectedUser.id, deletion: newDeletion })
+    })
+    .then(res => res.json())
+    .then(data => {
+      setUserDetails({ ...userDetails, deletion: newDeletion });
+    })
+    .catch(() => {});
+  }
+
+  const [csrfToken, setCsrfToken] = useState('');
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setCsrfToken(data.csrfToken))
+      .catch(() => {});
+  }, []);
   return (
     <div className="dashboard-container">
       <div className="sidebar-placeholder">
@@ -250,7 +276,7 @@ function Users() {
 
                 <div className="details-actions">
                   <button className="btn">Edit Profile</button>
-                  <button className="btn warn">
+                  <button className="btn warn" onClick={handleActivation}>
                     {userDetails && userDetails.deletion !== undefined && userDetails.deletion !== null
                     ? userDetails.deletion === 0
                       ? 'Deactivate'

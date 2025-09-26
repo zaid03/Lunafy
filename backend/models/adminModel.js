@@ -86,3 +86,12 @@ exports.getUserActivation = async(name) => {
         `, [name])
     return deletion[0];
 }
+
+exports.userAccountActivationControl = async(deletion, id) => {
+    await db.query(`
+        UPDATE users 
+        SET deletion = ?
+        WHERE id = ?
+        `, [deletion, id])
+    return;
+}
