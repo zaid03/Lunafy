@@ -279,9 +279,9 @@ function Users() {
                   <button className="btn warn" onClick={handleActivation}>
                     {userDetails && userDetails.deletion !== undefined && userDetails.deletion !== null
                     ? userDetails.deletion === 0
-                      ? 'Deactivate'
+                      ? 'Deactivate account'
                       : userDetails.deletion === 1
-                        ? 'Activate'
+                        ? 'Activate account'
                         : 'Unknown'
                     : 'Unknown'}
                   </button>

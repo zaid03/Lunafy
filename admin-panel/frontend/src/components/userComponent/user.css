@@ -84,6 +84,9 @@
 }
 .details-actions { display: flex; grid-template-columns: repeat(2, 1fr); gap: 10px;  justify-content: center;}
 
+.details-actions .btn {
+  width: 45%;
+}
 
 .modal-overlay {
   position: fixed;
