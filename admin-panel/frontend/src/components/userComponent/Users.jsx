@@ -15,7 +15,6 @@ function Users() {
     .catch(() => {})
   }, []);
 
-  const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
@@ -61,9 +60,18 @@ function Users() {
     .then(data => setLog(data.logs))
     .catch(() => {})
   }
-  
 
-  console.log(log);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const handleView = (user) => {
+    setSelectedUser(user);
+    fetch(`http://127.0.0.1:5000/admin/details?name=${user.name}`,
+      {credentials: 'include'}
+    )
+    .then(res => res.json())
+    .then(data => setUserDetails(data.deletion))
+    .catch(() => {})
+  }
   
   return (
     <div className="dashboard-container">
@@ -140,7 +148,7 @@ function Users() {
                       <td>{(new Date(u.joined)).toLocaleDateString()}</td>
                       <td>
                         <div className="actions">
-                          <button className="btn ghost" onClick={() => setSelectedUser(u)}>View</button>
+                          <button className="btn ghost" onClick={() => handleView(u)}>View</button>
                           <button className="btn ghost" onClick={() => {handleClick(u)}}>Logs</button>
                         </div>
                       </td>
@@ -242,7 +250,15 @@ function Users() {
 
                 <div className="details-actions">
                   <button className="btn">Edit Profile</button>
-                  <button className="btn warn">Deactivate</button>
+                  <button className="btn warn">
+                    {userDetails && userDetails.deletion !== undefined && userDetails.deletion !== null
+                    ? userDetails.deletion === 0
+                      ? 'Deactivate'
+                      : userDetails.deletion === 1
+                        ? 'Activate'
+                        : 'Unknown'
+                    : 'Unknown'}
+                  </button>
                   {/* <button className="btn ghost">Verify Email</button>
                   <button className="btn ghost">Download Logs</button> */}
                 </div>

@@ -77,3 +77,12 @@ exports.getUserLog = async(name) => {
         `, [name]);
     return logs;
 }
+
+exports.getUserActivation = async(name) => {
+    const [deletion] = await db.query(`
+        SELECT deletion
+        FROM users 
+        WHERE name = ?
+        `, [name])
+    return deletion[0];
+}

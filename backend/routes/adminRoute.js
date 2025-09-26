@@ -14,4 +14,7 @@ router.get('/users', adminController.getUsers);
 //logs route
 router.get('/logs', adminController.getUserLog);
 
+//details route
+router.get('/details', adminController.getUserActivation);
+
 module.exports = router

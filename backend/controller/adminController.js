@@ -129,3 +129,31 @@ exports.getUserLog = async(req, res) => {
         res.status(500).json({ message: "Server error while fetching user's log" });
     }
 }
+
+exports.getUserActivation = async(req, res) => {
+    const name = req.query.name;
+
+    try {
+        const deletion = await adminModel.getUserActivation(name);
+        if (!deletion) {
+            return res.status(404).json({ message: 'Deletion data was not found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'admin_view_users',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} viewed ${req.query.name}'s details`
+            });
+        }
+
+        res.json({ deletion: deletion })
+    } catch (e) {
+        console.error("Error fetching user's details:", e);
+        res.status(500).json({ message: "Server error while fetching user's details" });
+    }
+}
