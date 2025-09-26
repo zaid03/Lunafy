@@ -95,3 +95,21 @@ exports.userAccountActivationControl = async(deletion, id) => {
         `, [deletion, id])
     return;
 }
+
+exports.userEmailEdit = async(email, id) => {
+    await db.query(`
+        UPDATE users 
+        SET email = ? 
+        WHERE id = ?
+        `, [email, id])
+    return;
+}
+
+exports.userPersonnalisationEdit = async(bio, country, id) => {
+    await db.query(`
+        UPDATE user_personnalisation 
+        SET bio = ?, country = ?
+        WHERE user_id = ?
+        `, [bio, country, id])
+    return;
+}

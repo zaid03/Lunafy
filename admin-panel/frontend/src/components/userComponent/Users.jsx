@@ -93,9 +93,6 @@ function Users() {
   }
 
 
-  const [showEditModal, setShowEditModal] = useState(false);
-
-
   const [csrfToken, setCsrfToken] = useState('');
   useEffect(() => {
     fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
@@ -279,7 +276,6 @@ function Users() {
                 </div>
 
                 <div className="details-actions">
-                  <button className="btn" onClick={() => setShowEditModal(true)}>Edit Profile</button>
                   <button className="btn warn" onClick={handleActivation}>
                     {userDetails && userDetails.deletion !== undefined && userDetails.deletion !== null
                     ? userDetails.deletion === 0
@@ -332,42 +328,6 @@ function Users() {
             </div>
           </div>
         )}
-
-        {/* Modal overlay for user's editable info*/}
-        {selectedUser && showEditModal && (
-        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Edit Profile</h2>
-              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
-            </div>
-            <form className="edit-profile-form">
-              <div className="edit-profile-grid">
-                <div className="edit-field">
-                  <label className="edit-label">Country</label>
-                  <input className="edit-input" type="text" value={selectedUser.country || ''} readOnly />
-                </div>
-                <div className="edit-field">
-                  <label className="edit-label">Email</label>
-                  <input className="edit-input" type="email" value={selectedUser.email || ''} readOnly />
-                </div>
-                <div className="edit-field" style={{gridColumn: '1 / span 2'}}>
-                  <label className="edit-label">Bio</label>
-                  <textarea className="edit-input" rows={3} value={selectedUser.bio || ''} readOnly />
-                </div>
-                <div className="edit-field">
-                  <label className="edit-label">ID</label>
-                  <input className="edit-input" type="text" value={selectedUser.id || ''} readOnly />
-                </div>
-              </div>
-              <div className="edit-actions">
-                <button className="btn" type="button" disabled>Save Changes</button>
-                <button className="btn ghost" type="button" onClick={() => setShowEditModal(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       </main>
     </div>
   );

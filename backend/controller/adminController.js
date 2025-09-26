@@ -181,3 +181,30 @@ exports.userAccountActivationControl = async(req, res) => {
         res.status(500).json({ message: "Server error while updating user's activation" });
     }
 }
+
+exports.userEditableContent = async(req, res) => {
+    const { id, country, email, bio } = req.body;
+
+    try {
+        await adminModel.userEmailEdit(email, id);
+        await adminModel.userPersonnalisationEdit(bio, country, id);
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'user_profile_edited',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} edited user ${id} profile's info`
+            });
+        }
+
+        res.json({ success: true })
+
+    } catch (e) {
+        console.error("Error updating user's profile:", e);
+        res.status(500).json({ message: "Server error while updating user's profile" });
+    }
+}

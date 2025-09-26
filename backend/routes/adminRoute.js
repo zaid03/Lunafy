@@ -20,4 +20,7 @@ router.get('/details', adminController.getUserActivation);
 //deletion route
 router.post('/activation', adminController.userAccountActivationControl);
 
+//editing user's profile info route
+router.post('/edit-profile', adminController.userEditableContent);
+
 module.exports = router
