@@ -82,7 +82,7 @@
   grid-template-columns: repeat(2, minmax(140px, 1fr));
   gap: 12px;
 }
-.details-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.details-actions { display: flex; grid-template-columns: repeat(2, 1fr); gap: 10px;  justify-content: center;}
 
 
 .modal-overlay {
