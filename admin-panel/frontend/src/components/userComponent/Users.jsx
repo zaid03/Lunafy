@@ -21,6 +21,7 @@ function Users() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [emailFilter, setEmailFilter] = useState('');
+
   const filteredUsers = User && User.users ? User.users.filter(u => {
     const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
 
@@ -30,7 +31,12 @@ function Users() {
       (statusFilter === 'Active' && isActive) ||
       (statusFilter === 'Deactivated' && !isActive);
 
-    return matchesSearch && matchesStatus;
+    const matchesEmail =
+      emailFilter === '' ||
+      (emailFilter === 'Verified' && u.verified) ||
+      (emailFilter === 'Unverified' && !u.verified);
+      
+    return matchesSearch && matchesStatus && matchesEmail;
   }) : []
 
   // Calculate pagination
@@ -143,7 +149,7 @@ function Users() {
       .then(data => setCsrfToken(data.csrfToken))
       .catch(() => {});
   }, []);
-  
+
   return (
     <div className="dashboard-container">
       <div className="sidebar-placeholder">
@@ -170,7 +176,12 @@ function Users() {
             <option>Active</option>
             <option>Deactivated</option>
           </select>
-          <select className="user-select">
+
+          <select 
+            className="user-select"
+            value={emailFilter}
+            onChange={e => setEmailFilter(e.target.value)}
+          >
             <option value="">Email: any</option>
             <option>Verified</option>
             <option>Unverified</option>
