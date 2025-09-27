@@ -23,7 +23,10 @@ router.post('/activation', adminController.userAccountActivationControl);
 //admin list route
 router.get('/admins', adminController.getAdminList);
 
-//admin logs routs
+//admin logs route
 router.get('/logs-admin', adminController.getAdminLogs);
+
+//admin deletion route
+router.delete('/deleted', adminController.deleteAdmin);
 
 module.exports = router

@@ -232,5 +232,34 @@ exports.getAdminLogs = async(req, res) => {
         }
 
         res.json({ logs: logs})
-    } catch (e) {}
+    } catch (e) {
+        console.error("Error fetching admin's log:", e);
+        res.status(500).json({ message: "Server error while fetching admin's log" });
+    }
+}
+
+exports.deleteAdmin = async(req ,res) => {
+    const id  = req.query.id;
+    
+    try {
+        await adminModel.deleteAdmin(id);
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: `admin ${req.body.id}`,
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} deleted an admin = ${id}`
+            });
+        }
+
+        res.json({ success: true})
+
+    } catch (e) {
+        console.error("Error deleting admin:", e);
+        res.status(500).json({ message: "Server error while deleting admin" });
+    }
 }

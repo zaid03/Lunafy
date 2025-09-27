@@ -112,3 +112,11 @@ exports.getAdminLogs = async(id , name) => {
         `, [id, name])
     return logs;
 }
+
+exports.deleteAdmin = async(id) => {
+    await db.query(`
+        DELETE FROM admin_users 
+        WHERE id = ?
+        `, [id])
+    return;
+}

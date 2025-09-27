@@ -56,6 +56,31 @@ function Admin() {
         .catch(() => {})
     }
 
+    const [csrfToken, setCsrfToken] = useState('');
+    useEffect(() => {
+    fetch('http://127.0.0.1:5000/api/csrf-token', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => setCsrfToken(data.csrfToken))
+        .catch(() => {});
+    }, []);
+
+    const handleDeletion = (id) => {
+        if (!currentAdmins) return;
+        fetch(`http://127.0.0.1:5000/admin/deleted?id=${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+        },
+        })
+        .then(res => res.json())
+        .then(data => {
+            setAdmins(admins.filter(a => a.id !== id));
+        })
+        .catch(() => {});
+    }
+
     // CSV Export
     const handleExportCSV = () => {
         const headers = ['ID', 'Name', 'Email', 'Last Seen', 'Last Login',];
@@ -131,7 +156,7 @@ function Admin() {
                         <td>
                             <div className="actions">
                             <button className="btn ghost" onClick={() => handleClick(a)}>Logs</button>
-                            <button className="btn ghost">Delete</button>
+                            <button className="btn ghost" onClick={() => handleDeletion(a.id)}>Delete</button>
                             </div>
                         </td>
                         </tr>
