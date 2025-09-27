@@ -185,7 +185,7 @@ exports.userAccountActivationControl = async(req, res) => {
 //admin routes
 exports.getAdminList = async(req, res) => {
     try{
-        const admins = adminModel.getAdminList();
+        const admins = await adminModel.getAdminList();
         if(!admins || admins.length ===0 ) {
             return res.status(404).json({ message: 'No admins were found' });
         }

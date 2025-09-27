@@ -15,10 +15,12 @@ function Admin() {
         .catch(() => setAdmins([]));
     }, []);
 
+    console.log("admins:",admins);
     const filteredAdmins = admins.filter(a =>
         (a.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (a.email || '').toLowerCase().includes(search.toLowerCase())
     );
+    console.log(filteredAdmins);
 
     const [currentPage, setCurrentPage] = useState(1);
     const adminsPerPage = 10;
@@ -43,15 +45,15 @@ function Admin() {
         return pageNumbers;
     };
 
-  // CSV Export
+    // CSV Export
     const handleExportCSV = () => {
-        const headers = ['ID', 'Name', 'Email', 'Created', 'Last Login',];
+        const headers = ['ID', 'Name', 'Email', 'Last Seen', 'Last Login',];
         const rows = currentAdmins.map(a => [
         a.id,
         `"${a.name}"`,
         `"${a.email}"`,
-        a.created,
-        a.lastLogin,
+        a.last_seen,
+        a.last_login,
         ]);
         const csvContent = [
         headers.join(','),
@@ -113,8 +115,8 @@ function Admin() {
                         <td>{a.id}</td>
                         <td>{a.name}</td>
                         <td>{a.email}</td>
-                        <td>{a.created}</td>
-                        <td>{a.lastLogin}</td>
+                        <td>{(new Date(a.last_seen).toLocaleDateString())}</td>
+                        <td>{(new Date(a.last_login).toLocaleTimeString())}</td>
                         <td>
                             <div className="actions">
                             <button className="btn ghost" onClick={() => setShowLogsModal(true)}>Logs</button>
