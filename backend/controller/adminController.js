@@ -209,3 +209,28 @@ exports.getAdminList = async(req, res) => {
         res.status(500).json({ message: "Server error while fetching admins list" });
     }
 }
+
+exports.getAdminLogs = async(req, res) => {
+    const { id, name} = req.query;
+
+    try{
+        const logs = await adminModel.getAdminLogs(id, name);
+        if(!logs || logs.length ===0 ) {
+            return res.status(404).json({ message: 'No logs were found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: 'admin_logs_viewed',
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} fetched ${req.query.name} logs`
+            });
+        }
+
+        res.json({ logs: logs})
+    } catch (e) {}
+}

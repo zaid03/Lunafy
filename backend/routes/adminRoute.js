@@ -23,4 +23,7 @@ router.post('/activation', adminController.userAccountActivationControl);
 //admin list route
 router.get('/admins', adminController.getAdminList);
 
+//admin logs routs
+router.get('/logs-admin', adminController.getAdminLogs);
+
 module.exports = router

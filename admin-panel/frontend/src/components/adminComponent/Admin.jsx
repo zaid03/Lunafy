@@ -6,7 +6,6 @@ function Admin() {
     const [admins, setAdmins] = useState([]);
     const [search, setSearch] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showLogsModal, setShowLogsModal] = useState(false);
 
     useEffect(() => {
         fetch('http://127.0.0.1:5000/admin/admins', { credentials: 'include' })
@@ -45,10 +44,22 @@ function Admin() {
         return pageNumbers;
     };
 
+    const [log, setLog] = useState(null);
+    const [showLogsModal, setShowLogsModal] = useState(false);
+    const handleClick = (a) => {
+        setShowLogsModal(true);
+        fetch(`http://127.0.0.1:5000/admin/logs-admin?id=${a.id}&name=${a.name}`,
+            {credentials: 'include'}
+        )
+        .then(res => res.json())
+        .then(data => setLog(data.logs))
+        .catch(() => {})
+    }
+
     // CSV Export
     const handleExportCSV = () => {
         const headers = ['ID', 'Name', 'Email', 'Last Seen', 'Last Login',];
-        const rows = currentAdmins.map(a => [
+        const rows = filteredAdmins.map(a => [
         a.id,
         `"${a.name}"`,
         `"${a.email}"`,
@@ -119,7 +130,7 @@ function Admin() {
                         <td>{(new Date(a.last_login).toLocaleTimeString())}</td>
                         <td>
                             <div className="actions">
-                            <button className="btn ghost" onClick={() => setShowLogsModal(true)}>Logs</button>
+                            <button className="btn ghost" onClick={() => handleClick(a)}>Logs</button>
                             <button className="btn ghost">Delete</button>
                             </div>
                         </td>
@@ -141,7 +152,7 @@ function Admin() {
                             >
                                 ← Previous
                             </button>
-                            {currentAdmins().map(number => (
+                            {getPageNumbers().map(number => (
                                 <button
                                 key={number}
                                 className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
@@ -197,31 +208,36 @@ function Admin() {
 
             {/* Admin Logs Modal */}
             {showLogsModal && (
-            <div className="modal-overlay" onClick={() => setShowLogsModal(false)}>
+            <div className="modal-overlay" onClick={() => {setShowLogsModal(false); setLog(null)}}>
                 <div className="modal-content" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2>Admin Logs</h2>
-                    <button className="modal-close" onClick={() => setShowLogsModal(false)}>×</button>
+                    <button className="modal-close" onClick={() => {setShowLogsModal(false); setLog(null)}}>×</button>
                 </div>
                 <table>
                     <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Admin ID</th>
+                        <th>User id</th>
                         <th>Action</th>
+                        <th>Action Id</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>2024-09-25 10:00</td>
-                        <td>1</td>
-                        <td>Logged in</td>
-                    </tr>
-                    <tr>
-                        <td>2024-09-20 15:30</td>
-                        <td>2</td>
-                        <td>Changed password</td>
-                    </tr>
+                        {log && log.length > 0 ? (
+                            log.map((entry, idx) => (
+                            <tr key={idx}>
+                                <td>{new Date(entry.created_at).toLocaleString()}</td> 
+                                <td>{entry.actor_id}</td>
+                                <td>{entry.action}</td>
+                                <td>{entry.actor_type}</td>
+                            </tr>
+                            ))
+                        ) : (
+                            <tr>
+                            <td colSpan={4}>No logs found</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
                 </div>

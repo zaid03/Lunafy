@@ -103,3 +103,12 @@ exports.getAdminList = async() => {
         `, [])
     return admins;
 }
+
+exports.getAdminLogs = async(id , name) => {
+    const [logs] = await db.query(`
+        SELECT action, actor_id, message, created_at 
+        FROM activity_logs 
+        WHERE actor_id = ? AND actor_type = ?
+        `, [id, name])
+    return logs;
+}
