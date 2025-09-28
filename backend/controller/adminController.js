@@ -240,6 +240,9 @@ exports.getAdminLogs = async(req, res) => {
 
 exports.deleteAdmin = async(req ,res) => {
     const id  = req.query.id;
+    if (!id) {
+        return res.status(400).json({ message: 'No admin id provided' });
+    }
     
     try {
         await adminModel.deleteAdmin(id);
@@ -249,10 +252,10 @@ exports.deleteAdmin = async(req ,res) => {
             const adminName = rows[0]?.name || 'admin';
             await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
             await logActivity({
-                action: `admin ${req.body.id}`,
+                action: `admin deleted`,
                 actorType: adminName,
                 actorId: req.session?.adminId,
-                message: `Admin ${req.session.adminId} deleted an admin = ${id}`
+                message: `Admin ${req.session.adminId} deleted an admin = ${req.query.id}`
             });
         }
 
@@ -261,5 +264,34 @@ exports.deleteAdmin = async(req ,res) => {
     } catch (e) {
         console.error("Error deleting admin:", e);
         res.status(500).json({ message: "Server error while deleting admin" });
+    }
+}
+
+exports.addAdmin = async(req, res) => {
+    const { name, email, password } = req.body;
+    if (!password || !email || !name) {
+        return res.status(400).json({ message: 'body is required' });
+    }
+
+    try {
+        const encrypted_password = await bcrypt.hash(password, 10);
+        await adminModel.addAdmin(name, email, encrypted_password);
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: `admin added`,
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} added an admin = ${req.body.name}`
+            });
+        }
+
+        res.json({ success: true })
+    } catch (e) {
+        console.error("Error adding admin:", e);
+        res.status(500).json({ message: "Server error while adding admin" });
     }
 }

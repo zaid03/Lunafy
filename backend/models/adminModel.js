@@ -120,3 +120,11 @@ exports.deleteAdmin = async(id) => {
         `, [id])
     return;
 }
+
+exports.addAdmin = async(name, email, password) => {
+    await db.query(`
+        INSERT INTO admin_users (name, email, password) 
+        VALUES (?, ?, ?) 
+        `, [name, email, password])
+    return;
+}

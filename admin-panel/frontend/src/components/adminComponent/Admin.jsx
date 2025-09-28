@@ -81,6 +81,25 @@ function Admin() {
         .catch(() => {});
     }
 
+    const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: '' });
+    const handleAdding = () => {
+        fetch('http://127.0.0.1:5000/admin/admin-add', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify(newAdmin)
+        })
+            .then(res => res.json())
+            .then(data => {
+                setShowAddModal(false);
+                setNewAdmin({ name: '', email: '', password: '' });
+            })
+            .catch(() => {});
+    }
+
     // CSV Export
     const handleExportCSV = () => {
         const headers = ['ID', 'Name', 'Email', 'Last Seen', 'Last Login',];
@@ -211,19 +230,37 @@ function Admin() {
                     <div className="edit-profile-grid">
                     <div className="edit-field">
                         <label className="edit-label">Name</label>
-                        <input className="edit-input" type="text" placeholder="Admin name" />
+                        <input 
+                            className="edit-input" 
+                            type="text" 
+                            placeholder="Admin name" 
+                            value={newAdmin.name}
+                            onChange={e => setNewAdmin({...newAdmin, name: e.target.value})}    
+                        />
                     </div>
                     <div className="edit-field">
                         <label className="edit-label">Email</label>
-                        <input className="edit-input" type="email" placeholder="Admin email" />
+                        <input 
+                            className="edit-input" 
+                            type="email" 
+                            placeholder="Admin email" 
+                            value={newAdmin.email}
+                            onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                        />
                     </div>
                     <div className="edit-field">
                         <label className="edit-label">Password</label>
-                        <input className="edit-input" type="password" placeholder="Password" />
+                        <input 
+                            className="edit-input" 
+                            type="password" 
+                            placeholder="Password" 
+                            value={newAdmin.password}
+                            onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                        />
                     </div>
                     </div>
                     <div className="edit-actions">
-                    <button className="btn" type="button" disabled>Add Admin</button>
+                    <button className="btn" type="button" onClick={handleAdding}>Add Admin</button>
                     <button className="btn ghost" type="button" onClick={() => setShowAddModal(false)}>Cancel</button>
                     </div>
                 </form>

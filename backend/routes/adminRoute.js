@@ -29,4 +29,7 @@ router.get('/logs-admin', adminController.getAdminLogs);
 //admin deletion route
 router.delete('/deleted', adminController.deleteAdmin);
 
+//admin adding route
+router.post('/admin-add', adminController.addAdmin);
+
 module.exports = router
