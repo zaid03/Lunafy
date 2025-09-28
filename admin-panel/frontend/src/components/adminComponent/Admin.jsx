@@ -125,185 +125,185 @@ function Admin() {
     
     return (
         <div className='dashboard-container'>
-        <div className="sidebar-placeholder">
-            <Sidebar />
-        </div>
-        <main className="dashboard-main">
-            <h1 className="page-title">Admins</h1>
-            <div className="user-toolbar">
-            <input
-                className="user-input"
-                placeholder="Search name or email..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-            />
-            <div className="spacer" />
-            <button className="btn" onClick={() => setShowAddModal(true)}>Add Admin</button>
-            <button className="btn ghost" onClick={handleExportCSV}>Export CSV</button>
+            <div className="sidebar-placeholder">
+                <Sidebar />
             </div>
-            <div className="card">
-            <div className="table-scroll">
-                <table className="user-table">
-                <thead>
-                    <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Created</th>
-                    <th>Last Login</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredAdmins.length === 0 ? (
-                    <tr>
-                        <td colSpan={8}>
-                        <span className='user-name'>No admins found</span>
-                        </td>
-                    </tr>
-                    ) : (
-                    currentAdmins.map(a => (
-                        <tr key={a.id}>
-                        <td>{a.id}</td>
-                        <td>{a.name}</td>
-                        <td>{a.email}</td>
-                        <td>{(new Date(a.last_seen).toLocaleDateString())}</td>
-                        <td>{(new Date(a.last_login).toLocaleTimeString())}</td>
-                        <td>
-                            <div className="actions">
-                            <button className="btn ghost" onClick={() => handleClick(a)}>Logs</button>
-                            <button className="btn ghost" onClick={() => handleDeletion(a.id)}>Delete</button>
-                            </div>
-                        </td>
-                        </tr>
-                    ))
-                    )}
-                </tbody>
-                </table>
-                    {totalPages > 1 && (
-                        <div className="pagination-container">
-                            <div className="pagination-info">
-                            Showing {indexOfFirstAdmin + 1}-{Math.min(indexOfLastAdmin, totalAdmins)} of {totalAdmins} admins
-                            </div>
-                            <div className="pagination">
-                            <button
-                                className="pagination-btn"
-                                onClick={prevPage}
-                                disabled={currentPage === 1}
-                            >
-                                ← Previous
-                            </button>
-                            {getPageNumbers().map(number => (
-                                <button
-                                key={number}
-                                className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
-                                onClick={() => paginate(number)}
-                                >
-                                {number}
-                                </button>
-                            ))}
-                            <button
-                                className="pagination-btn"
-                                onClick={nextPage}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next →
-                            </button>
-                            </div>
-                        </div>
-                    )}
+            <main className="dashboard-main">
+                <h1 className="page-title">Admins</h1>
+                <div className="user-toolbar">
+                <input
+                    className="user-input"
+                    placeholder="Search name or email..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+                <div className="spacer" />
+                <button className="btn" onClick={() => setShowAddModal(true)}>Add Admin</button>
+                <button className="btn ghost" onClick={handleExportCSV}>Export CSV</button>
                 </div>
-            </div>
-
-            {/* Add Admin Modal */}
-            {showAddModal && (
-            <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-                <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>Add Admin</h2>
-                    <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
-                </div>
-                <form className="edit-profile-form">
-                    <div className="edit-profile-grid">
-                    <div className="edit-field">
-                        <label className="edit-label">Name</label>
-                        <input 
-                            className="edit-input" 
-                            type="text" 
-                            placeholder="Admin name" 
-                            value={newAdmin.name}
-                            onChange={e => setNewAdmin({...newAdmin, name: e.target.value})}    
-                        />
-                    </div>
-                    <div className="edit-field">
-                        <label className="edit-label">Email</label>
-                        <input 
-                            className="edit-input" 
-                            type="email" 
-                            placeholder="Admin email" 
-                            value={newAdmin.email}
-                            onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                        />
-                    </div>
-                    <div className="edit-field">
-                        <label className="edit-label">Password</label>
-                        <input 
-                            className="edit-input" 
-                            type="password" 
-                            placeholder="Password" 
-                            value={newAdmin.password}
-                            onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                        />
-                    </div>
-                    </div>
-                    <div className="edit-actions">
-                    <button className="btn" type="button" onClick={handleAdding}>Add Admin</button>
-                    <button className="btn ghost" type="button" onClick={() => setShowAddModal(false)}>Cancel</button>
-                    </div>
-                </form>
-                </div>
-            </div>
-            )}
-
-            {/* Admin Logs Modal */}
-            {showLogsModal && (
-            <div className="modal-overlay" onClick={() => {setShowLogsModal(false); setLog(null)}}>
-                <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>Admin Logs</h2>
-                    <button className="modal-close" onClick={() => {setShowLogsModal(false); setLog(null)}}>×</button>
-                </div>
-                <table>
+                <div className="card">
+                <div className="table-scroll">
+                    <table className="user-table">
                     <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>User id</th>
-                        <th>Action</th>
-                        <th>Action Id</th>
-                    </tr>
+                        <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        {log && log.length > 0 ? (
-                            log.map((entry, idx) => (
-                            <tr key={idx}>
-                                <td>{new Date(entry.created_at).toLocaleString()}</td> 
-                                <td>{entry.actor_id}</td>
-                                <td>{entry.action}</td>
-                                <td>{entry.actor_type}</td>
-                            </tr>
-                            ))
+                        {filteredAdmins.length === 0 ? (
+                        <tr>
+                            <td colSpan={8}>
+                            <span className='user-name'>No admins found</span>
+                            </td>
+                        </tr>
                         ) : (
-                            <tr>
-                            <td colSpan={4}>No logs found</td>
+                        currentAdmins.map(a => (
+                            <tr key={a.id}>
+                            <td>{a.id}</td>
+                            <td>{a.name}</td>
+                            <td>{a.email}</td>
+                            <td>{(new Date(a.last_seen).toLocaleDateString())}</td>
+                            <td>{(new Date(a.last_login).toLocaleTimeString())}</td>
+                            <td>
+                                <div className="actions">
+                                <button className="btn ghost" onClick={() => handleClick(a)}>Logs</button>
+                                <button className="btn ghost" onClick={() => handleDeletion(a.id)}>Delete</button>
+                                </div>
+                            </td>
                             </tr>
+                        ))
                         )}
                     </tbody>
-                </table>
+                    </table>
+                        {totalPages > 1 && (
+                            <div className="pagination-container">
+                                <div className="pagination-info">
+                                Showing {indexOfFirstAdmin + 1}-{Math.min(indexOfLastAdmin, totalAdmins)} of {totalAdmins} admins
+                                </div>
+                                <div className="pagination">
+                                <button
+                                    className="pagination-btn"
+                                    onClick={prevPage}
+                                    disabled={currentPage === 1}
+                                >
+                                    ← Previous
+                                </button>
+                                {getPageNumbers().map(number => (
+                                    <button
+                                    key={number}
+                                    className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+                                    onClick={() => paginate(number)}
+                                    >
+                                    {number}
+                                    </button>
+                                ))}
+                                <button
+                                    className="pagination-btn"
+                                    onClick={nextPage}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next →
+                                </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-            )}
 
-        </main>
+                {/* Add Admin Modal */}
+                {showAddModal && (
+                <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                    <div className="modal-header">
+                        <h2>Add Admin</h2>
+                        <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+                    </div>
+                    <form className="edit-profile-form">
+                        <div className="edit-profile-grid">
+                        <div className="edit-field">
+                            <label className="edit-label">Name</label>
+                            <input 
+                                className="edit-input" 
+                                type="text" 
+                                placeholder="Admin name" 
+                                value={newAdmin.name}
+                                onChange={e => setNewAdmin({...newAdmin, name: e.target.value})}    
+                            />
+                        </div>
+                        <div className="edit-field">
+                            <label className="edit-label">Email</label>
+                            <input 
+                                className="edit-input" 
+                                type="email" 
+                                placeholder="Admin email" 
+                                value={newAdmin.email}
+                                onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                            />
+                        </div>
+                        <div className="edit-field">
+                            <label className="edit-label">Password</label>
+                            <input 
+                                className="edit-input" 
+                                type="password" 
+                                placeholder="Password" 
+                                value={newAdmin.password}
+                                onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                            />
+                        </div>
+                        </div>
+                        <div className="edit-actions">
+                        <button className="btn" type="button" onClick={handleAdding}>Add Admin</button>
+                        <button className="btn ghost" type="button" onClick={() => setShowAddModal(false)}>Cancel</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                )}
+
+                {/* Admin Logs Modal */}
+                {showLogsModal && (
+                <div className="modal-overlay" onClick={() => {setShowLogsModal(false); setLog(null)}}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                    <div className="modal-header">
+                        <h2>Admin Logs</h2>
+                        <button className="modal-close" onClick={() => {setShowLogsModal(false); setLog(null)}}>×</button>
+                    </div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>User id</th>
+                            <th>Action</th>
+                            <th>Action Id</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {log && log.length > 0 ? (
+                                log.map((entry, idx) => (
+                                <tr key={idx}>
+                                    <td>{new Date(entry.created_at).toLocaleString()}</td> 
+                                    <td>{entry.actor_id}</td>
+                                    <td>{entry.action}</td>
+                                    <td>{entry.actor_type}</td>
+                                </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                <td colSpan={4}>No logs found</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+                )}
+
+            </main>
         </div>
     );
 }

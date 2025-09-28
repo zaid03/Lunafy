@@ -5,6 +5,7 @@ import Dashboard from "./components/DashboardComponent/Dashboard";
 import ProtectedRoute from "./components/ProtectedRouteComponent/ProtectedRoute";
 import Users from "./components/userComponent/Users";
 import Admin from "./components/adminComponent/Admin";
+import Appsetting from "./components/AppsettingComponent/Appsetting";
 
 function App() {
   return(
@@ -34,6 +35,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Admin />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path='/appSettings' 
+          element={
+            <ProtectedRoute>
+              <Appsetting />
             </ProtectedRoute>
           } 
         />
