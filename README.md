@@ -38,6 +38,11 @@
 
 ```
 Lunafy/
+├── Admin-dashboard/
+│       └── frontend/
+│              └── src/
+│                   ├── components/
+│                   └── App.js
 ├── backend/           # Node.js backend (Express + Spotify OAuth)
 │   ├── controller/    # Route controllers (business logic)
 │   ├── models/        # Database models/queries
@@ -120,14 +125,20 @@ EMAIL_PASS=your_gmail_app_password
 Start the backend server:
 
 ```bash
-npm start
+cd backend
+node server.js
 ```
 
 ### 3. Frontend Setup
 
 ```bash
-cd ../frontend
+cd frontend
 npm install
+npm start
+```
+
+```bash
+cd admin-panel
 npm start
 ```
 
