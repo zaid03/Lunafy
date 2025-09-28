@@ -113,6 +113,36 @@
   box-shadow: 0 0 8px rgba(238, 187, 195, 0.6);
 }
 
+.logout-link {
+    color: #fff !important;
+    background: linear-gradient(90deg, #ff5c5c 0%, #ff8c42 100%);
+    font-weight: bold;
+    margin-top: 32px;
+    border-radius: 6px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: 0 2px 8px rgba(255, 92, 92, 0.08);
+    border: none;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+}
+
+.logout-link:hover,
+.logout-link.active {
+    background: linear-gradient(90deg, #ff8c42 0%, #ff5c5c 100%);
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba(255, 92, 92, 0.16);
+    text-decoration: none;
+    transform: translateY(-2px) scale(1.03);
+}
+
+.logout-link span[role="img"] {
+    font-size: 1.3em;
+    margin-right: 10px;
+}
+
 @media (max-width: 700px) {
   .sidebar-container {
     width: 200px;

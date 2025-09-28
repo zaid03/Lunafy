@@ -15,7 +15,13 @@ function Sidebar() {
                 <NavLink to={'/users'}>Users</NavLink>
                 <NavLink to={'/admins'}>Admins</NavLink>
                 <NavLink to={'/support'}>Support</NavLink>
-                <NavLink to={'/logout '}>Log out </NavLink>
+                <NavLink 
+                    to={'/logout'}
+                    className="logout-link"
+                >
+                    <span role="img" aria-label="logout" style={{ marginRight: 8 }}></span>
+                    Log out 
+                </NavLink>
             </div>
         </div>
     );
