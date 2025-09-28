@@ -1,19 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './support.css';
 import Sidebar from '../SidebarComponent/Sidebar';
-
-const contactRequests = [
-    { id: 1, name: 'Jane Doe', email: 'jane@example.com', message: 'Hi, I have a question about your service. Can you help me with...', date: '2025-09-28' }
-];
-
-const userSupports = [
-    { id: 1, user: 'alice', email: 'alice@lunafy.com', message: 'My account was deactivated without warning. Please assist.', date: '2025-09-26' }                                                     
-];
 
 function Support() {
     const [activeTab, setActiveTab] = useState('contact');
     const [selectedMsg, setSelectedMsg] = useState(null);
     const [reply, setReply] = useState('');
+
+    const [contactRequests, setContactRequests] = useState([]);
+    const [userSupports, setUserSupports] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        if(activeTab === 'contact') {
+            fetch('http://127.0.0.1:5000/admin/contact-msg', { credentials: 'include' })
+                .then(res => res.json())
+                .then(data => setContactRequests(Array.isArray(data.messages) ? data.messages : []))
+                .finally(() => setLoading(false));
+        } else {
+            fetch('http://127.0.0.1:5000/admin/support-msg', { credentials: 'include' })
+                .then(res => res.json())
+                .then(data => setUserSupports(Array.isArray(data.usermessages) ? data.usermessages : []))
+                .finally(() => setLoading(false));
+        }
+    }, [activeTab]);
 
     const messages = activeTab === 'contact' ? contactRequests : userSupports;
 
@@ -42,7 +53,7 @@ function Support() {
 
     React.useEffect(() => {
         setCurrentPage(1);
-    }, [activeTab]);
+    }, [activeTab, messages.length]);
 
     return (
         <div className='dashboard-container'>
@@ -77,7 +88,11 @@ function Support() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentMessages.length === 0 ? (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={4}>Loading...</td>
+                                    </tr>
+                                ): currentMessages.length === 0 ? (
                                     <tr>
                                         <td colSpan={4}>No messages found</td>
                                     </tr>
@@ -91,7 +106,7 @@ function Support() {
                                                     ? msg.message.slice(0, 40) + '...'
                                                     : msg.message}
                                             </td>
-                                            <td>{msg.date}</td>
+                                            <td>{(new Date(msg.created_at).toLocaleDateString())}</td>
                                         </tr>
                                     ))
                                 )}
@@ -148,7 +163,7 @@ function Support() {
                                     <strong>Email:</strong> {selectedMsg.email}
                                 </div>
                                 <div style={{ marginBottom: 8 }}>
-                                    <strong>Date:</strong> {selectedMsg.date}
+                                    <strong>Date:</strong> {(new Date(selectedMsg.created_at).toLocaleTimeString())}
                                 </div>
                                 <div style={{ marginBottom: 16 }}>
                                     <strong>Message:</strong>
@@ -156,19 +171,7 @@ function Support() {
                                         {selectedMsg.message}
                                     </div>
                                 </div>
-                                <div>
-                                    <strong>Reply:</strong>
-                                    <textarea
-                                        className="user-input"
-                                        rows={3}
-                                        placeholder="Type your reply here..."
-                                        value={reply}
-                                        onChange={e => setReply(e.target.value)}
-                                        style={{ width: '100%', marginTop: 8 }}
-                                    />
-                                </div>
                                 <div className="details-actions" style={{ marginTop: 16 }}>
-                                    <button className="btn" type="button" disabled>Send Reply</button>
                                     <button className="btn ghost" type="button" onClick={() => setSelectedMsg(null)}>Close</button>
                                 </div>
                             </div>
