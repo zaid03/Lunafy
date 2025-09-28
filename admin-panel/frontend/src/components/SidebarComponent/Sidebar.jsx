@@ -14,7 +14,6 @@ function Sidebar() {
                 <NavLink to={'/dashboard'}>General</NavLink>
                 <NavLink to={'/users'}>Users</NavLink>
                 <NavLink to={'/admins'}>Admins</NavLink>
-                <NavLink to={'/appSettings'}>App settings</NavLink>
                 <NavLink to={'/support'}>Support</NavLink>
                 <NavLink to={'/campaigns '}>Campaigns </NavLink>
             </div>

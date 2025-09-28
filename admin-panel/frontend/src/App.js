@@ -5,7 +5,7 @@ import Dashboard from "./components/DashboardComponent/Dashboard";
 import ProtectedRoute from "./components/ProtectedRouteComponent/ProtectedRoute";
 import Users from "./components/userComponent/Users";
 import Admin from "./components/adminComponent/Admin";
-import Appsetting from "./components/AppsettingComponent/Appsetting";
+import Support from "./components/AppsettingComponent/Support";
 
 function App() {
   return(
@@ -40,10 +40,10 @@ function App() {
         />
 
         <Route 
-          path='/appSettings' 
+          path='/support' 
           element={
             <ProtectedRoute>
-              <Appsetting />
+              <Support />
             </ProtectedRoute>
           } 
         />

@@ -1,15 +1,16 @@
 import React from 'react';
-import './appsetting.css';
+import './support.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
-function Appsetting() {
+function Support() {
     return (
         <div className='dashboard-container'>
             <div className="sidebar-placeholder">
                 <Sidebar />
             </div>
+            
         </div>
     )
 }
 
-export default Appsetting;
+export default Support;

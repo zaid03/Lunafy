@@ -1,1 +1,1 @@
-export { default } from './Appsetting';
+export { default } from './Support';
