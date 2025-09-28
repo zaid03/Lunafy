@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './support.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
 function Support() {
