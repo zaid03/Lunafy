@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './admin.css';
 import Sidebar from '../SidebarComponent/Sidebar';
 
 function Admin() {
