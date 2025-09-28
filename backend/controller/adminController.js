@@ -348,3 +348,31 @@ exports.getUsersMessages = async(req, res) => {
         res.status(500).json({ message: "Server error while fetching users messages" });
     }
 }
+
+//route to logout
+exports.logout = async(req, res) => {
+    try {
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: `admin_logged_out`,
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} has logged out.`
+            });
+        }
+    } catch (e) {
+    // ignore logging errors
+    }
+
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('error destroying session:', err);
+            return res.status(500).json({ error: 'failed to logout' });
+        }
+        res.clearCookie('connect.sid');
+        return res.json({ success: true });
+    });
+};

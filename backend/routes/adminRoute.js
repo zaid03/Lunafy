@@ -38,4 +38,7 @@ router.get('/contact-msg', adminController.getContactMessages);
 //support messages route
 router.get('/support-msg', adminController.getUsersMessages);
 
+//route to logout
+router.post('/logout', adminController.logout);
+
 module.exports = router

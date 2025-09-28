@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRouteComponent/ProtectedRoute"
 import Users from "./components/userComponent/Users";
 import Admin from "./components/adminComponent/Admin";
 import Support from "./components/AppsettingComponent/Support";
+import Logout from "./components/LogoutComponent/Logout";
 
 function App() {
   return(
@@ -44,6 +45,24 @@ function App() {
           element={
             <ProtectedRoute>
               <Support />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path='/support' 
+          element={
+            <ProtectedRoute>
+              <Support />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path='/logout' 
+          element={
+            <ProtectedRoute>
+              <Logout />
             </ProtectedRoute>
           } 
         />

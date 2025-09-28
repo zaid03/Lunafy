@@ -15,7 +15,7 @@ function Sidebar() {
                 <NavLink to={'/users'}>Users</NavLink>
                 <NavLink to={'/admins'}>Admins</NavLink>
                 <NavLink to={'/support'}>Support</NavLink>
-                <NavLink to={'/campaigns '}>Campaigns </NavLink>
+                <NavLink to={'/logout '}>Log out </NavLink>
             </div>
         </div>
     );
