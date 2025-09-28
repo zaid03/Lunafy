@@ -14,12 +14,10 @@ function Admin() {
         .catch(() => setAdmins([]));
     }, []);
 
-    console.log("admins:",admins);
     const filteredAdmins = admins.filter(a =>
         (a.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (a.email || '').toLowerCase().includes(search.toLowerCase())
     );
-    console.log(filteredAdmins);
 
     const [currentPage, setCurrentPage] = useState(1);
     const adminsPerPage = 10;
