@@ -5,7 +5,6 @@ import Sidebar from '../SidebarComponent/Sidebar';
 function Support() {
     const [activeTab, setActiveTab] = useState('contact');
     const [selectedMsg, setSelectedMsg] = useState(null);
-    const [reply, setReply] = useState('');
 
     const [contactRequests, setContactRequests] = useState([]);
     const [userSupports, setUserSupports] = useState([]);
@@ -25,6 +24,8 @@ function Support() {
                 .finally(() => setLoading(false));
         }
     }, [activeTab]);
+
+    console.log(userSupports);
 
     const messages = activeTab === 'contact' ? contactRequests : userSupports;
 
@@ -98,8 +99,8 @@ function Support() {
                                     </tr>
                                 ) : (
                                     currentMessages.map(msg => (
-                                        <tr key={msg.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedMsg(msg); setReply(''); }}>
-                                            <td>{activeTab === 'contact' ? msg.name : msg.user}</td>
+                                        <tr key={msg.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedMsg(msg);}}>
+                                            <td>{activeTab === 'contact' ? msg.name : msg.name}</td>
                                             <td>{msg.email}</td>
                                             <td>
                                                 {msg.message.length > 40
