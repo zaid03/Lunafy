@@ -32,4 +32,10 @@ router.delete('/deleted', adminController.deleteAdmin);
 //admin adding route
 router.post('/admin-add', adminController.addAdmin);
 
+//contact messages route
+router.get('/contact-msg', adminController.getContactMessages);
+
+//support messages route
+router.get('/support-msg', adminController.getUsersMessages);
+
 module.exports = router

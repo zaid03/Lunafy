@@ -295,3 +295,56 @@ exports.addAdmin = async(req, res) => {
         res.status(500).json({ message: "Server error while adding admin" });
     }
 }
+
+//support route
+exports.getContactMessages = async(req, res) => {
+    try {
+        const messages = await adminModel.getContactMessages();
+        if (!messages || messages.length === 0) {
+            return res.status(400).json({ message: 'No messages were found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: `Contact_Messages_fetched`,
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} fetched contact messages.`
+            });
+        }
+
+        res.json({ messages: messages });
+    } catch(e) {
+        console.error("Error fetching contact messages:", e);
+        res.status(500).json({ message: "Server error while fetching contact messages" });
+    }
+}
+
+exports.getUsersMessages = async(req, res) => {
+    try {
+        const usermessages = await adminModel.getUsersMessages();
+        if (!usermessages || usermessages.length === 0) {
+            return res.status(400).json({ message: 'No messages were found' });
+        }
+
+        if (req.session?.adminId) {
+            const [rows] = await db.query('SELECT name FROM admin_users WHERE id = ?', [req.session.adminId]);
+            const adminName = rows[0]?.name || 'admin';
+            await db.query('UPDATE admin_users SET last_seen = NOW() WHERE id = ?', [req.session.adminId]);
+            await logActivity({
+                action: `Users_Messages_fetched`,
+                actorType: adminName,
+                actorId: req.session?.adminId,
+                message: `Admin ${req.session.adminId} fetched users messages.`
+            });
+        }
+
+        res.json({ usermessages: usermessages });
+    } catch(e) {
+        console.error("Error fetching users messages:", e);
+        res.status(500).json({ message: "Server error while fetching users messages" });
+    }
+}

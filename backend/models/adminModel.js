@@ -128,3 +128,20 @@ exports.addAdmin = async(name, email, password) => {
         `, [name, email, password])
     return;
 }
+
+//support route
+exports.getContactMessages = async() => {
+    const [messages] = await db.query(`
+        SELECT * 
+        FROM contact
+        `, [])
+    return messages;
+}
+
+exports.getUsersMessages = async() => {
+    const[usersMessages] = await db.query(`
+        SELECT * 
+        FROM support_messages
+        `, [])
+    return usersMessages;
+}
